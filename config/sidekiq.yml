@@ -6,7 +6,3 @@
   - [mailers, 2]
   - [webhooks, 1]
   - [low, 1]
-
-# Sidekiq-scheduler config
-:scheduler:
-  :enabled: false

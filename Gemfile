@@ -23,7 +23,7 @@ gem "oj", "~> 3.16"  # Fast JSON parsing
 
 # Background jobs
 gem "sidekiq", "~> 7.2"
-gem "sidekiq-scheduler", "~> 5.0"
+# gem "sidekiq-scheduler", "~> 5.0"  # Disabled - not currently used
 
 # Redis
 gem "redis", "~> 5.0"
