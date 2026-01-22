@@ -4,7 +4,7 @@ module Api
   module V1
     module Auth
       class SessionsController < ApplicationController
-        skip_before_action :authenticate_user!, only: %i[send_magic_link verify_magic_link]
+        before_action :authenticate_user!, only: %i[logout me]
 
         # POST /api/v1/auth/magic-link
         # Send magic link to email (creates user if doesn't exist)
