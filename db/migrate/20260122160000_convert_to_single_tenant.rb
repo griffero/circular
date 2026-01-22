@@ -20,9 +20,11 @@ class ConvertToSingleTenant < ActiveRecord::Migration[8.0]
     if column_exists?(:teams, :workspace_id)
       remove_column :teams, :workspace_id
     end
-    unless index_exists?(:teams, :key, unique: true)
-      add_index :teams, :key, unique: true
+    # Remove existing non-unique index if present, then add unique
+    if index_exists?(:teams, :key)
+      remove_index :teams, :key
     end
+    add_index :teams, :key, unique: true
 
     # 3. Remove workspace_id from projects (make slug globally unique)
     if index_exists?(:projects, [:workspace_id, :slug])
@@ -37,9 +39,11 @@ class ConvertToSingleTenant < ActiveRecord::Migration[8.0]
     if column_exists?(:projects, :workspace_id)
       remove_column :projects, :workspace_id
     end
-    unless index_exists?(:projects, :slug, unique: true)
-      add_index :projects, :slug, unique: true
+    # Remove existing non-unique index if present, then add unique
+    if index_exists?(:projects, :slug)
+      remove_index :projects, :slug
     end
+    add_index :projects, :slug, unique: true
 
     # 4. Remove workspace_id from labels
     if index_exists?(:labels, [:workspace_id, :name])
