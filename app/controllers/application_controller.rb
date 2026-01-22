@@ -6,7 +6,7 @@ class ApplicationController < ActionController::API
   include Pundit::Authorization
   include Pagy::Backend
 
-  protect_from_forgery with: :exception
+  protect_from_forgery with: :null_session
 
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
   rescue_from ActiveRecord::RecordNotFound, with: :not_found
