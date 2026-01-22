@@ -43,8 +43,8 @@ Rails.application.configure do
   # Don't log any deprecations.
   config.active_support.report_deprecations = false
 
-  # Use Redis for caching
-  config.cache_store = :redis_cache_store, { url: ENV.fetch("REDIS_URL", "redis://localhost:6379/1") }
+  # Use Redis for caching (simple config)
+  config.cache_store = :memory_store
 
   # Use Sidekiq for background jobs
   config.active_job.queue_adapter = :sidekiq
