@@ -6,3 +6,6 @@
   - [mailers, 2]
   - [webhooks, 1]
   - [low, 1]
+
+# Empty schedule for sidekiq-scheduler
+:schedule: {}
