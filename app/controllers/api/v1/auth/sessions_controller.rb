@@ -15,6 +15,11 @@ module Api
             return render json: { error: "Please provide a valid email address" }, status: :unprocessable_entity
           end
 
+          unless fintoc_email?(email)
+            return render json: { error: "Only @fintoc.com email addresses are allowed" },
+                          status: :unprocessable_entity
+          end
+
           user = User.find_by_email(email)
 
           if user.nil?
@@ -22,7 +27,7 @@ module Api
             is_first_user = User.count.zero?
             user = User.new(
               email: email,
-              name: email.split("@").first.titleize,
+              name: email,
               role: is_first_user ? "owner" : "member"
             )
 
@@ -53,6 +58,11 @@ module Api
             return render json: { error: "Invalid or expired magic link" }, status: :unauthorized
           end
 
+          unless fintoc_email?(user.email)
+            return render json: { error: "Only @fintoc.com email addresses are allowed" },
+                          status: :unprocessable_entity
+          end
+
           # Clear the token (one-time use)
           user.clear_magic_link_token!
 
@@ -81,6 +91,10 @@ module Api
             teams: TeamSerializer.render_as_hash(Team.ordered, view: :minimal),
             projects: ProjectSerializer.render_as_hash(Project.active.ordered, view: :minimal)
           }
+        end
+
+        def fintoc_email?(email)
+          email.present? && email.match?(/\A[^@\s]+@fintoc\.com\z/i)
         end
       end
     end

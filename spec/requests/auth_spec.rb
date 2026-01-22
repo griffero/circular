@@ -164,4 +164,55 @@ RSpec.describe "Authentication" do
       end
     end
   end
+
+  describe "POST /api/v1/auth/magic-link" do
+    context "with a fintoc.com email" do
+      it "creates a user with the email as name" do
+        expect {
+          post "/api/v1/auth/magic-link", params: { email: "new.user@fintoc.com" }
+        }.to change(User, :count).by(1)
+
+        expect(response).to have_http_status(:ok)
+        user = User.find_by(email: "new.user@fintoc.com")
+        expect(user.name).to eq("new.user@fintoc.com")
+      end
+    end
+
+    context "with a non-fintoc email" do
+      it "rejects the request" do
+        expect {
+          post "/api/v1/auth/magic-link", params: { email: "new.user@example.com" }
+        }.not_to change(User, :count)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(json_response[:error]).to include("fintoc.com")
+      end
+    end
+  end
+
+  describe "POST /api/v1/auth/verify-magic-link" do
+    context "with a valid fintoc.com token" do
+      it "logs in the user" do
+        user = create(:user, email: "valid@fintoc.com")
+        token = user.generate_magic_link_token!
+
+        post "/api/v1/auth/verify-magic-link", params: { token: token }
+
+        expect(response).to have_http_status(:ok)
+        expect(json_response[:user][:email]).to eq("valid@fintoc.com")
+      end
+    end
+
+    context "with a non-fintoc email token" do
+      it "rejects the request" do
+        user = create(:user, email: "valid@example.com")
+        token = user.generate_magic_link_token!
+
+        post "/api/v1/auth/verify-magic-link", params: { token: token }
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(json_response[:error]).to include("fintoc.com")
+      end
+    end
+  end
 end
