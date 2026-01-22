@@ -7,5 +7,6 @@
   - [webhooks, 1]
   - [low, 1]
 
-# Empty schedule for sidekiq-scheduler
-:schedule: {}
+# Sidekiq-scheduler config
+:scheduler:
+  :enabled: false
