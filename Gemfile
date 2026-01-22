@@ -95,5 +95,5 @@ group :test do
   gem "webmock", "~> 3.19"
   gem "vcr", "~> 6.2"
   gem "simplecov", require: false
-  gem "pundit-matchers", "~> 3.1"
+  gem "pundit-matchers", "~> 4.0"
 end
