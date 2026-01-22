@@ -78,7 +78,7 @@ group :development, :test do
   gem "brakeman", require: false
   gem "rubocop", "~> 1.60", require: false
   gem "rubocop-rails", "~> 2.23", require: false
-  gem "rubocop-rspec", "~> 2.26", require: false
+  gem "rubocop-rspec", "~> 3.9", require: false
   gem "rubocop-performance", "~> 1.20", require: false
   
   # Testing
