@@ -17,25 +17,22 @@ export const useAuthStore = defineStore('auth', () => {
     initialized.value = true
   }
 
-  async function signup(params: { name: string; email: string; password: string }) {
+  // Send magic link to email
+  async function sendMagicLink(email: string) {
     loading.value = true
     try {
-      const data = await api.post<AuthResponse>('/api/v1/auth/signup', {
-        name: params.name,
-        email: params.email,
-        password: params.password,
-      })
-      setAuthData(data)
+      const data = await api.post<{ message: string }>('/api/v1/auth/magic-link', { email })
       return data
     } finally {
       loading.value = false
     }
   }
 
-  async function login(email: string, password: string) {
+  // Verify magic link token and log in
+  async function verifyMagicLink(token: string) {
     loading.value = true
     try {
-      const data = await api.post<AuthResponse>('/api/v1/auth/login', { email, password })
+      const data = await api.post<AuthResponse>('/api/v1/auth/verify-magic-link', { token })
       setAuthData(data)
       return data
     } finally {
@@ -81,8 +78,8 @@ export const useAuthStore = defineStore('auth', () => {
 
     // Actions
     setAuthData,
-    signup,
-    login,
+    sendMagicLink,
+    verifyMagicLink,
     logout,
     fetchCurrentUser,
   }

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class User < ApplicationRecord
-  has_secure_password
+  has_secure_password validations: false
 
   # Direct associations (single-tenant)
   has_many :team_memberships, dependent: :destroy
@@ -21,7 +21,6 @@ class User < ApplicationRecord
                     uniqueness: { case_sensitive: false },
                     format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :name, presence: true, length: { minimum: 2, maximum: 100 }
-  validates :password, length: { minimum: 8 }, if: -> { new_record? || password.present? }
   validates :role, presence: true
 
   before_save :downcase_email
@@ -30,8 +29,41 @@ class User < ApplicationRecord
   scope :admins, -> { where(role: %w[owner admin]) }
   scope :owners, -> { where(role: "owner") }
 
+  # Magic Link token expiration time
+  MAGIC_LINK_EXPIRATION = 15.minutes
+
   def self.find_by_email(email)
     by_email(email).first
+  end
+
+  # Generate magic link token
+  def generate_magic_link_token!
+    loop do
+      self.magic_link_token = SecureRandom.urlsafe_base64(32)
+      break unless User.exists?(magic_link_token: magic_link_token)
+    end
+    self.magic_link_sent_at = Time.current
+    save!
+    magic_link_token
+  end
+
+  # Verify magic link token
+  def self.find_by_magic_link_token(token)
+    return nil if token.blank?
+
+    user = find_by(magic_link_token: token)
+    return nil unless user
+    return nil if user.magic_link_expired?
+
+    user
+  end
+
+  def magic_link_expired?
+    magic_link_sent_at.nil? || magic_link_sent_at < MAGIC_LINK_EXPIRATION.ago
+  end
+
+  def clear_magic_link_token!
+    update!(magic_link_token: nil, magic_link_sent_at: nil)
   end
 
   # Single-tenant role checks

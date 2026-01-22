@@ -54,6 +54,9 @@ gem "rack-cors", "~> 2.0"
 # Stripe billing
 gem "stripe", "~> 10.8"
 
+# Email with Resend
+gem "resend", "~> 0.8"
+
 # UUID generation
 gem "uuid7", "~> 0.2"
 

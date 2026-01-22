@@ -115,6 +115,7 @@ GEM
       bigdecimal
       rexml
     crass (1.0.6)
+    csv (3.3.5)
     database_cleaner-active_record (2.2.2)
       activerecord (>= 5.a)
       database_cleaner-core (~> 2.0)
@@ -165,6 +166,10 @@ GEM
     hashdiff (1.2.1)
     hiredis-client (0.26.3)
       redis-client (= 0.26.3)
+    httparty (0.24.2)
+      csv
+      mini_mime (>= 1.0.0)
+      multi_xml (>= 0.5.2)
     i18n (1.14.8)
       concurrent-ruby (~> 1.0)
     image_processing (1.14.0)
@@ -217,6 +222,8 @@ GEM
     minitest (6.0.1)
       prism (~> 1.5)
     msgpack (1.8.0)
+    multi_xml (0.8.1)
+      bigdecimal (>= 3.1, < 5)
     net-imap (0.6.2)
       date
       net-protocol
@@ -341,6 +348,8 @@ GEM
     regexp_parser (2.11.3)
     reline (0.6.3)
       io-console (~> 0.5)
+    resend (0.27.0)
+      httparty (>= 0.21.0)
     rexml (3.4.4)
     rspec-core (3.13.6)
       rspec-support (~> 3.13.0)
@@ -500,6 +509,7 @@ DEPENDENCIES
   rack-cors (~> 2.0)
   rails (~> 8.0.4)
   redis (~> 5.0)
+  resend (~> 0.8)
   rspec-rails (~> 6.1)
   rubocop (~> 1.60)
   rubocop-performance (~> 1.20)

@@ -20,10 +20,10 @@ Rails.application.routes.draw do
   # REST API (internal) - Single tenant, no workspace scoping
   namespace :api do
     namespace :v1 do
-      # Authentication
+      # Authentication (Magic Link)
       namespace :auth do
-        post "signup", to: "sessions#signup"
-        post "login", to: "sessions#login"
+        post "magic-link", to: "sessions#send_magic_link"
+        post "verify-magic-link", to: "sessions#verify_magic_link"
         delete "logout", to: "sessions#logout"
         get "me", to: "sessions#me"
       end

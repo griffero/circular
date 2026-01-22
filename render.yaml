@@ -31,6 +31,13 @@ services:
           property: connectionString
       - key: CORS_ORIGINS
         sync: false
+      # Resend (email for magic link auth)
+      - key: RESEND_API_KEY
+        sync: false
+      - key: MAILER_FROM
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
       # AWS S3 (optional - for file uploads)
       - key: AWS_ACCESS_KEY_ID
         sync: false
@@ -76,6 +83,13 @@ services:
           name: circular-redis
           type: redis
           property: connectionString
+      # Resend (for email jobs)
+      - key: RESEND_API_KEY
+        sync: false
+      - key: MAILER_FROM
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
       # AWS S3 (for file processing jobs)
       - key: AWS_ACCESS_KEY_ID
         sync: false

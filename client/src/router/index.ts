@@ -9,9 +9,9 @@ const router = createRouter({
       component: () => import('@/components/pages/LoginPage.vue'),
     },
     {
-      path: '/signup',
-      name: 'signup',
-      component: () => import('@/components/pages/SignupPage.vue'),
+      path: '/auth/verify',
+      name: 'auth-verify',
+      component: () => import('@/components/pages/AuthVerifyPage.vue'),
     },
     {
       path: '/',
