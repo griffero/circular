@@ -9,7 +9,7 @@ interface Props {
   loading?: boolean
   disabled?: boolean
   type?: 'button' | 'submit' | 'reset'
-  class?: string
+  class?: string | Record<string, boolean>
 }
 
 const props = withDefaults(defineProps<Props>(), {
