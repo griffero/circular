@@ -49,7 +49,7 @@ gem "pg_search", "~> 2.3"
 gem "rack-attack", "~> 6.7"
 
 # CORS
-gem "rack-cors", "~> 2.0"
+gem "rack-cors", "~> 3.0"
 
 # Stripe billing
 gem "stripe", "~> 10.8"
