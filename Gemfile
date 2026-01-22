@@ -33,7 +33,7 @@ gem "hiredis-client", "~> 0.22"
 gem "kredis", "~> 1.7"
 
 # GraphQL API
-gem "graphql", "~> 2.2"
+gem "graphql", "~> 2.5"
 
 # File uploads
 gem "aws-sdk-s3", "~> 1.143"
