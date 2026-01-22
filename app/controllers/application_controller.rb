@@ -2,17 +2,12 @@
 
 class ApplicationController < ActionController::API
   include ActionController::Cookies
-  include ActionController::RequestForgeryProtection
   include Pundit::Authorization
   include Pagy::Backend
-
-  protect_from_forgery with: :null_session
 
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
   rescue_from ActiveRecord::RecordNotFound, with: :not_found
   rescue_from ActiveRecord::RecordInvalid, with: :unprocessable_entity
-
-  before_action :set_csrf_cookie
 
   private
 
@@ -34,14 +29,6 @@ class ApplicationController < ActionController::API
 
   def unprocessable_entity(exception)
     render json: { error: exception.record.errors.full_messages }, status: :unprocessable_entity
-  end
-
-  def set_csrf_cookie
-    cookies["CSRF-TOKEN"] = {
-      value: form_authenticity_token,
-      same_site: :lax,
-      secure: Rails.env.production?
-    }
   end
 
   def pagy_metadata(pagy)
