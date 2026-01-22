@@ -252,7 +252,9 @@ GEM
       bigdecimal (>= 3.0)
       ostruct (>= 0.2)
     ostruct (0.6.3)
-    pagy (6.5.0)
+    pagy (43.2.7)
+      json
+      yaml
     parallel (1.27.0)
     parser (3.3.10.1)
       ast (~> 2.4.1)
@@ -457,6 +459,7 @@ GEM
       base64
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
+    yaml (0.4.0)
     zeitwerk (2.7.4)
 
 PLATFORMS
@@ -490,7 +493,7 @@ DEPENDENCIES
   kredis (~> 1.7)
   letter_opener (~> 1.9)
   oj (~> 3.16)
-  pagy (~> 6.4)
+  pagy (~> 43.2)
   pg (~> 1.5)
   pg_search (~> 2.3)
   puma (>= 6.0)

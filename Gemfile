@@ -40,7 +40,7 @@ gem "aws-sdk-s3", "~> 1.143"
 gem "image_processing", "~> 1.12"
 
 # Pagination
-gem "pagy", "~> 6.4"
+gem "pagy", "~> 43.2"
 
 # Search
 gem "pg_search", "~> 2.3"
