@@ -2,6 +2,8 @@ source "https://rubygems.org"
 
 ruby "~> 3.2"
 
+# Force rebuild: 2026-01-23
+
 # Rails 8
 gem "rails", "~> 8.0.4"
 
