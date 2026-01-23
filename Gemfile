@@ -57,7 +57,7 @@ gem "rack-cors", "~> 2.0"
 gem "stripe", "~> 10.8"
 
 # Email with Resend
-gem "resend", "~> 0.8"
+gem "resend", "~> 1.0"
 
 # UUID generation
 gem "uuid7", "~> 0.2"
