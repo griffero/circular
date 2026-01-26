@@ -24,6 +24,7 @@ Rails.application.routes.draw do
       namespace :auth do
         post "magic-link", to: "sessions#send_magic_link"
         post "verify-magic-link", to: "sessions#verify_magic_link"
+        post "token-login", to: "sessions#token_login"
         delete "logout", to: "sessions#logout"
         get "me", to: "sessions#me"
       end

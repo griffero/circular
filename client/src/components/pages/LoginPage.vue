@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import Button from '@/components/ui/Button.vue'
 import Input from '@/components/ui/Input.vue'
 import { Mail, ArrowRight, CheckCircle, Loader2 } from 'lucide-vue-next'
 
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 
 const email = ref('')
@@ -21,6 +22,20 @@ onMounted(async () => {
   }
   if (authStore.isAuthenticated) {
     router.replace('/')
+    return
+  }
+
+  const token = route.query.token as string
+  if (token) {
+    loading.value = true
+    try {
+      await authStore.tokenLogin(token)
+      router.replace('/')
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Invalid token'
+    } finally {
+      loading.value = false
+    }
   }
 })
 

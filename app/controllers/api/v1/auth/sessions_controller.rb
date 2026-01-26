@@ -73,6 +73,34 @@ module Api
           render json: auth_response(user)
         end
 
+        # POST /api/v1/auth/token-login
+        # One-time token login (no email magic link)
+        def token_login
+          return head :not_found unless token_login_enabled?
+
+          token = params[:token].to_s
+
+          if token.blank? || token != token_login_secret
+            return render json: { error: "Invalid token" }, status: :unauthorized
+          end
+
+          if token_login_used?(token)
+            return render json: { error: "Token already used" }, status: :unauthorized
+          end
+
+          user = User.find_or_create_by!(email: token_login_email) do |record|
+            record.name = "Admin Admin"
+            record.role = "admin"
+          end
+
+          mark_token_login_used(token)
+
+          session[:user_id] = user.id
+          cookies.encrypted[:user_id] = { value: user.id, httponly: true }
+
+          render json: auth_response(user)
+        end
+
         def logout
           session.delete(:user_id)
           cookies.delete(:user_id)
@@ -95,6 +123,30 @@ module Api
 
         def fintoc_email?(email)
           email.present? && email.match?(/\A[^@\s]+@fintoc\.com\z/i)
+        end
+
+        def token_login_enabled?
+          token_login_secret.present?
+        end
+
+        def token_login_secret
+          ENV["TOKEN_LOGIN_SECRET"].to_s
+        end
+
+        def token_login_email
+          ENV.fetch("TOKEN_LOGIN_EMAIL", "admin.admin@fintoc.com")
+        end
+
+        def token_login_used?(token)
+          Rails.cache.read(token_login_cache_key(token)) == true
+        end
+
+        def mark_token_login_used(token)
+          Rails.cache.write(token_login_cache_key(token), true, expires_in: 24.hours)
+        end
+
+        def token_login_cache_key(token)
+          "token-login-used:#{token}"
         end
       end
     end

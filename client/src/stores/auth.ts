@@ -40,6 +40,18 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  // Token login (one-time) and log in
+  async function tokenLogin(token: string) {
+    loading.value = true
+    try {
+      const data = await api.post<AuthResponse>('/api/v1/auth/token-login', { token })
+      setAuthData(data)
+      return data
+    } finally {
+      loading.value = false
+    }
+  }
+
   async function logout() {
     try {
       await api.delete('/api/v1/auth/logout')
@@ -80,6 +92,7 @@ export const useAuthStore = defineStore('auth', () => {
     setAuthData,
     sendMagicLink,
     verifyMagicLink,
+    tokenLogin,
     logout,
     fetchCurrentUser,
   }
