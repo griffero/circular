@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_22_141150) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_22_170000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -57,7 +57,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_22_141150) do
 
   create_table "issues", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "team_id", null: false
-    t.uuid "workspace_id", null: false
     t.uuid "creator_id", null: false
     t.uuid "assignee_id"
     t.uuid "project_id"
@@ -95,22 +94,19 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_22_141150) do
     t.index ["team_id", "number"], name: "index_issues_on_team_id_and_number", unique: true
     t.index ["team_id", "status"], name: "index_issues_on_team_id_and_status"
     t.index ["team_id"], name: "index_issues_on_team_id"
-    t.index ["workspace_id", "status"], name: "index_issues_on_workspace_id_and_status"
-    t.index ["workspace_id"], name: "index_issues_on_workspace_id"
   end
 
   create_table "labels", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "workspace_id", null: false
     t.uuid "team_id"
     t.string "name", null: false
     t.string "color", null: false
     t.text "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_global_labels_on_name_unique", unique: true, where: "(team_id IS NULL)"
     t.index ["team_id", "name"], name: "index_labels_on_team_id_and_name"
+    t.index ["team_id", "name"], name: "index_labels_on_team_id_and_name_unique", unique: true, where: "(team_id IS NOT NULL)"
     t.index ["team_id"], name: "index_labels_on_team_id"
-    t.index ["workspace_id", "name"], name: "index_labels_on_workspace_id_and_name"
-    t.index ["workspace_id"], name: "index_labels_on_workspace_id"
   end
 
   create_table "project_memberships", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -125,7 +121,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_22_141150) do
   end
 
   create_table "projects", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "workspace_id", null: false
     t.string "name", null: false
     t.string "slug", null: false
     t.text "description"
@@ -140,9 +135,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_22_141150) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["lead_id"], name: "index_projects_on_lead_id"
+    t.index ["slug"], name: "index_projects_on_slug", unique: true
     t.index ["status"], name: "index_projects_on_status"
-    t.index ["workspace_id", "slug"], name: "index_projects_on_workspace_id_and_slug", unique: true
-    t.index ["workspace_id"], name: "index_projects_on_workspace_id"
   end
 
   create_table "team_memberships", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -157,7 +151,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_22_141150) do
   end
 
   create_table "teams", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "workspace_id", null: false
     t.string "name", null: false
     t.string "key", null: false
     t.text "description"
@@ -167,42 +160,23 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_22_141150) do
     t.jsonb "settings", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["key"], name: "index_teams_on_key"
-    t.index ["workspace_id", "key"], name: "index_teams_on_workspace_id_and_key", unique: true
-    t.index ["workspace_id"], name: "index_teams_on_workspace_id"
+    t.index ["key"], name: "index_teams_on_key", unique: true
   end
 
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "email", null: false
-    t.string "password_digest", null: false
+    t.string "password_digest"
     t.string "name", null: false
     t.string "avatar_url"
     t.string "timezone", default: "UTC"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["email"], name: "index_users_on_email", unique: true
-  end
-
-  create_table "workspace_memberships", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "user_id", null: false
-    t.uuid "workspace_id", null: false
     t.string "role", default: "member", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["role"], name: "index_workspace_memberships_on_role"
-    t.index ["user_id", "workspace_id"], name: "index_workspace_memberships_on_user_id_and_workspace_id", unique: true
-    t.index ["user_id"], name: "index_workspace_memberships_on_user_id"
-    t.index ["workspace_id"], name: "index_workspace_memberships_on_workspace_id"
-  end
-
-  create_table "workspaces", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "name", null: false
-    t.string "slug", null: false
-    t.string "logo_url"
-    t.jsonb "settings", default: {}
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["slug"], name: "index_workspaces_on_slug", unique: true
+    t.string "magic_link_token"
+    t.datetime "magic_link_sent_at"
+    t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["magic_link_token"], name: "index_users_on_magic_link_token", unique: true
+    t.index ["role"], name: "index_users_on_role"
   end
 
   add_foreign_key "comments", "comments", column: "parent_id"
@@ -217,16 +191,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_22_141150) do
   add_foreign_key "issues", "teams"
   add_foreign_key "issues", "users", column: "assignee_id"
   add_foreign_key "issues", "users", column: "creator_id"
-  add_foreign_key "issues", "workspaces"
   add_foreign_key "labels", "teams"
-  add_foreign_key "labels", "workspaces"
   add_foreign_key "project_memberships", "projects"
   add_foreign_key "project_memberships", "users"
   add_foreign_key "projects", "users", column: "lead_id"
-  add_foreign_key "projects", "workspaces"
   add_foreign_key "team_memberships", "teams"
   add_foreign_key "team_memberships", "users"
-  add_foreign_key "teams", "workspaces"
-  add_foreign_key "workspace_memberships", "users"
-  add_foreign_key "workspace_memberships", "workspaces"
 end

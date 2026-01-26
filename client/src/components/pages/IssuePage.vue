@@ -98,8 +98,13 @@ function getPriority(value: number) {
           {{ issue.title }}
         </h1>
 
-        <div class="prose dark:prose-invert max-w-none mb-8">
-          <p>{{ issue.description }}</p>
+        <div
+          v-if="issue.description"
+          class="prose dark:prose-invert max-w-none mb-8 prose-p:my-3 prose-ul:my-3 prose-ol:my-3"
+          v-html="issue.description"
+        />
+        <div v-else class="text-sm text-gray-500 mb-8">
+          No description
         </div>
 
         <!-- Comments section placeholder -->

@@ -298,11 +298,13 @@ function formatDate(dateString: string) {
             v-if="!editingDescription"
             @click="editingDescription = true; descriptionInput = issue.description || ''"
             :class="cn(
-              'text-sm text-gray-600 dark:text-gray-400 cursor-text',
-              'hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded px-2 py-1 -mx-2 min-h-[60px]'
+              'cursor-text',
+              'hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded px-2 py-1 -mx-2 min-h-[60px]',
+              issue.description ? 'prose prose-sm dark:prose-invert max-w-none prose-p:my-2 prose-ul:my-2 prose-ol:my-2' : 'text-sm text-gray-600 dark:text-gray-400'
             )"
           >
-            {{ issue.description || 'Add description...' }}
+            <div v-if="issue.description" v-html="issue.description" />
+            <div v-else>Add description...</div>
           </div>
           <textarea
             v-else
