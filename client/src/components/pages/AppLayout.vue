@@ -1,19 +1,25 @@
 <script setup lang="ts">
-import { onMounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useAppStore } from '@/stores/app'
 import Sidebar from '@/components/layout/Sidebar.vue'
 import Topbar from '@/components/layout/Topbar.vue'
 
 const appStore = useAppStore()
 
-const loading = computed(() => appStore.loading)
+const loading = ref(true)
 
 onMounted(async () => {
-  // Load app data (auth is already handled by router guard)
-  await Promise.all([
-    appStore.fetchTeams(),
-    appStore.fetchProjects()
-  ])
+  try {
+    // Load app data (auth is already handled by router guard)
+    await Promise.all([
+      appStore.fetchTeams(),
+      appStore.fetchProjects()
+    ])
+  } catch (err) {
+    console.error('Failed to load app data:', err)
+  } finally {
+    loading.value = false
+  }
 })
 </script>
 

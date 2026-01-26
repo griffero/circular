@@ -1790,3 +1790,64 @@ Processing by Api::V1::IssuesController#index as JSON
 Completed 200 OK in 84ms (Views: 0.2ms | ActiveRecord: 12.1ms (6 queries, 1 cached) | GC: 0.0ms)
 
 
+Started GET "/api/v1/auth/me" for ::1 at 2026-01-25 23:10:24 -0300
+Processing by Api::V1::Auth::SessionsController#me as JSON
+  Parameters: {"session"=>{}}
+  [1m[36mUser Load (1.0ms)[0m  [1m[34mSELECT "users".* FROM "users" WHERE "users"."id" = '7ce9e54a-69e0-423b-b490-297d7e47be40' LIMIT 1 /*action='me',application='LinearClone',controller='sessions'*/[0m
+  ↳ app/controllers/application_controller.rb:15:in `current_user'
+  [1m[36mTeam Load (0.9ms)[0m  [1m[34mSELECT "teams".* FROM "teams" ORDER BY "teams"."name" ASC /*action='me',application='LinearClone',controller='sessions'*/[0m
+  ↳ app/controllers/api/v1/auth/sessions_controller.rb:119:in `auth_response'
+  [1m[36mProject Load (0.9ms)[0m  [1m[34mSELECT "projects".* FROM "projects" WHERE "projects"."status" = 'active' ORDER BY "projects"."name" ASC /*action='me',application='LinearClone',controller='sessions'*/[0m
+  ↳ app/controllers/api/v1/auth/sessions_controller.rb:120:in `auth_response'
+Completed 200 OK in 38ms (Views: 0.4ms | ActiveRecord: 9.9ms (3 queries, 0 cached) | GC: 0.0ms)
+
+
+Started GET "/api/v1/auth/me" for ::1 at 2026-01-25 23:28:55 -0300
+Processing by Api::V1::Auth::SessionsController#me as */*
+Filter chain halted as :authenticate_user! rendered or redirected
+Completed 401 Unauthorized in 1ms (Views: 0.2ms | ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+
+
+  [1m[36mUser Load (1.2ms)[0m  [1m[34mSELECT "users".* FROM "users" WHERE "users"."email" = 'test@fintoc.com' LIMIT 1 /*application='LinearClone'*/[0m
+  [1m[36mUser Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "users" WHERE "users"."magic_link_token" = 'FaZ0EbZWGGLuIX-1m2br_5JHHPHZYZbsO9ANqbSvVy8' LIMIT 1 /*application='LinearClone'*/[0m
+  ↳ app/models/user.rb:43:in `block in generate_magic_link_token!'
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='LinearClone'*/[0m
+  ↳ app/models/user.rb:46:in `generate_magic_link_token!'
+  [1m[36mUser Exists? (0.6ms)[0m  [1m[34mSELECT 1 AS one FROM "users" WHERE LOWER("users"."email") = LOWER('test@fintoc.com') AND "users"."id" != '7ce9e54a-69e0-423b-b490-297d7e47be40' LIMIT 1 /*application='LinearClone'*/[0m
+  ↳ app/models/user.rb:46:in `generate_magic_link_token!'
+  [1m[36mUser Update (1.2ms)[0m  [1m[33mUPDATE "users" SET "updated_at" = '2026-01-26 02:31:56.596539', "magic_link_token" = 'FaZ0EbZWGGLuIX-1m2br_5JHHPHZYZbsO9ANqbSvVy8', "magic_link_sent_at" = '2026-01-26 02:31:56.593433' WHERE "users"."id" = '7ce9e54a-69e0-423b-b490-297d7e47be40' /*application='LinearClone'*/[0m
+  ↳ app/models/user.rb:46:in `generate_magic_link_token!'
+  [1m[36mTRANSACTION (0.8ms)[0m  [1m[35mCOMMIT /*application='LinearClone'*/[0m
+  ↳ app/models/user.rb:46:in `generate_magic_link_token!'
+Started POST "/api/v1/auth/verify-magic-link" for ::1 at 2026-01-25 23:32:04 -0300
+Processing by Api::V1::Auth::SessionsController#verify_magic_link as */*
+  Parameters: {"token"=>"[FILTERED]", "session"=>{"token"=>"[FILTERED]"}}
+  [1m[36mUser Load (1.0ms)[0m  [1m[34mSELECT "users".* FROM "users" WHERE "users"."magic_link_token" = 'FaZ0EbZWGGLuIX-1m2br_5JHHPHZYZbsO9ANqbSvVy8' LIMIT 1 /*action='verify_magic_link',application='LinearClone',controller='sessions'*/[0m
+  ↳ app/models/user.rb:54:in `find_by_magic_link_token'
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*action='verify_magic_link',application='LinearClone',controller='sessions'*/[0m
+  ↳ app/models/user.rb:66:in `clear_magic_link_token!'
+  [1m[36mUser Exists? (0.6ms)[0m  [1m[34mSELECT 1 AS one FROM "users" WHERE LOWER("users"."email") = LOWER('test@fintoc.com') AND "users"."id" != '7ce9e54a-69e0-423b-b490-297d7e47be40' LIMIT 1 /*action='verify_magic_link',application='LinearClone',controller='sessions'*/[0m
+  ↳ app/models/user.rb:66:in `clear_magic_link_token!'
+  [1m[36mUser Update (0.2ms)[0m  [1m[33mUPDATE "users" SET "updated_at" = '2026-01-26 02:32:04.433624', "magic_link_token" = NULL, "magic_link_sent_at" = NULL WHERE "users"."id" = '7ce9e54a-69e0-423b-b490-297d7e47be40' /*action='verify_magic_link',application='LinearClone',controller='sessions'*/[0m
+  ↳ app/models/user.rb:66:in `clear_magic_link_token!'
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mCOMMIT /*action='verify_magic_link',application='LinearClone',controller='sessions'*/[0m
+  ↳ app/models/user.rb:66:in `clear_magic_link_token!'
+  [1m[36mTeam Load (0.6ms)[0m  [1m[34mSELECT "teams".* FROM "teams" ORDER BY "teams"."name" ASC /*action='verify_magic_link',application='LinearClone',controller='sessions'*/[0m
+  ↳ app/controllers/api/v1/auth/sessions_controller.rb:119:in `auth_response'
+  [1m[36mProject Load (0.4ms)[0m  [1m[34mSELECT "projects".* FROM "projects" WHERE "projects"."status" = 'active' ORDER BY "projects"."name" ASC /*action='verify_magic_link',application='LinearClone',controller='sessions'*/[0m
+  ↳ app/controllers/api/v1/auth/sessions_controller.rb:120:in `auth_response'
+Completed 200 OK in 33ms (Views: 0.1ms | ActiveRecord: 10.9ms (5 queries, 0 cached) | GC: 6.7ms)
+
+
+Started GET "/api/v1/auth/me" for ::1 at 2026-01-25 23:32:59 -0300
+Processing by Api::V1::Auth::SessionsController#me as JSON
+  Parameters: {"session"=>{}}
+  [1m[36mUser Load (2.9ms)[0m  [1m[34mSELECT "users".* FROM "users" WHERE "users"."id" = '7ce9e54a-69e0-423b-b490-297d7e47be40' LIMIT 1 /*action='me',application='LinearClone',controller='sessions'*/[0m
+  ↳ app/controllers/application_controller.rb:15:in `current_user'
+  [1m[36mTeam Load (0.3ms)[0m  [1m[34mSELECT "teams".* FROM "teams" ORDER BY "teams"."name" ASC /*action='me',application='LinearClone',controller='sessions'*/[0m
+  ↳ app/controllers/api/v1/auth/sessions_controller.rb:119:in `auth_response'
+  [1m[36mProject Load (0.8ms)[0m  [1m[34mSELECT "projects".* FROM "projects" WHERE "projects"."status" = 'active' ORDER BY "projects"."name" ASC /*action='me',application='LinearClone',controller='sessions'*/[0m
+  ↳ app/controllers/api/v1/auth/sessions_controller.rb:120:in `auth_response'
+Completed 200 OK in 12ms (Views: 0.2ms | ActiveRecord: 4.0ms (3 queries, 0 cached) | GC: 0.7ms)
+
+

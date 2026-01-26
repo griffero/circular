@@ -64,12 +64,14 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function fetchCurrentUser() {
+    if (loading.value) return null // Prevent duplicate calls
     loading.value = true
     try {
       const data = await api.get<AuthResponse>('/api/v1/auth/me')
       setAuthData(data)
       return data
     } catch {
+      user.value = null
       initialized.value = true
       return null
     } finally {
