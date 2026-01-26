@@ -1,170 +1,119 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { useAppStore } from '@/stores/app'
 import { useRouter } from 'vue-router'
-import type { Project, Team } from '@/types'
-import { 
-  ChevronLeft, ChevronRight, Circle, CheckCircle2, 
-  PauseCircle, XCircle, AlertCircle, ChevronDown
-} from 'lucide-vue-next'
+import type { Project } from '@/types'
+import { ChevronLeft, ChevronRight, Circle, CheckCircle2, PauseCircle, XCircle } from 'lucide-vue-next'
 
 const appStore = useAppStore()
 const router = useRouter()
 
-// View mode: 'month' | 'quarter' | 'year'
-const viewMode = ref<'month' | 'quarter' | 'year'>('year')
-
-// Scroll container ref
+// Refs
 const timelineContainer = ref<HTMLElement | null>(null)
+const timelineHeader = ref<HTMLElement | null>(null)
 
-// Calculate timeline range
+// Timeline range: 2 years back to 2 years forward
 const today = new Date()
-const timelineStart = ref(new Date(today.getFullYear() - 1, 0, 1))
-const timelineEnd = ref(new Date(today.getFullYear() + 3, 11, 31))
+const timelineStart = new Date(today.getFullYear() - 1, 0, 1)
+const timelineEnd = new Date(today.getFullYear() + 2, 11, 31)
 
-// Projects with dates
-const projectsWithDates = computed(() => {
-  return appStore.projects.filter(p => p.startDate || p.targetDate)
-})
-
-const projectsWithoutDates = computed(() => {
-  return appStore.projects.filter(p => !p.startDate && !p.targetDate)
-})
-
-// Group projects by team
-const projectsByTeam = computed(() => {
-  const grouped: Record<string, { team: Team | null; projects: Project[] }> = {}
+// Generate months for timeline
+const months = computed(() => {
+  const result: { date: Date; label: string; year: number }[] = []
+  const current = new Date(timelineStart)
   
-  appStore.projects.forEach(project => {
-    const teamId = project.teams?.[0]?.id || 'no-team'
-    const team = project.teams?.[0] || null
-    
-    if (!grouped[teamId]) {
-      grouped[teamId] = { team, projects: [] }
-    }
-    grouped[teamId].projects.push(project)
-  })
-  
-  return Object.values(grouped).sort((a, b) => {
-    if (!a.team) return 1
-    if (!b.team) return -1
-    return a.team.name.localeCompare(b.team.name)
-  })
-})
-
-// Generate time columns based on view mode
-const timeColumns = computed(() => {
-  const columns: { date: Date; label: string; isMonth: boolean }[] = []
-  const start = new Date(timelineStart.value)
-  const end = new Date(timelineEnd.value)
-  
-  let current = new Date(start)
-  
-  while (current <= end) {
-    if (viewMode.value === 'year') {
-      // Show months
-      columns.push({
-        date: new Date(current),
-        label: current.toLocaleDateString('en-US', { month: 'short' }),
-        isMonth: current.getMonth() === 0
-      })
-      current.setMonth(current.getMonth() + 1)
-    } else if (viewMode.value === 'quarter') {
-      // Show weeks
-      columns.push({
-        date: new Date(current),
-        label: `W${Math.ceil(current.getDate() / 7)}`,
-        isMonth: current.getDate() <= 7
-      })
-      current.setDate(current.getDate() + 7)
-    } else {
-      // Show days
-      columns.push({
-        date: new Date(current),
-        label: current.getDate().toString(),
-        isMonth: current.getDate() === 1
-      })
-      current.setDate(current.getDate() + 1)
-    }
+  while (current <= timelineEnd) {
+    result.push({
+      date: new Date(current),
+      label: current.toLocaleDateString('en-US', { month: 'short' }),
+      year: current.getFullYear()
+    })
+    current.setMonth(current.getMonth() + 1)
   }
   
-  return columns
+  return result
 })
 
-// Get year markers
-const yearMarkers = computed(() => {
-  const years: { year: number; startIndex: number }[] = []
+// Group months by year for header
+const years = computed(() => {
+  const result: { year: number; monthCount: number }[] = []
   let currentYear = -1
   
-  timeColumns.value.forEach((col, index) => {
-    const year = col.date.getFullYear()
-    if (year !== currentYear) {
-      years.push({ year, startIndex: index })
-      currentYear = year
+  months.value.forEach(month => {
+    if (month.year !== currentYear) {
+      result.push({ year: month.year, monthCount: 1 })
+      currentYear = month.year
+    } else {
+      result[result.length - 1].monthCount++
     }
   })
   
-  return years
+  return result
 })
 
-// Calculate column width based on view mode
-const columnWidth = computed(() => {
-  switch (viewMode.value) {
-    case 'year': return 40
-    case 'quarter': return 20
-    case 'month': return 30
-    default: return 40
-  }
+// All projects sorted by name
+const sortedProjects = computed(() => {
+  return [...appStore.projects].sort((a, b) => a.name.localeCompare(b.name))
 })
 
-// Calculate bar position and width for a project
-function getProjectBarStyle(project: Project) {
-  const startDate = project.startDate ? new Date(project.startDate) : null
-  const endDate = project.targetDate ? new Date(project.targetDate) : null
+// Column width in pixels
+const colWidth = 50
+
+// Total timeline width
+const timelineWidth = computed(() => months.value.length * colWidth)
+
+// Calculate position for a date
+function getDatePosition(dateStr: string | undefined): number | null {
+  if (!dateStr) return null
   
-  if (!startDate && !endDate) {
-    return { display: 'none' }
+  const date = new Date(dateStr)
+  if (isNaN(date.getTime())) return null
+  
+  const totalMs = timelineEnd.getTime() - timelineStart.getTime()
+  const dateMs = date.getTime() - timelineStart.getTime()
+  
+  return (dateMs / totalMs) * 100
+}
+
+// Get bar style for a project
+function getBarStyle(project: Project): Record<string, string> | null {
+  const startPos = getDatePosition(project.startDate)
+  const endPos = getDatePosition(project.targetDate)
+  
+  // If no dates, return null
+  if (startPos === null && endPos === null) {
+    return null
   }
   
-  const timelineStartTime = timelineStart.value.getTime()
-  const timelineEndTime = timelineEnd.value.getTime()
-  const totalDuration = timelineEndTime - timelineStartTime
+  // Default to today's position if only one date
+  const todayPos = getDatePosition(today.toISOString())
+  const left = startPos ?? (endPos !== null ? Math.max(0, endPos - 5) : todayPos ?? 50)
+  const right = endPos ?? (startPos !== null ? Math.min(100, startPos + 5) : todayPos ?? 50)
   
-  const barStart = startDate ? startDate.getTime() : timelineStartTime
-  const barEnd = endDate ? endDate.getTime() : timelineEndTime
-  
-  const leftPercent = ((barStart - timelineStartTime) / totalDuration) * 100
-  const widthPercent = ((barEnd - barStart) / totalDuration) * 100
+  const width = Math.max(1, right - left)
   
   return {
-    left: `${Math.max(0, leftPercent)}%`,
-    width: `${Math.min(100 - leftPercent, widthPercent)}%`,
+    left: `${left}%`,
+    width: `${width}%`,
     backgroundColor: project.color || '#6366f1'
   }
 }
 
 // Today indicator position
 const todayPosition = computed(() => {
-  const timelineStartTime = timelineStart.value.getTime()
-  const timelineEndTime = timelineEnd.value.getTime()
-  const totalDuration = timelineEndTime - timelineStartTime
-  const todayTime = today.getTime()
-  
-  return ((todayTime - timelineStartTime) / totalDuration) * 100
+  return getDatePosition(today.toISOString()) ?? 50
 })
 
-// Get project state icon
+// State icon component
 function getStateIcon(state?: string) {
   switch (state) {
     case 'completed': return CheckCircle2
     case 'paused': return PauseCircle
     case 'canceled': return XCircle
-    case 'started': return Circle
     default: return Circle
   }
 }
 
-// Get project state color
 function getStateColor(state?: string) {
   switch (state) {
     case 'completed': return 'text-green-500'
@@ -175,114 +124,79 @@ function getStateColor(state?: string) {
   }
 }
 
-// Get health indicator
-function getHealthIndicator(health?: string) {
-  switch (health) {
-    case 'onTrack': return { color: 'bg-green-500', label: 'On track' }
-    case 'atRisk': return { color: 'bg-yellow-500', label: 'At risk' }
-    case 'offTrack': return { color: 'bg-red-500', label: 'Off track' }
-    default: return null
-  }
-}
-
 // Navigate to project
 function goToProject(project: Project) {
   router.push(`/project/${project.slug}`)
 }
 
-// Scroll timeline
+// Scroll sync
+function onTimelineScroll(e: Event) {
+  const target = e.target as HTMLElement
+  if (timelineHeader.value) {
+    timelineHeader.value.scrollLeft = target.scrollLeft
+  }
+}
+
+// Scroll navigation
 function scrollTimeline(direction: 'left' | 'right') {
   if (!timelineContainer.value) return
-  const scrollAmount = 300
+  const amount = colWidth * 6 // Scroll by 6 months
   timelineContainer.value.scrollBy({
-    left: direction === 'right' ? scrollAmount : -scrollAmount,
+    left: direction === 'right' ? amount : -amount,
     behavior: 'smooth'
   })
 }
 
 // Scroll to today on mount
-onMounted(() => {
+onMounted(async () => {
+  await nextTick()
   if (timelineContainer.value) {
     const containerWidth = timelineContainer.value.clientWidth
-    const scrollPosition = (todayPosition.value / 100) * timelineContainer.value.scrollWidth - containerWidth / 2
-    timelineContainer.value.scrollLeft = Math.max(0, scrollPosition)
+    const todayPx = (todayPosition.value / 100) * timelineWidth.value
+    timelineContainer.value.scrollLeft = Math.max(0, todayPx - containerWidth / 2)
   }
 })
 </script>
 
 <template>
-  <div class="h-full flex flex-col bg-[#0d0d0d]">
-    <!-- Header -->
-    <div class="flex items-center justify-between px-4 py-3 border-b border-[#222]">
-      <div class="flex items-center gap-4">
-        <h1 class="text-lg font-semibold text-white">Projects</h1>
-        <div class="flex items-center gap-1 text-sm">
-          <button class="px-3 py-1 rounded text-gray-400 hover:text-white hover:bg-[#1a1a1a]">
-            All projects
-          </button>
-          <button class="px-3 py-1 rounded text-gray-400 hover:text-white hover:bg-[#1a1a1a]">
-            Current projects
-          </button>
-          <button class="px-3 py-1 rounded text-gray-400 hover:text-white hover:bg-[#1a1a1a]">
-            My projects
-          </button>
-        </div>
-      </div>
-      
-      <div class="flex items-center gap-2">
-        <button 
-          @click="scrollTimeline('left')"
-          class="p-1 rounded hover:bg-[#1a1a1a] text-gray-400"
-        >
-          <ChevronLeft class="w-5 h-5" />
-        </button>
-        <button 
-          class="px-3 py-1 rounded bg-[#1a1a1a] text-white text-sm"
-        >
-          Today
-        </button>
-        <button 
-          @click="scrollTimeline('right')"
-          class="p-1 rounded hover:bg-[#1a1a1a] text-gray-400"
-        >
-          <ChevronRight class="w-5 h-5" />
-        </button>
-        
-        <div class="relative ml-4">
-          <button class="flex items-center gap-1 px-3 py-1 rounded bg-[#1a1a1a] text-white text-sm">
-            {{ viewMode === 'year' ? 'Year' : viewMode === 'quarter' ? 'Quarter' : 'Month' }}
-            <ChevronDown class="w-4 h-4" />
-          </button>
-        </div>
-      </div>
+  <div class="h-full flex flex-col">
+    <!-- Timeline controls -->
+    <div class="flex items-center justify-end gap-2 px-4 py-2 border-b border-[#222]">
+      <button 
+        @click="scrollTimeline('left')"
+        class="p-1.5 rounded hover:bg-[#222] text-gray-400"
+      >
+        <ChevronLeft class="w-4 h-4" />
+      </button>
+      <span class="text-xs text-gray-500">{{ today.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) }}</span>
+      <button 
+        @click="scrollTimeline('right')"
+        class="p-1.5 rounded hover:bg-[#222] text-gray-400"
+      >
+        <ChevronRight class="w-4 h-4" />
+      </button>
     </div>
-    
-    <!-- Main content -->
+
+    <!-- Main content area -->
     <div class="flex-1 flex overflow-hidden">
       <!-- Left sidebar - Project list -->
-      <div class="w-64 flex-shrink-0 border-r border-[#222] overflow-y-auto">
-        <div v-for="group in projectsByTeam" :key="group.team?.id || 'no-team'" class="border-b border-[#222]">
-          <!-- Team header -->
-          <div v-if="group.team" class="px-3 py-2 bg-[#111] sticky top-0">
-            <div class="flex items-center gap-2">
-              <div 
-                class="w-4 h-4 rounded"
-                :style="{ backgroundColor: group.team.color || '#6366f1' }"
-              ></div>
-              <span class="text-sm font-medium text-gray-300">{{ group.team.name }}</span>
-            </div>
-          </div>
-          
-          <!-- Projects in team -->
+      <div class="w-72 flex-shrink-0 border-r border-[#222] flex flex-col">
+        <!-- Header aligned with timeline -->
+        <div class="h-12 border-b border-[#222] flex items-end px-3 pb-1">
+          <span class="text-xs text-gray-500 uppercase tracking-wide">Project</span>
+        </div>
+        
+        <!-- Projects list -->
+        <div class="flex-1 overflow-y-auto">
           <div 
-            v-for="project in group.projects" 
+            v-for="project in sortedProjects" 
             :key="project.id"
             @click="goToProject(project)"
-            class="flex items-center gap-2 px-3 py-2 hover:bg-[#1a1a1a] cursor-pointer border-b border-[#1a1a1a] last:border-b-0"
+            class="h-10 flex items-center gap-2 px-3 hover:bg-[#1a1a1a] cursor-pointer border-b border-[#1a1a1a]"
           >
             <!-- Project icon -->
             <div 
-              class="w-5 h-5 rounded flex items-center justify-center text-xs"
+              class="w-5 h-5 rounded flex-shrink-0 flex items-center justify-center text-[10px] text-white font-medium"
               :style="{ backgroundColor: project.color || '#6366f1' }"
             >
               {{ project.icon || project.name.charAt(0).toUpperCase() }}
@@ -294,53 +208,53 @@ onMounted(() => {
             <!-- State indicator -->
             <component 
               :is="getStateIcon(project.state)" 
-              class="w-4 h-4" 
+              class="w-3.5 h-3.5 flex-shrink-0" 
               :class="getStateColor(project.state)"
             />
             
             <!-- Health indicator -->
             <div 
-              v-if="getHealthIndicator(project.health)"
-              class="w-2 h-2 rounded-full"
-              :class="getHealthIndicator(project.health)?.color"
+              v-if="project.health"
+              class="w-2 h-2 rounded-full flex-shrink-0"
+              :class="{
+                'bg-green-500': project.health === 'onTrack',
+                'bg-yellow-500': project.health === 'atRisk',
+                'bg-red-500': project.health === 'offTrack'
+              }"
             ></div>
           </div>
         </div>
       </div>
       
       <!-- Timeline area -->
-      <div class="flex-1 overflow-hidden flex flex-col">
-        <!-- Timeline header -->
-        <div class="flex-shrink-0 border-b border-[#222] bg-[#0d0d0d]">
-          <!-- Year row -->
-          <div class="flex h-6 border-b border-[#1a1a1a]">
+      <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Timeline header (years + months) -->
+        <div class="flex-shrink-0 border-b border-[#222]">
+          <!-- Years row -->
+          <div class="h-6 flex" :style="{ width: `${timelineWidth}px` }">
             <div 
-              v-for="marker in yearMarkers" 
-              :key="marker.year"
-              class="text-xs text-gray-500 px-2 border-l border-[#222] flex items-center"
-              :style="{ 
-                marginLeft: marker.startIndex === 0 ? '0' : 'auto',
-                position: 'sticky',
-                left: 0
-              }"
+              v-for="year in years" 
+              :key="year.year"
+              class="flex items-center justify-center text-xs text-gray-400 border-l border-[#333]"
+              :style="{ width: `${year.monthCount * colWidth}px` }"
             >
-              {{ marker.year }}
+              {{ year.year }}
             </div>
           </div>
           
-          <!-- Month/Week row -->
+          <!-- Months row (scrollable header) -->
           <div 
             ref="timelineHeader"
-            class="flex h-6 overflow-hidden"
+            class="h-6 flex overflow-hidden"
           >
             <div 
-              v-for="(col, index) in timeColumns" 
-              :key="index"
-              class="flex-shrink-0 text-xs text-gray-500 text-center border-l border-[#1a1a1a]"
-              :class="{ 'border-l-[#333]': col.isMonth }"
-              :style="{ width: `${columnWidth}px` }"
+              v-for="(month, idx) in months" 
+              :key="idx"
+              class="flex-shrink-0 flex items-center justify-center text-xs text-gray-500 border-l border-[#222]"
+              :class="{ 'border-l-[#333]': month.label === 'Jan' }"
+              :style="{ width: `${colWidth}px` }"
             >
-              {{ col.label }}
+              {{ month.label }}
             </div>
           </div>
         </div>
@@ -348,70 +262,57 @@ onMounted(() => {
         <!-- Timeline body -->
         <div 
           ref="timelineContainer"
-          class="flex-1 overflow-x-auto overflow-y-auto relative"
-          @scroll="(e) => {
-            const header = $refs.timelineHeader as HTMLElement
-            if (header) header.scrollLeft = (e.target as HTMLElement).scrollLeft
-          }"
+          class="flex-1 overflow-auto"
+          @scroll="onTimelineScroll"
         >
-          <!-- Today indicator -->
-          <div 
-            class="absolute top-0 bottom-0 w-px bg-indigo-500 z-10 pointer-events-none"
-            :style="{ left: `${todayPosition}%` }"
-          >
-            <div class="absolute -top-0.5 -left-1 w-2 h-2 rounded-full bg-indigo-500"></div>
-          </div>
-          
-          <!-- Grid background -->
-          <div 
-            class="absolute inset-0 flex pointer-events-none"
-            :style="{ width: `${timeColumns.length * columnWidth}px` }"
-          >
-            <div 
-              v-for="(col, index) in timeColumns" 
-              :key="index"
-              class="flex-shrink-0 h-full border-l"
-              :class="col.isMonth ? 'border-[#222]' : 'border-[#1a1a1a]'"
-              :style="{ width: `${columnWidth}px` }"
-            ></div>
-          </div>
-          
-          <!-- Project rows -->
-          <div 
-            class="relative"
-            :style="{ width: `${timeColumns.length * columnWidth}px`, minHeight: '100%' }"
-          >
-            <template v-for="group in projectsByTeam" :key="group.team?.id || 'no-team'">
-              <!-- Team header row -->
-              <div v-if="group.team" class="h-8 bg-[#111]/50"></div>
-              
-              <!-- Project rows -->
+          <div class="relative" :style="{ width: `${timelineWidth}px`, minHeight: '100%' }">
+            <!-- Grid lines -->
+            <div class="absolute inset-0 flex pointer-events-none">
               <div 
-                v-for="project in group.projects" 
-                :key="project.id"
-                class="h-10 relative flex items-center"
-              >
-                <!-- Project bar -->
-                <div 
-                  v-if="project.startDate || project.targetDate"
-                  class="absolute h-6 rounded-md cursor-pointer hover:opacity-80 transition-opacity flex items-center px-2"
-                  :style="getProjectBarStyle(project)"
-                  @click="goToProject(project)"
-                >
-                  <span class="text-xs text-white font-medium truncate">
-                    {{ project.name }}
-                  </span>
-                </div>
-                
-                <!-- No dates indicator -->
-                <div 
-                  v-else
-                  class="absolute left-2 text-xs text-gray-600 italic"
-                >
-                  No dates set
-                </div>
+                v-for="(month, idx) in months" 
+                :key="idx"
+                class="flex-shrink-0 h-full border-l"
+                :class="month.label === 'Jan' ? 'border-[#333]' : 'border-[#1a1a1a]'"
+                :style="{ width: `${colWidth}px` }"
+              ></div>
+            </div>
+            
+            <!-- Today indicator -->
+            <div 
+              class="absolute top-0 bottom-0 w-0.5 bg-indigo-500 z-10 pointer-events-none"
+              :style="{ left: `${todayPosition}%` }"
+            >
+              <div class="absolute -top-1 left-1/2 -translate-x-1/2 px-1.5 py-0.5 bg-indigo-500 text-[10px] text-white rounded">
+                Today
               </div>
-            </template>
+            </div>
+            
+            <!-- Project rows -->
+            <div 
+              v-for="project in sortedProjects" 
+              :key="project.id"
+              class="h-10 relative flex items-center"
+            >
+              <!-- Project bar -->
+              <div 
+                v-if="getBarStyle(project)"
+                class="absolute h-6 rounded cursor-pointer hover:opacity-80 transition-opacity flex items-center px-2 overflow-hidden"
+                :style="getBarStyle(project)!"
+                @click="goToProject(project)"
+              >
+                <span class="text-xs text-white font-medium truncate whitespace-nowrap">
+                  {{ project.name }}
+                </span>
+              </div>
+              
+              <!-- No dates indicator -->
+              <span 
+                v-else
+                class="absolute left-4 text-xs text-gray-600 italic"
+              >
+                No dates set
+              </span>
+            </div>
           </div>
         </div>
       </div>

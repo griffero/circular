@@ -92,10 +92,6 @@ const filteredProjects = computed(() => {
           </button>
         </div>
         
-        <button class="p-1.5 rounded hover:bg-[#1a1a1a] text-gray-400" title="Filter">
-          <Filter class="w-4 h-4" />
-        </button>
-        
         <button 
           @click="uiStore.openCreateProjectModal()"
           class="flex items-center gap-2 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-lg transition-colors"
@@ -168,7 +164,7 @@ const filteredProjects = computed(() => {
                 'bg-green-500/20 text-green-400': project.state === 'started',
                 'bg-blue-500/20 text-blue-400': project.state === 'planned',
                 'bg-yellow-500/20 text-yellow-400': project.state === 'paused',
-                'bg-gray-500/20 text-gray-400': project.state === 'backlog',
+                'bg-gray-500/20 text-gray-400': !project.state || project.state === 'backlog',
                 'bg-emerald-500/20 text-emerald-400': project.state === 'completed',
                 'bg-red-500/20 text-red-400': project.state === 'canceled'
               }"
@@ -192,14 +188,14 @@ const filteredProjects = computed(() => {
       </div>
       
       <!-- Board view (grouped by state) -->
-      <div v-else-if="viewMode === 'board'" class="h-full overflow-auto p-4">
-        <div class="flex gap-4 h-full">
+      <div v-else-if="viewMode === 'board'" class="h-full overflow-x-auto p-4">
+        <div class="flex gap-4 h-full min-w-max">
           <div 
             v-for="state in ['backlog', 'planned', 'started', 'paused', 'completed']" 
             :key="state"
-            class="w-72 flex-shrink-0 flex flex-col"
+            class="w-72 flex-shrink-0 flex flex-col bg-[#111] rounded-lg"
           >
-            <div class="flex items-center gap-2 mb-3">
+            <div class="flex items-center gap-2 px-3 py-2 border-b border-[#222]">
               <span 
                 class="w-2 h-2 rounded-full"
                 :class="{
@@ -216,7 +212,7 @@ const filteredProjects = computed(() => {
               </span>
             </div>
             
-            <div class="flex-1 space-y-2 overflow-auto">
+            <div class="flex-1 p-2 space-y-2 overflow-auto">
               <router-link
                 v-for="project in filteredProjects.filter(p => (p.state || 'backlog') === state)"
                 :key="project.id"
