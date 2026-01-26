@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useAppStore } from '@/stores/app'
+import { useUiStore, type ViewMode } from '@/stores/ui'
 import { cn } from '@/utils/cn'
 import Avatar from '@/components/ui/Avatar.vue'
 import Dropdown from '@/components/ui/Dropdown.vue'
@@ -17,11 +18,42 @@ import {
 } from 'lucide-vue-next'
 
 const route = useRoute()
+const router = useRouter()
 const authStore = useAuthStore()
 const appStore = useAppStore()
+const uiStore = useUiStore()
 
 const user = computed(() => authStore.user)
 const teams = computed(() => appStore.teams)
+
+// Check if current page supports view toggle
+const isTeamPage = computed(() => {
+  return ['team-active', 'team-backlog', 'team-board'].includes(route.name as string)
+})
+
+// Track which list view was last used (for returning from board)
+const lastListRoute = computed(() => {
+  if (route.name === 'team-active' || route.name === 'team-backlog') {
+    return route.name
+  }
+  return 'team-active' // default
+})
+
+function handleViewChange(mode: ViewMode) {
+  uiStore.setViewMode(mode)
+  
+  if (!isTeamPage.value) return
+  
+  const teamKey = route.params.teamKey
+  if (!teamKey) return
+  
+  if (mode === 'board') {
+    router.push(`/team/${teamKey}/board`)
+  } else {
+    // Go to active issues list by default
+    router.push(`/team/${teamKey}/active`)
+  }
+}
 
 const breadcrumbs = computed(() => {
   const crumbs: { name: string; path?: string }[] = []
@@ -92,23 +124,41 @@ const pageTitle = computed(() => {
 
     <!-- Actions -->
     <div class="flex items-center gap-2">
-      <!-- View toggle (placeholder) -->
-      <div class="flex items-center gap-0.5 p-0.5 bg-gray-100 dark:bg-gray-800 rounded-md">
+      <!-- View toggle (only on team pages) -->
+      <div v-if="isTeamPage" class="flex items-center gap-0.5 p-0.5 bg-gray-100 dark:bg-gray-800 rounded-md">
         <button
+          @click="handleViewChange('list')"
           :class="cn(
-            'p-1.5 rounded',
-            'bg-white dark:bg-gray-700 shadow-sm'
+            'p-1.5 rounded transition-colors',
+            route.name !== 'team-board'
+              ? 'bg-white dark:bg-gray-700 shadow-sm'
+              : 'hover:bg-gray-200 dark:hover:bg-gray-700'
           )"
+          title="List view"
         >
-          <List class="h-4 w-4 text-gray-600 dark:text-gray-300" />
+          <List :class="cn(
+            'h-4 w-4',
+            route.name !== 'team-board'
+              ? 'text-gray-600 dark:text-gray-300'
+              : 'text-gray-400'
+          )" />
         </button>
         <button
+          @click="handleViewChange('board')"
           :class="cn(
-            'p-1.5 rounded',
-            'hover:bg-gray-200 dark:hover:bg-gray-700'
+            'p-1.5 rounded transition-colors',
+            route.name === 'team-board'
+              ? 'bg-white dark:bg-gray-700 shadow-sm'
+              : 'hover:bg-gray-200 dark:hover:bg-gray-700'
           )"
+          title="Board view"
         >
-          <LayoutGrid class="h-4 w-4 text-gray-400" />
+          <LayoutGrid :class="cn(
+            'h-4 w-4',
+            route.name === 'team-board'
+              ? 'text-gray-600 dark:text-gray-300'
+              : 'text-gray-400'
+          )" />
         </button>
       </div>
 

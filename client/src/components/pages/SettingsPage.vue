@@ -40,10 +40,11 @@ const visibleNavItems = computed(() => {
 <template>
   <div class="flex h-full">
     <!-- Settings sidebar -->
-    <aside class="w-56 border-r border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 p-4">
-      <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-        Settings
-      </h2>
+    <aside class="w-56 border-r border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
+      <div class="p-4">
+        <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+          Settings
+        </h2>
       <nav class="space-y-1">
         <router-link
           v-for="item in visibleNavItems"
@@ -61,6 +62,7 @@ const visibleNavItems = computed(() => {
           {{ item.name }}
         </router-link>
       </nav>
+      </div>
     </aside>
 
     <!-- Settings content -->

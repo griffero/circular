@@ -1,12 +1,17 @@
 import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
 
+export type ViewMode = 'list' | 'board'
+
 export const useUiStore = defineStore('ui', () => {
   // Dark mode
   const darkMode = ref(localStorage.getItem('darkMode') === 'true' || window.matchMedia('(prefers-color-scheme: dark)').matches)
 
   // Sidebar
   const sidebarCollapsed = ref(localStorage.getItem('sidebarCollapsed') === 'true')
+
+  // View mode (list or board)
+  const viewMode = ref<ViewMode>((localStorage.getItem('viewMode') as ViewMode) || 'list')
 
   // Command palette
   const commandPaletteOpen = ref(false)
@@ -27,6 +32,11 @@ export const useUiStore = defineStore('ui', () => {
   // Persist sidebar collapsed state
   watch(sidebarCollapsed, (value) => {
     localStorage.setItem('sidebarCollapsed', String(value))
+  })
+
+  // Persist view mode
+  watch(viewMode, (value) => {
+    localStorage.setItem('viewMode', value)
   })
 
   function toggleDarkMode() {
@@ -57,16 +67,22 @@ export const useUiStore = defineStore('ui', () => {
     createIssueModalOpen.value = false
   }
 
+  function setViewMode(mode: ViewMode) {
+    viewMode.value = mode
+  }
+
   return {
     // State
     darkMode,
     sidebarCollapsed,
+    viewMode,
     commandPaletteOpen,
     createIssueModalOpen,
 
     // Actions
     toggleDarkMode,
     toggleSidebar,
+    setViewMode,
     openCommandPalette,
     closeCommandPalette,
     toggleCommandPalette,

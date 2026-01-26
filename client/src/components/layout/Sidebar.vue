@@ -92,7 +92,8 @@ function isProjectActive(projectSlug: string) {
 <template>
   <aside :class="sidebarClass">
     <!-- User menu -->
-    <div class="p-2 border-b border-gray-200 dark:border-gray-800">
+    <div class="border-b border-gray-200 dark:border-gray-800">
+      <div class="p-2">
       <Dropdown align="left" :width="collapsed ? 'w-48' : 'w-56'">
         <template #trigger>
           <button
@@ -135,6 +136,7 @@ function isProjectActive(projectSlug: string) {
           </DropdownItem>
         </template>
       </Dropdown>
+      </div>
     </div>
 
     <!-- Search & Create -->
@@ -273,22 +275,24 @@ function isProjectActive(projectSlug: string) {
     </nav>
 
     <!-- Collapse toggle -->
-    <div class="p-2 border-t border-gray-200 dark:border-gray-800">
-      <Tooltip :content="collapsed ? 'Expand' : 'Collapse'" :position="collapsed ? 'right' : 'top'">
-        <button
-          @click="uiStore.toggleSidebar()"
-          :class="cn(
-            'w-full flex items-center gap-2 px-2 py-1.5 rounded-md',
-            'text-gray-500 dark:text-gray-400',
-            'hover:bg-gray-200 dark:hover:bg-gray-800',
-            'transition-colors'
-          )"
-        >
-          <ChevronsLeft v-if="!collapsed" class="h-4 w-4" />
-          <ChevronsRight v-else class="h-4 w-4" />
-          <span v-if="!collapsed" class="text-sm">Collapse</span>
-        </button>
-      </Tooltip>
+    <div class="border-t border-gray-200 dark:border-gray-800">
+      <div class="p-2">
+        <Tooltip :content="collapsed ? 'Expand' : 'Collapse'" :position="collapsed ? 'right' : 'top'">
+          <button
+            @click="uiStore.toggleSidebar()"
+            :class="cn(
+              'w-full flex items-center gap-2 px-2 py-1.5 rounded-md',
+              'text-gray-500 dark:text-gray-400',
+              'hover:bg-gray-200 dark:hover:bg-gray-800',
+              'transition-colors'
+            )"
+          >
+            <ChevronsLeft v-if="!collapsed" class="h-4 w-4" />
+            <ChevronsRight v-else class="h-4 w-4" />
+            <span v-if="!collapsed" class="text-sm">Collapse</span>
+          </button>
+        </Tooltip>
+      </div>
     </div>
   </aside>
 </template>
