@@ -6,7 +6,6 @@ import { useIssuesStore } from '@/stores/issues'
 import { useUiStore } from '@/stores/ui'
 import { cn } from '@/utils/cn'
 import Avatar from '@/components/ui/Avatar.vue'
-import CreateIssueModal from '@/components/issues/CreateIssueModal.vue'
 import type { Issue, IssueStatus } from '@/types'
 import { 
   Plus, 
@@ -68,13 +67,6 @@ watch(
   },
   { immediate: true }
 )
-
-function handleIssueCreated() {
-  uiStore.closeCreateIssueModal()
-  if (currentTeam.value) {
-    issuesStore.fetchIssues({ teamId: currentTeam.value.id })
-  }
-}
 
 function handleIssueClick(issue: Issue) {
   router.push(`/issue/${issue.id}`)
@@ -176,13 +168,5 @@ const priorityIcons: Record<number, { icon: typeof Circle; color: string }> = {
         </div>
       </div>
     </div>
-
-    <!-- Create issue modal -->
-    <CreateIssueModal
-      :open="uiStore.createIssueModalOpen"
-      :team-id="currentTeam?.id"
-      @close="uiStore.closeCreateIssueModal()"
-      @created="handleIssueCreated"
-    />
   </div>
 </template>

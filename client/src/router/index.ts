@@ -35,6 +35,21 @@ const router = createRouter({
           component: () => import('@/components/pages/MyIssuesPage.vue'),
         },
         {
+          path: 'initiatives',
+          name: 'initiatives',
+          component: () => import('@/components/pages/InitiativesPage.vue'),
+        },
+        {
+          path: 'projects',
+          name: 'projects',
+          component: () => import('@/components/pages/ProjectsPage.vue'),
+        },
+        {
+          path: 'views',
+          name: 'views',
+          component: () => import('@/components/pages/ViewsPage.vue'),
+        },
+        {
           path: 'settings',
           name: 'settings',
           component: () => import('@/components/pages/SettingsPage.vue'),
@@ -65,9 +80,10 @@ const router = createRouter({
           path: 'team/:teamKey',
           name: 'team',
           component: () => import('@/components/pages/TeamPage.vue'),
+          redirect: to => `/team/${to.params.teamKey}/active`,
           children: [
             {
-              path: '',
+              path: 'active',
               name: 'team-active',
               component: () => import('@/components/pages/team/TeamActivePage.vue'),
             },

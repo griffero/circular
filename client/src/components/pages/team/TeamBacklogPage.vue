@@ -5,7 +5,6 @@ import { useAppStore } from '@/stores/app'
 import { useIssuesStore } from '@/stores/issues'
 import { useUiStore } from '@/stores/ui'
 import IssueListItem from '@/components/issues/IssueListItem.vue'
-import CreateIssueModal from '@/components/issues/CreateIssueModal.vue'
 import Button from '@/components/ui/Button.vue'
 import { Archive, Plus } from 'lucide-vue-next'
 
@@ -37,13 +36,6 @@ watch(
   },
   { immediate: true }
 )
-
-function handleIssueCreated() {
-  uiStore.closeCreateIssueModal()
-  if (currentTeam.value) {
-    issuesStore.fetchIssues({ teamId: currentTeam.value.id, status: 'backlog' })
-  }
-}
 </script>
 
 <template>
@@ -78,13 +70,5 @@ function handleIssueCreated() {
         />
       </div>
     </div>
-
-    <!-- Create issue modal -->
-    <CreateIssueModal
-      :open="uiStore.createIssueModalOpen"
-      :team-id="currentTeam?.id"
-      @close="uiStore.closeCreateIssueModal()"
-      @created="handleIssueCreated"
-    />
   </div>
 </template>

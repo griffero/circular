@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAppStore } from '@/stores/app'
+import { useUiStore } from '@/stores/ui'
 import { cn } from '@/utils/cn'
 import Button from '@/components/ui/Button.vue'
 import {
@@ -17,6 +18,7 @@ import {
 const route = useRoute()
 const router = useRouter()
 const appStore = useAppStore()
+const uiStore = useUiStore()
 
 const teams = computed(() => appStore.teams)
 const currentTeam = computed(() => {
@@ -35,7 +37,7 @@ const tabs = computed<Tab[]>(() => {
   if (!currentTeam.value) return []
   const base = `/team/${currentTeam.value.key}`
   return [
-    { name: 'Active', to: base, icon: CircleDot, active: route.name === 'team-active' },
+    { name: 'Active', to: `${base}/active`, icon: CircleDot, active: route.name === 'team-active' },
     { name: 'Backlog', to: `${base}/backlog`, icon: LayoutList, active: route.name === 'team-backlog' },
     { name: 'Board', to: `${base}/board`, icon: Columns3, active: route.name === 'team-board' },
     { name: 'Cycles', to: `${base}/cycles`, icon: Clock, active: route.name === 'team-cycles' },
@@ -78,11 +80,11 @@ const tabs = computed<Tab[]>(() => {
       </div>
 
       <div class="flex items-center gap-2">
-        <Button size="sm" variant="ghost">
+        <Button size="sm" variant="ghost" @click="uiStore.toggleFilters()">
           <Filter class="h-4 w-4" />
           Filter
         </Button>
-        <Button size="sm">
+        <Button size="sm" @click="uiStore.openCreateIssueModal()">
           <Plus class="h-4 w-4" />
           New issue
         </Button>

@@ -230,12 +230,13 @@ const workspaceName = computed(() => {
             <span>Views</span>
           </router-link>
 
-          <button
+          <router-link
+            to="/settings"
             class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded text-[13px] text-gray-400 hover:bg-[#1a1a1a] hover:text-white transition-colors"
           >
             <MoreHorizontal class="w-4 h-4" />
             <span>More</span>
-          </button>
+          </router-link>
         </div>
       </div>
 
