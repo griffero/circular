@@ -16,15 +16,7 @@ const loading = ref(false)
 const emailSent = ref(false)
 
 onMounted(async () => {
-  // Check if already logged in
-  if (!authStore.initialized) {
-    await authStore.fetchCurrentUser()
-  }
-  if (authStore.isAuthenticated) {
-    router.replace('/')
-    return
-  }
-
+  // Handle token login from URL (e.g., magic link)
   const token = route.query.token as string
   if (token) {
     loading.value = true

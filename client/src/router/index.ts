@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -105,6 +106,36 @@ const router = createRouter({
       ],
     },
   ],
+})
+
+// Navigation guard
+router.beforeEach(async (to) => {
+  const authStore = useAuthStore()
+  
+  // Initialize auth state if not already done
+  if (!authStore.initialized) {
+    await authStore.fetchCurrentUser()
+  }
+  
+  const isAuthenticated = authStore.isAuthenticated
+  const isAuthPage = to.name === 'login' || to.name === 'auth-verify'
+  
+  // Redirect authenticated users away from login/auth pages
+  if (isAuthenticated && isAuthPage) {
+    return { name: 'home' }
+  }
+  
+  // Allow auth pages without authentication
+  if (isAuthPage) {
+    return true
+  }
+  
+  // Redirect unauthenticated users to login
+  if (!isAuthenticated) {
+    return { name: 'login' }
+  }
+  
+  return true
 })
 
 export default router
