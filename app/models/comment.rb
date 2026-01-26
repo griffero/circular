@@ -7,7 +7,7 @@ class Comment < ApplicationRecord
 
   has_many :replies, class_name: "Comment", foreign_key: :parent_id, dependent: :destroy
 
-  validates :body, presence: true, length: { minimum: 1, maximum: 10_000 }
+  validates :body, presence: true, length: { minimum: 1, maximum: 100_000 }
 
   after_create :record_activity
 
