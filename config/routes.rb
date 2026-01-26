@@ -44,6 +44,8 @@ Rails.application.routes.draw do
       # Teams
       resources :teams, param: :key, only: %i[index create show update destroy] do
         resources :members, controller: "team_members", only: %i[index create destroy], param: :user_id
+        resources :workflow_states, only: %i[index]
+        resources :cycles, only: %i[index]
       end
 
       # Projects

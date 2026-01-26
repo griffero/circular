@@ -6,16 +6,16 @@ import { useIssuesStore } from '@/stores/issues'
 import { useUiStore } from '@/stores/ui'
 import { cn } from '@/utils/cn'
 import Avatar from '@/components/ui/Avatar.vue'
-import type { Issue, IssueStatus } from '@/types'
+import type { Issue, WorkflowState } from '@/types'
 import { 
   Plus, 
-  Circle, 
-  Clock, 
-  CheckCircle2,
+  Circle,
+  MoreHorizontal,
   AlertTriangle,
   ArrowUp,
   ArrowRight,
-  ArrowDown
+  ArrowDown,
+  Minus
 } from 'lucide-vue-next'
 
 const route = useRoute()
@@ -32,36 +32,38 @@ const currentTeam = computed(() => {
 
 const loading = computed(() => issuesStore.loading)
 
-// Kanban columns
-const columns: { id: IssueStatus; name: string; icon: typeof Circle; color: string }[] = [
-  { id: 'backlog', name: 'Backlog', icon: Circle, color: 'text-gray-400' },
-  { id: 'todo', name: 'Todo', icon: Circle, color: 'text-gray-500' },
-  { id: 'in_progress', name: 'In Progress', icon: Clock, color: 'text-yellow-500' },
-  { id: 'in_review', name: 'In Review', icon: Clock, color: 'text-blue-500' },
-  { id: 'done', name: 'Done', icon: CheckCircle2, color: 'text-green-500' },
-]
+// Dynamic workflow states ordered by position
+const columns = computed(() => {
+  return [...issuesStore.workflowStates].sort((a, b) => a.position - b.position)
+})
 
+// Group issues by workflow state ID
 const issuesByColumn = computed(() => {
+  const grouped: Record<string, Issue[]> = {}
+  
+  // Initialize empty arrays for each workflow state
+  for (const state of columns.value) {
+    grouped[state.id] = []
+  }
+  
+  // Group issues by workflowStateId
   const teamIssues = issuesStore.issues.filter(i => i.teamId === currentTeam.value?.id)
-  const grouped: Record<IssueStatus, Issue[]> = {
-    backlog: [],
-    todo: [],
-    in_progress: [],
-    in_review: [],
-    done: [],
-    canceled: []
-  }
   for (const issue of teamIssues) {
-    grouped[issue.status].push(issue)
+    if (issue.workflowStateId && grouped[issue.workflowStateId]) {
+      grouped[issue.workflowStateId].push(issue)
+    }
   }
+  
   return grouped
 })
 
-// Fetch issues when team changes
+// Fetch workflow states and issues when team changes
 watch(
   () => currentTeam.value?.id,
   async (teamId) => {
     if (teamId) {
+      // Fetch workflow states first, then issues
+      await issuesStore.fetchWorkflowStates(teamId)
       await issuesStore.fetchIssues({ teamId })
     }
   },
@@ -72,8 +74,27 @@ function handleIssueClick(issue: Issue) {
   router.push(`/issue/${issue.id}`)
 }
 
-const priorityIcons: Record<number, { icon: typeof Circle; color: string }> = {
-  0: { icon: Circle, color: 'text-gray-400' },
+function getStateIcon(state: WorkflowState) {
+  // Return appropriate icon based on state type
+  switch (state.stateType) {
+    case 'backlog':
+    case 'triage':
+      return Circle
+    case 'unstarted':
+      return Circle
+    case 'started':
+      return Circle
+    case 'completed':
+      return Circle
+    case 'canceled':
+      return Circle
+    default:
+      return Circle
+  }
+}
+
+const priorityConfig: Record<number, { icon: typeof Circle; color: string }> = {
+  0: { icon: Minus, color: 'text-gray-400' },
   1: { icon: AlertTriangle, color: 'text-red-500' },
   2: { icon: ArrowUp, color: 'text-orange-500' },
   3: { icon: ArrowRight, color: 'text-yellow-500' },
@@ -83,84 +104,98 @@ const priorityIcons: Record<number, { icon: typeof Circle; color: string }> = {
 
 <template>
   <div class="h-full overflow-x-auto">
-    <div v-if="loading" class="flex items-center justify-center py-16 h-full">
+    <div v-if="loading && columns.length === 0" class="flex items-center justify-center py-16 h-full">
       <div class="animate-spin rounded-full h-8 w-8 border-2 border-primary-600 border-t-transparent"></div>
     </div>
 
-    <div v-else class="flex gap-4 p-4 h-full min-w-max">
+    <div v-else-if="columns.length === 0" class="flex items-center justify-center py-16 h-full text-gray-400">
+      No workflow states found for this team
+    </div>
+
+    <div v-else class="flex gap-2 p-4 h-full min-w-max">
       <div
         v-for="column in columns"
         :key="column.id"
-        class="w-72 flex-shrink-0 flex flex-col bg-gray-50 dark:bg-gray-900/50 rounded-lg"
+        class="w-72 flex-shrink-0 flex flex-col bg-gray-900/30 rounded-lg"
       >
         <!-- Column header -->
-        <div class="flex items-center justify-between px-3 py-2 border-b border-gray-200 dark:border-gray-800">
+        <div class="flex items-center justify-between px-3 py-2.5">
           <div class="flex items-center gap-2">
-            <component :is="column.icon" :class="cn('h-4 w-4', column.color)" />
-            <span class="font-medium text-sm text-gray-900 dark:text-gray-100">{{ column.name }}</span>
-            <span class="text-xs text-gray-500 bg-gray-200 dark:bg-gray-800 px-1.5 py-0.5 rounded">
+            <component 
+              :is="getStateIcon(column)" 
+              class="h-4 w-4" 
+              :style="{ color: column.color }"
+            />
+            <span class="font-medium text-sm text-gray-100">{{ column.name }}</span>
+            <span class="text-xs text-gray-500 ml-1">
               {{ issuesByColumn[column.id]?.length || 0 }}
             </span>
           </div>
-          <button 
-            class="p-1 hover:bg-gray-200 dark:hover:bg-gray-800 rounded"
-            @click="uiStore.openCreateIssueModal()"
-          >
-            <Plus class="h-4 w-4 text-gray-400" />
-          </button>
+          <div class="flex items-center gap-1">
+            <button class="p-1 hover:bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+              <MoreHorizontal class="h-4 w-4 text-gray-500" />
+            </button>
+            <button 
+              class="p-1 hover:bg-gray-800 rounded"
+              @click="uiStore.openCreateIssueModal()"
+            >
+              <Plus class="h-4 w-4 text-gray-500" />
+            </button>
+          </div>
         </div>
 
         <!-- Column content -->
-        <div class="flex-1 overflow-y-auto p-2 space-y-2">
-          <div
-            v-if="issuesByColumn[column.id]?.length === 0"
-            class="py-8 text-center text-sm text-gray-400"
-          >
-            No issues
-          </div>
-
+        <div class="flex-1 overflow-y-auto px-2 pb-2 space-y-2">
           <!-- Issue cards -->
           <div
             v-for="issue in issuesByColumn[column.id]"
             :key="issue.id"
             @click="handleIssueClick(issue)"
             :class="cn(
-              'p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700',
-              'hover:border-gray-300 dark:hover:border-gray-600',
-              'cursor-pointer transition-colors shadow-sm'
+              'p-3 bg-gray-800/80 rounded-md border border-gray-700/50',
+              'hover:border-gray-600 hover:bg-gray-800',
+              'cursor-pointer transition-all duration-150'
             )"
           >
-            <!-- Issue identifier -->
-            <div class="flex items-center justify-between mb-2">
+            <!-- Issue header: identifier + priority -->
+            <div class="flex items-center justify-between mb-1.5">
               <span class="text-xs font-mono text-gray-500">{{ issue.identifier }}</span>
               <component 
                 v-if="issue.priority > 0"
-                :is="priorityIcons[issue.priority]?.icon || Circle" 
-                :class="cn('h-3.5 w-3.5', priorityIcons[issue.priority]?.color)" 
+                :is="priorityConfig[issue.priority]?.icon || Minus" 
+                :class="cn('h-3.5 w-3.5', priorityConfig[issue.priority]?.color)" 
               />
             </div>
 
             <!-- Title -->
-            <p class="text-sm text-gray-900 dark:text-gray-100 line-clamp-2 mb-2">
+            <p class="text-sm text-gray-200 line-clamp-2 leading-snug">
               {{ issue.title }}
             </p>
 
-            <!-- Footer -->
-            <div class="flex items-center justify-between">
+            <!-- Footer: labels + assignee -->
+            <div class="flex items-center justify-between mt-2">
               <!-- Labels -->
-              <div class="flex items-center gap-1">
-                <div
-                  v-for="label in issue.labels?.slice(0, 2)"
-                  :key="label.id"
-                  class="w-2 h-2 rounded-full"
-                  :style="{ backgroundColor: label.color }"
-                />
+              <div class="flex items-center gap-1.5">
+                <template v-if="issue.labels && issue.labels.length > 0">
+                  <div
+                    v-for="label in issue.labels.slice(0, 3)"
+                    :key="label.id"
+                    class="flex items-center gap-1 px-1.5 py-0.5 rounded text-xs"
+                    :style="{ 
+                      backgroundColor: `${label.color}20`,
+                      color: label.color
+                    }"
+                  >
+                    <span class="truncate max-w-[80px]">{{ label.name }}</span>
+                  </div>
+                </template>
               </div>
 
               <!-- Assignee -->
               <Avatar
                 v-if="issue.assignee"
-                :name="issue.assignee.name"
+                :name="issue.assignee.name || issue.assignee.displayName || issue.assignee.email"
+                :src="issue.assignee.avatarUrl"
                 size="xs"
               />
             </div>

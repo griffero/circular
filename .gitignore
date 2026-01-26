@@ -3,3 +3,4 @@
 cookies.txt
 tmp/pids/
 tmp/restart.txt
+log/*.log*
