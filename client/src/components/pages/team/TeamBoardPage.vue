@@ -6,16 +6,23 @@ import { useIssuesStore } from '@/stores/issues'
 import { useUiStore } from '@/stores/ui'
 import { cn } from '@/utils/cn'
 import Avatar from '@/components/ui/Avatar.vue'
-import type { Issue, WorkflowState } from '@/types'
+import type { Issue, WorkflowState, WorkflowStateType } from '@/types'
 import { 
   Plus, 
   Circle,
+  CircleDot,
+  CircleDashed,
+  CheckCircle2,
+  XCircle,
   MoreHorizontal,
   AlertTriangle,
   ArrowUp,
   ArrowRight,
   ArrowDown,
-  Minus
+  Minus,
+  SignalHigh,
+  SignalMedium,
+  SignalLow
 } from 'lucide-vue-next'
 
 const route = useRoute()
@@ -74,64 +81,59 @@ function handleIssueClick(issue: Issue) {
   router.push(`/issue/${issue.id}`)
 }
 
-function getStateIcon(state: WorkflowState) {
-  // Return appropriate icon based on state type
-  switch (state.stateType) {
-    case 'backlog':
-    case 'triage':
-      return Circle
-    case 'unstarted':
-      return Circle
-    case 'started':
-      return Circle
-    case 'completed':
-      return Circle
-    case 'canceled':
-      return Circle
-    default:
-      return Circle
-  }
+// State type to icon mapping (matches Linear's icons)
+const stateIcons: Record<WorkflowStateType, typeof Circle> = {
+  triage: CircleDashed,
+  backlog: Circle,
+  unstarted: Circle,
+  started: CircleDot,
+  completed: CheckCircle2,
+  canceled: XCircle
 }
 
-const priorityConfig: Record<number, { icon: typeof Circle; color: string }> = {
-  0: { icon: Minus, color: 'text-gray-400' },
-  1: { icon: AlertTriangle, color: 'text-red-500' },
-  2: { icon: ArrowUp, color: 'text-orange-500' },
-  3: { icon: ArrowRight, color: 'text-yellow-500' },
-  4: { icon: ArrowDown, color: 'text-blue-500' },
+function getStateIcon(state: WorkflowState) {
+  return stateIcons[state.stateType] || Circle
+}
+
+const priorityConfig: Record<number, { icon: typeof Circle; color: string; label: string }> = {
+  0: { icon: Minus, color: 'text-gray-400', label: 'No priority' },
+  1: { icon: SignalHigh, color: 'text-red-500', label: 'Urgent' },
+  2: { icon: SignalHigh, color: 'text-orange-500', label: 'High' },
+  3: { icon: SignalMedium, color: 'text-yellow-500', label: 'Medium' },
+  4: { icon: SignalLow, color: 'text-blue-400', label: 'Low' },
 }
 </script>
 
 <template>
-  <div class="h-full overflow-x-auto">
+  <div class="h-full overflow-x-auto bg-gray-950">
     <div v-if="loading && columns.length === 0" class="flex items-center justify-center py-16 h-full">
       <div class="animate-spin rounded-full h-8 w-8 border-2 border-primary-600 border-t-transparent"></div>
     </div>
 
-    <div v-else-if="columns.length === 0" class="flex items-center justify-center py-16 h-full text-gray-400">
+    <div v-else-if="columns.length === 0" class="flex items-center justify-center py-16 h-full text-gray-500">
       No workflow states found for this team
     </div>
 
-    <div v-else class="flex gap-2 p-4 h-full min-w-max">
+    <div v-else class="flex gap-0.5 p-2 h-full min-w-max">
       <div
         v-for="column in columns"
         :key="column.id"
-        class="w-72 flex-shrink-0 flex flex-col bg-gray-900/30 rounded-lg"
+        class="w-[280px] flex-shrink-0 flex flex-col group"
       >
         <!-- Column header -->
-        <div class="flex items-center justify-between px-3 py-2.5">
+        <div class="flex items-center justify-between px-3 py-2 sticky top-0 bg-gray-950 z-10">
           <div class="flex items-center gap-2">
             <component 
               :is="getStateIcon(column)" 
-              class="h-4 w-4" 
+              class="h-4 w-4 flex-shrink-0" 
               :style="{ color: column.color }"
             />
-            <span class="font-medium text-sm text-gray-100">{{ column.name }}</span>
-            <span class="text-xs text-gray-500 ml-1">
+            <span class="font-medium text-sm text-gray-200">{{ column.name }}</span>
+            <span class="text-xs text-gray-500">
               {{ issuesByColumn[column.id]?.length || 0 }}
             </span>
           </div>
-          <div class="flex items-center gap-1">
+          <div class="flex items-center">
             <button class="p-1 hover:bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity">
               <MoreHorizontal class="h-4 w-4 text-gray-500" />
             </button>
@@ -145,20 +147,20 @@ const priorityConfig: Record<number, { icon: typeof Circle; color: string }> = {
         </div>
 
         <!-- Column content -->
-        <div class="flex-1 overflow-y-auto px-2 pb-2 space-y-2">
+        <div class="flex-1 overflow-y-auto px-1.5 pb-2 space-y-1">
           <!-- Issue cards -->
           <div
             v-for="issue in issuesByColumn[column.id]"
             :key="issue.id"
             @click="handleIssueClick(issue)"
             :class="cn(
-              'p-3 bg-gray-800/80 rounded-md border border-gray-700/50',
-              'hover:border-gray-600 hover:bg-gray-800',
-              'cursor-pointer transition-all duration-150'
+              'px-3 py-2.5 bg-gray-900 rounded border border-gray-800/80',
+              'hover:border-gray-700 hover:bg-gray-850',
+              'cursor-pointer transition-colors'
             )"
           >
             <!-- Issue header: identifier + priority -->
-            <div class="flex items-center justify-between mb-1.5">
+            <div class="flex items-center justify-between mb-1">
               <span class="text-xs font-mono text-gray-500">{{ issue.identifier }}</span>
               <component 
                 v-if="issue.priority > 0"
@@ -168,26 +170,32 @@ const priorityConfig: Record<number, { icon: typeof Circle; color: string }> = {
             </div>
 
             <!-- Title -->
-            <p class="text-sm text-gray-200 line-clamp-2 leading-snug">
+            <p class="text-sm text-gray-200 line-clamp-2 leading-snug mb-2">
               {{ issue.title }}
             </p>
 
             <!-- Footer: labels + assignee -->
-            <div class="flex items-center justify-between mt-2">
+            <div class="flex items-center justify-between gap-2">
               <!-- Labels -->
-              <div class="flex items-center gap-1.5">
+              <div class="flex items-center gap-1 flex-wrap flex-1 min-w-0">
                 <template v-if="issue.labels && issue.labels.length > 0">
                   <div
-                    v-for="label in issue.labels.slice(0, 3)"
+                    v-for="label in issue.labels.slice(0, 2)"
                     :key="label.id"
-                    class="flex items-center gap-1 px-1.5 py-0.5 rounded text-xs"
+                    class="flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] font-medium"
                     :style="{ 
-                      backgroundColor: `${label.color}20`,
+                      backgroundColor: `${label.color}18`,
                       color: label.color
                     }"
                   >
-                    <span class="truncate max-w-[80px]">{{ label.name }}</span>
+                    <span class="truncate max-w-[100px]">{{ label.name }}</span>
                   </div>
+                  <span 
+                    v-if="issue.labels.length > 2" 
+                    class="text-[11px] text-gray-500"
+                  >
+                    +{{ issue.labels.length - 2 }}
+                  </span>
                 </template>
               </div>
 
@@ -197,6 +205,7 @@ const priorityConfig: Record<number, { icon: typeof Circle; color: string }> = {
                 :name="issue.assignee.name || issue.assignee.displayName || issue.assignee.email"
                 :src="issue.assignee.avatarUrl"
                 size="xs"
+                class="flex-shrink-0"
               />
             </div>
           </div>

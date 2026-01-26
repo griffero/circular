@@ -37,9 +37,9 @@ const tabs = computed<Tab[]>(() => {
   if (!currentTeam.value) return []
   const base = `/team/${currentTeam.value.key}`
   return [
+    { name: 'All Issues', to: `${base}/board`, icon: LayoutList, active: route.name === 'team-board' },
     { name: 'Active', to: `${base}/active`, icon: CircleDot, active: route.name === 'team-active' },
     { name: 'Backlog', to: `${base}/backlog`, icon: LayoutList, active: route.name === 'team-backlog' },
-    { name: 'Board', to: `${base}/board`, icon: Columns3, active: route.name === 'team-board' },
     { name: 'Cycles', to: `${base}/cycles`, icon: Clock, active: route.name === 'team-cycles' },
   ]
 })
