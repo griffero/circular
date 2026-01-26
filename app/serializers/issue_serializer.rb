@@ -7,10 +7,6 @@ class IssueSerializer < Blueprinter::Base
          :due_date, :estimate, :sort_order, :started_at, :completed_at,
          :canceled_at, :archived_at, :created_at, :updated_at
 
-  field :workspace_id do |issue|
-    issue.workspace_id
-  end
-
   field :team_id do |issue|
     issue.team_id
   end
