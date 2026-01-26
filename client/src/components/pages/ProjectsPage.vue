@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useAppStore } from '@/stores/app'
+import { useUiStore } from '@/stores/ui'
 import { FolderKanban, Plus } from 'lucide-vue-next'
 
 const appStore = useAppStore()
+const uiStore = useUiStore()
 const projects = computed(() => appStore.projects)
 </script>
 
@@ -18,7 +20,10 @@ const projects = computed(() => appStore.projects)
       <p class="text-sm text-gray-500 text-center max-w-sm mb-4">
         Projects help you organize issues around a specific goal or feature.
       </p>
-      <button class="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-lg transition-colors">
+      <button 
+        @click="uiStore.openCreateProjectModal()"
+        class="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-lg transition-colors"
+      >
         <Plus class="w-4 h-4" />
         Create project
       </button>
@@ -28,7 +33,10 @@ const projects = computed(() => appStore.projects)
     <div v-else class="p-4">
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-lg font-medium text-white">Projects</h2>
-        <button class="flex items-center gap-2 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-lg transition-colors">
+        <button 
+          @click="uiStore.openCreateProjectModal()"
+          class="flex items-center gap-2 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-lg transition-colors"
+        >
           <Plus class="w-4 h-4" />
           New project
         </button>

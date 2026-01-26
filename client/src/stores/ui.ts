@@ -16,8 +16,20 @@ export const useUiStore = defineStore('ui', () => {
   // Command palette
   const commandPaletteOpen = ref(false)
 
-  // Create issue modal
+  // Keyboard shortcuts help
+  const shortcutsHelpOpen = ref(false)
+
+  // Create modals
   const createIssueModalOpen = ref(false)
+  const createProjectModalOpen = ref(false)
+  const createInitiativeModalOpen = ref(false)
+  const createViewModalOpen = ref(false)
+  const createTeamModalOpen = ref(false)
+  const createCycleModalOpen = ref(false)
+
+  // Issue detail sidebar
+  const issueDetailOpen = ref(false)
+  const selectedIssueId = ref<string | null>(null)
 
   // Filters panel
   const filtersOpen = ref(false)
@@ -70,8 +82,78 @@ export const useUiStore = defineStore('ui', () => {
     createIssueModalOpen.value = false
   }
 
+  function openCreateProjectModal() {
+    createProjectModalOpen.value = true
+  }
+
+  function closeCreateProjectModal() {
+    createProjectModalOpen.value = false
+  }
+
+  function openCreateInitiativeModal() {
+    createInitiativeModalOpen.value = true
+  }
+
+  function closeCreateInitiativeModal() {
+    createInitiativeModalOpen.value = false
+  }
+
+  function openCreateViewModal() {
+    createViewModalOpen.value = true
+  }
+
+  function closeCreateViewModal() {
+    createViewModalOpen.value = false
+  }
+
+  function openCreateTeamModal() {
+    createTeamModalOpen.value = true
+  }
+
+  function closeCreateTeamModal() {
+    createTeamModalOpen.value = false
+  }
+
+  function openCreateCycleModal() {
+    createCycleModalOpen.value = true
+  }
+
+  function closeCreateCycleModal() {
+    createCycleModalOpen.value = false
+  }
+
+  function openShortcutsHelp() {
+    shortcutsHelpOpen.value = true
+  }
+
+  function closeShortcutsHelp() {
+    shortcutsHelpOpen.value = false
+  }
+
+  function toggleShortcutsHelp() {
+    shortcutsHelpOpen.value = !shortcutsHelpOpen.value
+  }
+
+  function openIssueDetail(issueId: string) {
+    selectedIssueId.value = issueId
+    issueDetailOpen.value = true
+  }
+
+  function closeIssueDetail() {
+    issueDetailOpen.value = false
+    selectedIssueId.value = null
+  }
+
+  function toggleIssueDetail() {
+    issueDetailOpen.value = !issueDetailOpen.value
+  }
+
   function setViewMode(mode: ViewMode) {
     viewMode.value = mode
+  }
+
+  function toggleViewMode() {
+    viewMode.value = viewMode.value === 'list' ? 'board' : 'list'
   }
 
   function toggleFilters() {
@@ -84,18 +166,43 @@ export const useUiStore = defineStore('ui', () => {
     sidebarCollapsed,
     viewMode,
     commandPaletteOpen,
+    shortcutsHelpOpen,
     createIssueModalOpen,
+    createProjectModalOpen,
+    createInitiativeModalOpen,
+    createViewModalOpen,
+    createTeamModalOpen,
+    createCycleModalOpen,
+    issueDetailOpen,
+    selectedIssueId,
     filtersOpen,
 
     // Actions
     toggleDarkMode,
     toggleSidebar,
     setViewMode,
+    toggleViewMode,
     openCommandPalette,
     closeCommandPalette,
     toggleCommandPalette,
+    openShortcutsHelp,
+    closeShortcutsHelp,
+    toggleShortcutsHelp,
     openCreateIssueModal,
     closeCreateIssueModal,
+    openCreateProjectModal,
+    closeCreateProjectModal,
+    openCreateInitiativeModal,
+    closeCreateInitiativeModal,
+    openCreateViewModal,
+    closeCreateViewModal,
+    openCreateTeamModal,
+    closeCreateTeamModal,
+    openCreateCycleModal,
+    closeCreateCycleModal,
+    openIssueDetail,
+    closeIssueDetail,
+    toggleIssueDetail,
     toggleFilters,
   }
 })

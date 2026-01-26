@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { LayoutGrid, Plus } from 'lucide-vue-next'
+import { useUiStore } from '@/stores/ui'
+
+const uiStore = useUiStore()
 </script>
 
 <template>
@@ -12,7 +15,10 @@ import { LayoutGrid, Plus } from 'lucide-vue-next'
       <p class="text-sm text-gray-500 text-center max-w-sm mb-4">
         Create custom views to filter and organize issues the way you want.
       </p>
-      <button class="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-lg transition-colors">
+      <button 
+        @click="uiStore.openCreateViewModal()"
+        class="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-lg transition-colors"
+      >
         <Plus class="w-4 h-4" />
         Create view
       </button>
