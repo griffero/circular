@@ -4,6 +4,7 @@ import { useAppStore } from '@/stores/app'
 import { useUiStore } from '@/stores/ui'
 import { FolderKanban, Plus, LayoutGrid, Calendar, List, Filter } from 'lucide-vue-next'
 import ProjectRoadmap from '@/components/projects/ProjectRoadmap.vue'
+import EmojiIcon from '@/components/ui/EmojiIcon.vue'
 
 const appStore = useAppStore()
 const uiStore = useUiStore()
@@ -136,10 +137,14 @@ const filteredProjects = computed(() => {
             class="flex items-center gap-3 p-3 bg-[#1a1a1a] hover:bg-[#222] rounded-lg transition-colors"
           >
             <div 
-              class="w-8 h-8 rounded flex items-center justify-center text-sm font-medium"
+              class="w-8 h-8 rounded flex items-center justify-center"
               :style="{ backgroundColor: project.color || '#6366f1' }"
             >
-              {{ project.icon || project.name.charAt(0).toUpperCase() }}
+              <EmojiIcon 
+                :name="project.icon" 
+                :fallback="project.name.charAt(0)" 
+                size="md"
+              />
             </div>
             <div class="flex-1 min-w-0">
               <p class="text-sm font-medium text-white truncate">{{ project.name }}</p>
@@ -221,10 +226,14 @@ const filteredProjects = computed(() => {
               >
                 <div class="flex items-center gap-2 mb-2">
                   <div 
-                    class="w-6 h-6 rounded flex items-center justify-center text-xs font-medium"
+                    class="w-6 h-6 rounded flex items-center justify-center"
                     :style="{ backgroundColor: project.color || '#6366f1' }"
                   >
-                    {{ project.icon || project.name.charAt(0).toUpperCase() }}
+                    <EmojiIcon 
+                      :name="project.icon" 
+                      :fallback="project.name.charAt(0)" 
+                      size="sm"
+                    />
                   </div>
                   <span class="text-sm font-medium text-white truncate">{{ project.name }}</span>
                 </div>

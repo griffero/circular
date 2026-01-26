@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useAppStore } from '@/stores/app'
 import Button from '@/components/ui/Button.vue'
 import Badge from '@/components/ui/Badge.vue'
+import EmojiIcon from '@/components/ui/EmojiIcon.vue'
 import {
   FolderKanban,
   Plus,
@@ -56,7 +57,11 @@ function getStatusBadge(status: string) {
             class="w-10 h-10 rounded-lg flex items-center justify-center"
             :style="{ backgroundColor: currentProject.color || '#6b7280' }"
           >
-            <FolderKanban class="h-5 w-5 text-white" />
+            <EmojiIcon 
+              :name="currentProject.icon" 
+              :fallback="currentProject.name.charAt(0)" 
+              size="lg"
+            />
           </div>
           <div>
             <h1 class="text-xl font-semibold text-gray-900 dark:text-gray-100">

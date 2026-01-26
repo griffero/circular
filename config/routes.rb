@@ -83,6 +83,9 @@ Rails.application.routes.draw do
       # Search
       get "search", to: "search#index"
 
+      # Slack Emojis (custom workspace emojis)
+      resources :emojis, only: %i[index]
+
       # Settings (admin only)
       namespace :settings do
         get "/", to: "settings#show"

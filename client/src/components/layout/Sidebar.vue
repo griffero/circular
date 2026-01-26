@@ -7,6 +7,7 @@ import { useAppStore } from '@/stores/app'
 import { cn } from '@/utils/cn'
 import Dropdown from '@/components/ui/Dropdown.vue'
 import DropdownItem from '@/components/ui/DropdownItem.vue'
+import EmojiIcon from '@/components/ui/EmojiIcon.vue'
 import {
   Inbox,
   Search,
@@ -269,7 +270,11 @@ const workspaceName = computed(() => {
                 class="w-5 h-5 rounded flex items-center justify-center flex-shrink-0"
                 :style="{ backgroundColor: team.color || '#6366f1' }"
               >
-                <span class="text-[10px] font-bold text-white">{{ team.key.substring(0, 2) }}</span>
+                <EmojiIcon 
+                  :name="team.icon" 
+                  :fallback="team.key.substring(0, 2)" 
+                  size="xs"
+                />
               </div>
               <span class="flex-1 text-left truncate">{{ team.name }}</span>
               <ChevronRight 

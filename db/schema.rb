@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_26_000011) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_26_190110) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -219,6 +219,15 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_26_000011) do
     t.index ["slug_id"], name: "index_projects_on_slug_id", unique: true, where: "(slug_id IS NOT NULL)"
     t.index ["state"], name: "index_projects_on_state"
     t.index ["status"], name: "index_projects_on_status"
+  end
+
+  create_table "slack_emojis", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "name", null: false
+    t.string "url", null: false
+    t.string "alias_for"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_slack_emojis_on_name", unique: true
   end
 
   create_table "sync_logs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|

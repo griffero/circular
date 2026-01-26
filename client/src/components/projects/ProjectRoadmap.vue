@@ -4,6 +4,7 @@ import { useAppStore } from '@/stores/app'
 import { useRouter } from 'vue-router'
 import type { Project } from '@/types'
 import { ChevronLeft, ChevronRight, Circle, CheckCircle2, PauseCircle, XCircle } from 'lucide-vue-next'
+import EmojiIcon from '@/components/ui/EmojiIcon.vue'
 
 const appStore = useAppStore()
 const router = useRouter()
@@ -196,10 +197,14 @@ onMounted(async () => {
           >
             <!-- Project icon -->
             <div 
-              class="w-5 h-5 rounded flex-shrink-0 flex items-center justify-center text-[10px] text-white font-medium"
+              class="w-5 h-5 rounded flex-shrink-0 flex items-center justify-center"
               :style="{ backgroundColor: project.color || '#6366f1' }"
             >
-              {{ project.icon || project.name.charAt(0).toUpperCase() }}
+              <EmojiIcon 
+                :name="project.icon" 
+                :fallback="project.name.charAt(0)" 
+                size="sm"
+              />
             </div>
             
             <!-- Project name -->

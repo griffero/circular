@@ -20,9 +20,21 @@ production:
     queue: sync
     schedule: every 5 minutes
 
+  # Slack emoji sync - runs every hour to keep custom emojis updated
+  slack_emoji_sync:
+    class: SyncSlackEmojisJob
+    queue: sync
+    schedule: every hour at minute 30
+
 development:
   # Linear sync - runs every 5 minutes in development too
   linear_sync:
     class: LinearSyncJob
     queue: sync
     schedule: every 5 minutes
+
+  # Slack emoji sync - runs every hour in development too
+  slack_emoji_sync:
+    class: SyncSlackEmojisJob
+    queue: sync
+    schedule: every hour at minute 30
