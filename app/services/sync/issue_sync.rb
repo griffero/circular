@@ -50,8 +50,11 @@ module Sync
         # Skip identifier generation callback for imported issues
         issue.save!(validate: false)
 
-        # Sync labels
-        sync_labels(issue, data.dig("labels", "nodes") || [])
+        # Sync labels - webhook sends labels as array, importer sends as {nodes: [...]}
+        labels_data = data["labels"]
+        labels_data = labels_data["nodes"] if labels_data.is_a?(Hash) && labels_data["nodes"]
+        labels_data = [] unless labels_data.is_a?(Array)
+        sync_labels(issue, labels_data)
 
         log_sync("Issue", data["id"], action)
         issue
