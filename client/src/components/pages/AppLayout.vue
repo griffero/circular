@@ -33,18 +33,18 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div v-if="loading" class="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
-    <div class="animate-spin rounded-full h-8 w-8 border-2 border-primary-600 border-t-transparent"></div>
+  <div v-if="loading" class="min-h-screen bg-[#0d0d0d] flex items-center justify-center">
+    <div class="animate-spin rounded-full h-8 w-8 border-2 border-indigo-500 border-t-transparent"></div>
   </div>
 
-  <div v-else class="min-h-screen bg-gray-50 dark:bg-gray-950 flex">
+  <div v-else class="min-h-screen bg-[#0d0d0d] flex">
     <!-- Sidebar -->
     <Sidebar />
 
     <!-- Main content -->
     <div class="flex-1 flex flex-col min-w-0">
       <Topbar />
-      <main class="flex-1 overflow-auto">
+      <main class="flex-1 overflow-auto bg-[#0d0d0d]">
         <router-view />
       </main>
     </div>

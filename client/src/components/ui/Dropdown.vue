@@ -18,9 +18,8 @@ const dropdownRef = ref<HTMLElement | null>(null)
 
 const menuClass = computed(() =>
   cn(
-    'absolute z-50 mt-1 rounded-md shadow-lg',
-    'bg-white dark:bg-gray-900',
-    'border border-gray-200 dark:border-gray-700',
+    'absolute z-50 mt-1 rounded-lg shadow-xl',
+    'bg-[#1a1a1a] border border-[#2a2a2a]',
     'py-1',
     props.width,
     props.align === 'right' ? 'right-0' : 'left-0',
