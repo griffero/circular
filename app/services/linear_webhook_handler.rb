@@ -11,7 +11,8 @@ class LinearWebhookHandler
     "Cycle" => Sync::CycleSync,
     "Comment" => Sync::CommentSync,
     "WorkflowState" => Sync::WorkflowStateSync,
-    "IssueRelation" => Sync::IssueRelationSync
+    "IssueRelation" => Sync::IssueRelationSync,
+    "Attachment" => Sync::AttachmentSync
   }.freeze
 
   def initialize(payload)

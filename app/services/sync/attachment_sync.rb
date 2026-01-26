@@ -3,7 +3,17 @@
 module Sync
   class AttachmentSync < BaseSync
     class << self
-      def upsert_from_linear(data, issue)
+      # Called from webhook - data contains issue reference
+      def upsert_from_linear(data)
+        # Find issue from webhook data
+        issue = Issue.find_by(linear_id: data.dig("issue", "id"))
+        return unless issue
+
+        upsert_with_issue(data, issue)
+      end
+
+      # Called from importer with explicit issue
+      def upsert_with_issue(data, issue)
         attachment = Attachment.find_or_initialize_by(linear_id: data["id"])
         action = attachment.new_record? ? "create" : "update"
 
