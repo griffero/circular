@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAppStore } from '@/stores/app'
+import { useUiStore } from '@/stores/ui'
 import { cn } from '@/utils/cn'
 import {
   Bell,
@@ -14,6 +15,7 @@ import {
 const route = useRoute()
 const router = useRouter()
 const appStore = useAppStore()
+const uiStore = useUiStore()
 
 const teams = computed(() => appStore.teams)
 
@@ -103,7 +105,15 @@ const tabs = computed(() => {
     <!-- Right: Actions -->
     <div class="flex items-center gap-1">
       <!-- Filter -->
-      <button class="flex items-center gap-1.5 px-2.5 py-1.5 rounded text-[13px] text-gray-400 hover:bg-[#1a1a1a] hover:text-white transition-colors">
+      <button 
+        @click="uiStore.toggleFilters()"
+        :class="cn(
+          'flex items-center gap-1.5 px-2.5 py-1.5 rounded text-[13px] transition-colors',
+          uiStore.filtersOpen
+            ? 'bg-[#1a1a1a] text-white'
+            : 'text-gray-400 hover:bg-[#1a1a1a] hover:text-white'
+        )"
+      >
         <Filter class="w-4 h-4" />
         <span>Filter</span>
       </button>

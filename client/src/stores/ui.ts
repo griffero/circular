@@ -19,6 +19,9 @@ export const useUiStore = defineStore('ui', () => {
   // Create issue modal
   const createIssueModalOpen = ref(false)
 
+  // Filters panel
+  const filtersOpen = ref(false)
+
   // Apply dark mode to document
   watch(darkMode, (value) => {
     localStorage.setItem('darkMode', String(value))
@@ -71,6 +74,10 @@ export const useUiStore = defineStore('ui', () => {
     viewMode.value = mode
   }
 
+  function toggleFilters() {
+    filtersOpen.value = !filtersOpen.value
+  }
+
   return {
     // State
     darkMode,
@@ -78,6 +85,7 @@ export const useUiStore = defineStore('ui', () => {
     viewMode,
     commandPaletteOpen,
     createIssueModalOpen,
+    filtersOpen,
 
     // Actions
     toggleDarkMode,
@@ -88,5 +96,6 @@ export const useUiStore = defineStore('ui', () => {
     toggleCommandPalette,
     openCreateIssueModal,
     closeCreateIssueModal,
+    toggleFilters,
   }
 })

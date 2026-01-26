@@ -2,8 +2,10 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useIssuesStore, type IssueFilters } from '@/stores/issues'
+import { useUiStore } from '@/stores/ui'
 import { cn } from '@/utils/cn'
 import Avatar from '@/components/ui/Avatar.vue'
+import IssueFiltersComponent from './IssueFilters.vue'
 import { 
   Plus, 
   Circle,
@@ -24,6 +26,8 @@ const props = defineProps<{
   emptyTitle?: string
   emptyDescription?: string
 }>()
+
+const uiStore = useUiStore()
 
 const emit = defineEmits<{
   (e: 'issueClick', issue: Issue): void
@@ -118,6 +122,14 @@ function handleIssueClick(issue: Issue) {
   emit('issueClick', issue)
 }
 
+function handleFilterUpdate(newFilters: IssueFilters) {
+  filters.value = {
+    ...newFilters,
+    teamId: props.teamId,
+    projectId: props.projectId
+  }
+}
+
 function formatDate(dateString: string) {
   const date = new Date(dateString)
   return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
@@ -135,6 +147,17 @@ const priorityConfig: Record<number, { label: string; color: string }> = {
 
 <template>
   <div class="h-full flex flex-col bg-[#0d0d0d]">
+    <!-- Filters panel -->
+    <div 
+      v-if="uiStore.filtersOpen" 
+      class="px-4 py-3 border-b border-[#1f1f1f] bg-[#0d0d0d]"
+    >
+      <IssueFiltersComponent
+        :filters="filters"
+        @update:filters="handleFilterUpdate"
+      />
+    </div>
+
     <!-- Loading -->
     <div v-if="loading" class="flex items-center justify-center py-16 flex-1">
       <div class="animate-spin rounded-full h-8 w-8 border-2 border-indigo-500 border-t-transparent"></div>

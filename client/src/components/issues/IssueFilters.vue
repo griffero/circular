@@ -3,7 +3,6 @@ import { computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import type { IssueStatus, IssuePriority } from '@/types'
 import { cn } from '@/utils/cn'
-import Button from '@/components/ui/Button.vue'
 import Dropdown from '@/components/ui/Dropdown.vue'
 import DropdownItem from '@/components/ui/DropdownItem.vue'
 import {
@@ -108,14 +107,17 @@ function getSortLabel(sort?: string) {
     <!-- Status filter -->
     <Dropdown align="left" width="w-48">
       <template #trigger>
-        <Button 
-          variant="ghost" 
-          size="sm"
-          :class="{ 'bg-gray-100 dark:bg-gray-800': filters.status !== undefined }"
+        <button 
+          :class="cn(
+            'flex items-center gap-1.5 px-2.5 py-1.5 rounded text-[13px] transition-colors',
+            filters.status !== undefined
+              ? 'bg-[#2a2a2a] text-white'
+              : 'text-gray-400 hover:bg-[#1a1a1a] hover:text-white'
+          )"
         >
-          <Circle class="h-4 w-4" />
+          <Circle class="w-4 h-4" />
           {{ getStatusLabel(filters.status) }}
-        </Button>
+        </button>
       </template>
       <template #default="{ close }">
         <DropdownItem
@@ -123,7 +125,7 @@ function getSortLabel(sort?: string) {
           :key="status.value || 'all'"
           @click="updateFilter('status', status.value); close()"
         >
-          <component :is="status.icon" :class="cn('h-4 w-4', status.color)" />
+          <component :is="status.icon" :class="cn('w-4 h-4', status.color)" />
           {{ status.label }}
         </DropdownItem>
       </template>
@@ -132,14 +134,17 @@ function getSortLabel(sort?: string) {
     <!-- Priority filter -->
     <Dropdown align="left" width="w-48">
       <template #trigger>
-        <Button 
-          variant="ghost" 
-          size="sm"
-          :class="{ 'bg-gray-100 dark:bg-gray-800': filters.priority !== undefined }"
+        <button 
+          :class="cn(
+            'flex items-center gap-1.5 px-2.5 py-1.5 rounded text-[13px] transition-colors',
+            filters.priority !== undefined
+              ? 'bg-[#2a2a2a] text-white'
+              : 'text-gray-400 hover:bg-[#1a1a1a] hover:text-white'
+          )"
         >
-          <ArrowUp class="h-4 w-4" />
+          <ArrowUp class="w-4 h-4" />
           {{ getPriorityLabel(filters.priority) }}
-        </Button>
+        </button>
       </template>
       <template #default="{ close }">
         <DropdownItem
@@ -147,7 +152,7 @@ function getSortLabel(sort?: string) {
           :key="priority.value ?? 'all'"
           @click="updateFilter('priority', priority.value); close()"
         >
-          <component :is="priority.icon" :class="cn('h-4 w-4', priority.color)" />
+          <component :is="priority.icon" :class="cn('w-4 h-4', priority.color)" />
           {{ priority.label }}
         </DropdownItem>
       </template>
@@ -156,51 +161,53 @@ function getSortLabel(sort?: string) {
     <!-- Assignee filter -->
     <Dropdown align="left" width="w-48">
       <template #trigger>
-        <Button 
-          variant="ghost" 
-          size="sm"
-          :class="{ 'bg-gray-100 dark:bg-gray-800': filters.assigneeId !== undefined }"
+        <button 
+          :class="cn(
+            'flex items-center gap-1.5 px-2.5 py-1.5 rounded text-[13px] transition-colors',
+            filters.assigneeId !== undefined
+              ? 'bg-[#2a2a2a] text-white'
+              : 'text-gray-400 hover:bg-[#1a1a1a] hover:text-white'
+          )"
         >
-          <User class="h-4 w-4" />
+          <User class="w-4 h-4" />
           {{ filters.assigneeId === currentUser?.id ? 'Assigned to me' : filters.assigneeId === 'unassigned' ? 'Unassigned' : 'Assignee' }}
-        </Button>
+        </button>
       </template>
       <template #default="{ close }">
         <DropdownItem @click="updateFilter('assigneeId', undefined); close()">
-          <User class="h-4 w-4 text-gray-400" />
+          <User class="w-4 h-4 text-gray-400" />
           All
         </DropdownItem>
         <DropdownItem @click="updateFilter('assigneeId', currentUser?.id); close()">
-          <User class="h-4 w-4 text-primary-500" />
+          <User class="w-4 h-4 text-indigo-400" />
           Assigned to me
         </DropdownItem>
         <DropdownItem @click="updateFilter('assigneeId', 'unassigned'); close()">
-          <User class="h-4 w-4 text-gray-400" />
+          <User class="w-4 h-4 text-gray-400" />
           Unassigned
         </DropdownItem>
       </template>
     </Dropdown>
 
     <!-- Clear filters -->
-    <Button
+    <button
       v-if="hasActiveFilters"
-      variant="ghost"
-      size="sm"
       @click="clearFilters"
+      class="flex items-center gap-1.5 px-2.5 py-1.5 rounded text-[13px] text-gray-400 hover:bg-[#1a1a1a] hover:text-white transition-colors"
     >
-      <X class="h-4 w-4" />
+      <X class="w-4 h-4" />
       Clear
-    </Button>
+    </button>
 
     <div class="flex-1" />
 
     <!-- Sort -->
     <Dropdown align="right" width="w-40">
       <template #trigger>
-        <Button variant="ghost" size="sm">
-          <component :is="filters.direction === 'asc' ? SortAsc : SortDesc" class="h-4 w-4" />
+        <button class="flex items-center gap-1.5 px-2.5 py-1.5 rounded text-[13px] text-gray-400 hover:bg-[#1a1a1a] hover:text-white transition-colors">
+          <component :is="filters.direction === 'asc' ? SortAsc : SortDesc" class="w-4 h-4" />
           {{ getSortLabel(filters.sort) }}
-        </Button>
+        </button>
       </template>
       <template #default="{ close }">
         <DropdownItem
@@ -210,9 +217,9 @@ function getSortLabel(sort?: string) {
         >
           {{ option.label }}
         </DropdownItem>
-        <div class="border-t border-gray-100 dark:border-gray-800 my-1" />
+        <div class="border-t border-[#2a2a2a] my-1" />
         <DropdownItem @click="toggleDirection(); close()">
-          <component :is="filters.direction === 'asc' ? SortDesc : SortAsc" class="h-4 w-4" />
+          <component :is="filters.direction === 'asc' ? SortDesc : SortAsc" class="w-4 h-4" />
           {{ filters.direction === 'asc' ? 'Descending' : 'Ascending' }}
         </DropdownItem>
       </template>
