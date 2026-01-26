@@ -5,8 +5,10 @@ class Team < ApplicationRecord
   has_many :members, through: :team_memberships, source: :user
   has_many :issues, dependent: :destroy
   has_many :labels, dependent: :destroy
-  # has_many :cycles, dependent: :destroy  # TODO: Add in F7
-  # has_many :saved_views, dependent: :destroy  # TODO: Add in F5
+  has_many :workflow_states, dependent: :destroy
+  has_many :cycles, dependent: :destroy
+  has_many :project_teams, dependent: :destroy
+  has_many :projects, through: :project_teams
 
   validates :name, presence: true, length: { minimum: 2, maximum: 100 }
   validates :key, presence: true,

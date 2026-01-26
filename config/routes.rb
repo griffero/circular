@@ -9,6 +9,11 @@ Rails.application.routes.draw do
   # Sidekiq Web UI (protected in production)
   mount Sidekiq::Web => "/sidekiq"
 
+  # Webhooks (no authentication required, verified by signature)
+  namespace :webhooks do
+    post "linear", to: "linear#receive"
+  end
+
   # GraphQL API (public)
   post "/graphql", to: "graphql#execute"
 

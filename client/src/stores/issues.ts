@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Issue, IssueStatus, IssuePriority, Label, Comment } from '@/types'
+import type { Issue, IssueStatus, IssuePriority, Label, Comment, WorkflowState, Cycle, WorkflowStateType } from '@/types'
 import { api } from '@/api/client'
 import { useAuthStore } from './auth'
 
@@ -8,6 +8,8 @@ export interface IssueFilters {
   teamId?: string
   projectId?: string
   assigneeId?: string
+  cycleId?: string
+  workflowStateId?: string
   status?: IssueStatus
   priority?: IssuePriority
   q?: string
@@ -27,6 +29,8 @@ export const useIssuesStore = defineStore('issues', () => {
   const currentIssue = ref<Issue | null>(null)
   const labels = ref<Label[]>([])
   const comments = ref<Comment[]>([])
+  const workflowStates = ref<WorkflowState[]>([])
+  const cycles = ref<Cycle[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
 
@@ -35,7 +39,23 @@ export const useIssuesStore = defineStore('issues', () => {
 
   const authStore = useAuthStore()
 
-  // Filtered issues by status
+  // Helper to get effective status from workflow state
+  const getEffectiveStatus = (issue: Issue): IssueStatus => {
+    if (issue.workflowState?.stateType) {
+      const stateTypeToStatus: Record<WorkflowStateType, IssueStatus> = {
+        triage: 'backlog',
+        backlog: 'backlog',
+        unstarted: 'todo',
+        started: 'in_progress',
+        completed: 'done',
+        canceled: 'canceled'
+      }
+      return stateTypeToStatus[issue.workflowState.stateType] || issue.status || 'backlog'
+    }
+    return issue.status || 'backlog'
+  }
+
+  // Filtered issues by status (supports both legacy status and workflow state)
   const issuesByStatus = computed(() => {
     const grouped: Record<IssueStatus, Issue[]> = {
       backlog: [],
@@ -46,17 +66,33 @@ export const useIssuesStore = defineStore('issues', () => {
       canceled: []
     }
     for (const issue of issues.value) {
-      grouped[issue.status].push(issue)
+      const status = getEffectiveStatus(issue)
+      grouped[status].push(issue)
+    }
+    return grouped
+  })
+
+  // Group issues by workflow state (for teams using dynamic states)
+  const issuesByWorkflowState = computed(() => {
+    const grouped: Record<string, Issue[]> = {}
+    for (const state of workflowStates.value) {
+      grouped[state.id] = issues.value.filter(i => i.workflowStateId === state.id)
     }
     return grouped
   })
 
   const openIssues = computed(() => 
-    issues.value.filter(i => !['done', 'canceled'].includes(i.status))
+    issues.value.filter(i => {
+      const status = getEffectiveStatus(i)
+      return !['done', 'canceled'].includes(status)
+    })
   )
 
   const closedIssues = computed(() => 
-    issues.value.filter(i => ['done', 'canceled'].includes(i.status))
+    issues.value.filter(i => {
+      const status = getEffectiveStatus(i)
+      return ['done', 'canceled'].includes(status)
+    })
   )
 
   async function fetchIssues(filters: IssueFilters = {}) {
@@ -68,6 +104,8 @@ export const useIssuesStore = defineStore('issues', () => {
       if (filters.teamId) params.append('team_id', filters.teamId)
       if (filters.projectId) params.append('project_id', filters.projectId)
       if (filters.assigneeId) params.append('assignee_id', filters.assigneeId)
+      if (filters.cycleId) params.append('cycle_id', filters.cycleId)
+      if (filters.workflowStateId) params.append('workflow_state_id', filters.workflowStateId)
       if (filters.status) params.append('status', filters.status)
       if (filters.priority !== undefined) params.append('priority', String(filters.priority))
       if (filters.q) params.append('q', filters.q)
@@ -81,6 +119,26 @@ export const useIssuesStore = defineStore('issues', () => {
       error.value = err instanceof Error ? err.message : 'Failed to fetch issues'
     } finally {
       loading.value = false
+    }
+  }
+
+  // Fetch workflow states for a team
+  async function fetchWorkflowStates(teamId: string) {
+    try {
+      const data = await api.get<{ workflow_states: WorkflowState[] }>(`/api/v1/teams/${teamId}/workflow_states`)
+      workflowStates.value = data.workflow_states
+    } catch (err) {
+      console.error('Failed to fetch workflow states:', err)
+    }
+  }
+
+  // Fetch cycles for a team  
+  async function fetchCycles(teamId: string) {
+    try {
+      const data = await api.get<{ cycles: Cycle[] }>(`/api/v1/teams/${teamId}/cycles`)
+      cycles.value = data.cycles
+    } catch (err) {
+      console.error('Failed to fetch cycles:', err)
     }
   }
 
@@ -174,6 +232,8 @@ export const useIssuesStore = defineStore('issues', () => {
     title: string
     description: string
     status: IssueStatus
+    workflowStateId: string | null
+    cycleId: string | null
     priority: IssuePriority
     assigneeId: string | null
     projectId: string | null
@@ -216,6 +276,8 @@ export const useIssuesStore = defineStore('issues', () => {
             title: updates.title,
             description: updates.description,
             status: updates.status,
+            workflow_state_id: updates.workflowStateId,
+            cycle_id: updates.cycleId,
             priority: updates.priority,
             assignee_id: updates.assigneeId,
             project_id: updates.projectId,
@@ -412,6 +474,8 @@ export const useIssuesStore = defineStore('issues', () => {
     currentIssue.value = null
     labels.value = []
     comments.value = []
+    workflowStates.value = []
+    cycles.value = []
     error.value = null
     pendingUpdates.value.clear()
   }
@@ -422,11 +486,14 @@ export const useIssuesStore = defineStore('issues', () => {
     currentIssue,
     labels,
     comments,
+    workflowStates,
+    cycles,
     loading,
     error,
 
     // Computed
     issuesByStatus,
+    issuesByWorkflowState,
     openIssues,
     closedIssues,
 
@@ -440,6 +507,8 @@ export const useIssuesStore = defineStore('issues', () => {
     createLabel,
     fetchComments,
     createComment,
+    fetchWorkflowStates,
+    fetchCycles,
 
     // Real-time handlers
     handleIssueCreated,
@@ -448,6 +517,9 @@ export const useIssuesStore = defineStore('issues', () => {
     handleCommentCreated,
     handleCommentUpdated,
     handleCommentDeleted,
+
+    // Helpers
+    getEffectiveStatus,
 
     reset
   }

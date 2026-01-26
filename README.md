@@ -187,6 +187,63 @@ ActionCable channels:
 - `IssueChannel` - Comments, reactions, presence
 - `NotificationsChannel` - User notifications
 
+## Linear Migration & Sync
+
+Circular supports importing all data from Linear and maintaining continuous synchronization.
+
+### Initial Import
+
+1. Set up environment variables:
+```bash
+LINEAR_API_KEY=lin_api_xxx
+LINEAR_WEBHOOK_SECRET=lin_wh_xxx
+```
+
+2. Run the import:
+```bash
+bin/rails linear:import
+```
+
+This imports all:
+- Users
+- Teams
+- Workflow States
+- Labels (including hierarchical groups)
+- Projects (with multi-team support)
+- Cycles/Sprints
+- Issues (with all relationships)
+- Comments
+- Issue Relations (blocks, related, duplicate)
+
+### Continuous Sync
+
+Two mechanisms keep data synchronized:
+
+1. **Webhooks (Real-time)**: Configure in Linear Settings > API > Webhooks
+   - URL: `https://your-domain.com/webhooks/linear`
+   - Select all event types
+
+2. **Polling (Fallback)**: Runs every 5 minutes via Sidekiq-Cron
+   - Catches any missed webhook events
+   - Provides redundancy
+
+### Monitoring
+
+```bash
+# Check sync status
+bin/rails linear:status
+
+# View sync logs
+bin/rails runner "SyncLog.recent.limit(20).each { |l| puts \"#{l.created_at}: #{l.entity_type} #{l.action} - #{l.status}\" }"
+```
+
+### Disabling Sync
+
+After migration is complete (1-2 months):
+
+1. Remove webhook from Linear Settings
+2. Comment out `linear_sync` in `config/recurring.yml`
+
 ## Deployment
 
 ### Docker

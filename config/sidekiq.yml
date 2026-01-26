@@ -4,5 +4,6 @@
   - [critical, 3]
   - [default, 2]
   - [mailers, 2]
-  - [webhooks, 1]
+  - [webhooks, 2]
+  - [sync, 1]
   - [low, 1]

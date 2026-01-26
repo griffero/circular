@@ -27,6 +27,18 @@ class IssueSerializer < Blueprinter::Base
     issue.parent_id
   end
 
+  field :workflow_state_id do |issue|
+    issue.workflow_state_id
+  end
+
+  field :cycle_id do |issue|
+    issue.cycle_id
+  end
+
+  field :linear_id do |issue|
+    issue.linear_id
+  end
+
   field :priority_label do |issue|
     issue.priority_label
   end
@@ -51,10 +63,23 @@ class IssueSerializer < Blueprinter::Base
     association :labels, blueprint: LabelSerializer
   end
 
+  view :with_workflow_state do
+    association :workflow_state, blueprint: WorkflowStateSerializer
+  end
+
+  view :with_cycle do
+    association :cycle, blueprint: CycleSerializer
+  end
+
+  view :with_attachments do
+    association :attachments, blueprint: AttachmentSerializer
+  end
+
   view :list do
     include_view :with_creator
     include_view :with_assignee
     include_view :with_labels
+    include_view :with_workflow_state
   end
 
   view :detailed do
@@ -63,7 +88,12 @@ class IssueSerializer < Blueprinter::Base
     include_view :with_team
     include_view :with_project
     include_view :with_labels
+    include_view :with_workflow_state
+    include_view :with_cycle
+    include_view :with_attachments
     association :sub_issues, blueprint: IssueSerializer
     association :parent, blueprint: IssueSerializer
+    association :blocking_issues, blueprint: IssueSerializer
+    association :blocked_issues, blueprint: IssueSerializer
   end
 end

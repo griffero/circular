@@ -1,10 +1,15 @@
 export interface User {
   id: string
   name: string
+  displayName?: string
   email: string
   avatarUrl?: string
   timezone?: string
   role: 'owner' | 'admin' | 'member'
+  admin?: boolean
+  guest?: boolean
+  active?: boolean
+  linearId?: string
   createdAt?: string
   updatedAt?: string
 }
@@ -18,8 +23,12 @@ export interface Team {
   icon?: string
   issueCounter?: number
   settings?: Record<string, unknown>
+  linearId?: string
   createdAt?: string
   updatedAt?: string
+  // Associations
+  workflowStates?: WorkflowState[]
+  cycles?: Cycle[]
 }
 
 export interface TeamMembership {
@@ -33,12 +42,58 @@ export interface TeamMembership {
   updatedAt?: string
 }
 
+// Workflow state types (matches Linear's workflow states)
+export type WorkflowStateType = 'triage' | 'backlog' | 'unstarted' | 'started' | 'completed' | 'canceled'
+
+export interface WorkflowState {
+  id: string
+  teamId: string
+  name: string
+  color: string
+  description?: string
+  stateType: WorkflowStateType
+  position: number
+  linearId?: string
+  createdAt?: string
+  updatedAt?: string
+  // Associations
+  team?: Team
+}
+
+// Cycle/Sprint types
+export interface Cycle {
+  id: string
+  teamId: string
+  number: number
+  name?: string
+  description?: string
+  startsAt?: string
+  endsAt?: string
+  progress: number
+  completedAt?: string
+  linearId?: string
+  createdAt?: string
+  updatedAt?: string
+  displayName?: string
+  active?: boolean
+  // Associations
+  team?: Team
+}
+
+// Project health types (matches Linear)
+export type ProjectHealth = 'onTrack' | 'atRisk' | 'offTrack'
+export type ProjectState = 'backlog' | 'planned' | 'started' | 'paused' | 'completed' | 'canceled'
+
 export interface Project {
   id: string
   name: string
   slug: string
+  slugId?: string
   description?: string
-  status: 'backlog' | 'todo' | 'in_progress' | 'done' | 'canceled'
+  status: 'active' | 'paused' | 'completed' | 'canceled'
+  state?: ProjectState
+  health?: ProjectHealth
+  progress?: number
   privacy: 'public' | 'private'
   color?: string
   icon?: string
@@ -46,7 +101,9 @@ export interface Project {
   startDate?: string
   targetDate?: string
   settings?: Record<string, unknown>
+  linearId?: string
   lead?: User
+  teams?: Team[]
   createdAt?: string
   updatedAt?: string
 }
@@ -77,12 +134,14 @@ export interface Issue {
   assigneeId?: string
   projectId?: string
   parentId?: string
+  workflowStateId?: string
+  cycleId?: string
   identifier: string
   number: number
   title: string
   description?: string
   descriptionHtml?: string
-  status: IssueStatus
+  status?: IssueStatus // Legacy status (kept for backwards compatibility)
   priority: IssuePriority
   priorityLabel: string
   dueDate?: string
@@ -92,6 +151,7 @@ export interface Issue {
   completedAt?: string
   canceledAt?: string
   archivedAt?: string
+  linearId?: string
   createdAt: string
   updatedAt: string
   // Associations (when included in response)
@@ -102,6 +162,11 @@ export interface Issue {
   labels?: Label[]
   subIssues?: Issue[]
   parent?: Issue
+  workflowState?: WorkflowState
+  cycle?: Cycle
+  attachments?: Attachment[]
+  blockingIssues?: Issue[]
+  blockedIssues?: Issue[]
 }
 
 export type IssueStatus = 'backlog' | 'todo' | 'in_progress' | 'in_review' | 'done' | 'canceled'
@@ -125,14 +190,59 @@ export const STATUS_LABELS: Record<IssueStatus, string> = {
   canceled: 'Canceled'
 }
 
+// Map workflow state type to legacy status for backwards compatibility
+export const WORKFLOW_STATE_TO_STATUS: Record<WorkflowStateType, IssueStatus> = {
+  triage: 'backlog',
+  backlog: 'backlog',
+  unstarted: 'todo',
+  started: 'in_progress',
+  completed: 'done',
+  canceled: 'canceled'
+}
+
 export interface Label {
   id: string
   teamId?: string
+  parentId?: string
   name: string
   color: string
   description?: string
+  isGroup?: boolean
+  linearId?: string
   createdAt: string
   updatedAt: string
+  // Associations
+  parent?: Label
+  children?: Label[]
+}
+
+// Attachment types
+export type AttachmentType = 'github_pr' | 'github_issue' | 'url' | 'file'
+
+export interface Attachment {
+  id: string
+  issueId: string
+  title?: string
+  url: string
+  attachmentType?: AttachmentType
+  linearId?: string
+  createdAt?: string
+  updatedAt?: string
+}
+
+// Issue relation types
+export type IssueRelationType = 'blocks' | 'related' | 'duplicate'
+
+export interface IssueRelation {
+  id: string
+  issueId: string
+  relatedIssueId: string
+  relationType: IssueRelationType
+  createdAt?: string
+  updatedAt?: string
+  // Associations
+  issue?: Issue
+  relatedIssue?: Issue
 }
 
 export interface Comment {

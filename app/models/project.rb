@@ -3,11 +3,16 @@
 class Project < ApplicationRecord
   STATUSES = %w[active paused completed canceled].freeze
   PRIVACIES = %w[public private].freeze
+  # Linear project states
+  STATES = %w[backlog planned started paused completed canceled].freeze
+  HEALTH_VALUES = %w[onTrack atRisk offTrack].freeze
 
   belongs_to :lead, class_name: "User", optional: true
   has_many :project_memberships, dependent: :destroy
   has_many :members, through: :project_memberships, source: :user
   has_many :issues, dependent: :nullify
+  has_many :project_teams, dependent: :destroy
+  has_many :teams, through: :project_teams
 
   validates :name, presence: true, length: { minimum: 2, maximum: 100 }
   validates :slug, presence: true,
@@ -16,6 +21,8 @@ class Project < ApplicationRecord
                    uniqueness: { message: "is already taken" }
   validates :status, presence: true, inclusion: { in: STATUSES }
   validates :privacy, presence: true, inclusion: { in: PRIVACIES }
+  validates :state, inclusion: { in: STATES }, allow_nil: true
+  validates :health, inclusion: { in: HEALTH_VALUES }, allow_nil: true
 
   before_validation :generate_slug, on: :create
 
@@ -33,6 +40,38 @@ class Project < ApplicationRecord
 
   def private?
     privacy == "private"
+  end
+
+  # Linear state helpers
+  def started?
+    state == "started"
+  end
+
+  def planned?
+    state == "planned"
+  end
+
+  # Health helpers
+  def on_track?
+    health == "onTrack"
+  end
+
+  def at_risk?
+    health == "atRisk"
+  end
+
+  def off_track?
+    health == "offTrack"
+  end
+
+  # Calculate progress based on issues
+  def calculate_progress
+    return 0 if issues.count.zero?
+
+    completed_count = issues.joins(:workflow_state)
+                            .where(workflow_states: { state_type: %w[completed canceled] })
+                            .count
+    (completed_count.to_f / issues.count * 100).round(2)
   end
 
   private

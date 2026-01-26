@@ -54,6 +54,11 @@ services:
         sync: false
       - key: STRIPE_WEBHOOK_SECRET
         sync: false
+      # Linear Integration (for migration/sync)
+      - key: LINEAR_API_KEY
+        sync: false
+      - key: LINEAR_WEBHOOK_SECRET
+        sync: false
 
   # ===========================================
   # Sidekiq Background Worker
@@ -102,6 +107,9 @@ services:
       # Stripe (for billing webhooks)
       - key: STRIPE_SECRET_KEY
         sync: false
+      # Linear Integration (for polling sync job)
+      - key: LINEAR_API_KEY
+        sync: false
 
   # ===========================================
   # Vue.js Static Site
@@ -132,6 +140,9 @@ services:
       - type: rewrite
         source: /cable
         destination: wss://circular-api.onrender.com/cable
+      - type: rewrite
+        source: /webhooks/*
+        destination: https://circular-api.onrender.com/webhooks/*
       - type: rewrite
         source: /*
         destination: /index.html

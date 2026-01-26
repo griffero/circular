@@ -8,18 +8,36 @@ class Issue < ApplicationRecord
   belongs_to :assignee, class_name: "User", optional: true
   belongs_to :project, optional: true
   belongs_to :parent, class_name: "Issue", optional: true
+  belongs_to :workflow_state, optional: true
+  belongs_to :cycle, optional: true
 
   has_many :sub_issues, class_name: "Issue", foreign_key: :parent_id, dependent: :nullify, inverse_of: :parent
   has_many :issue_labels, dependent: :destroy
   has_many :labels, through: :issue_labels
   has_many :comments, dependent: :destroy
   has_many :activities, class_name: "IssueActivity", dependent: :destroy
+  has_many :attachments, dependent: :destroy
+
+  # Issue relations
+  has_many :issue_relations, dependent: :destroy
+  has_many :related_issues, through: :issue_relations
+  has_many :inverse_issue_relations, class_name: "IssueRelation", foreign_key: :related_issue_id, dependent: :destroy, inverse_of: :related_issue
+
+  # Specific relation types
+  has_many :blocking_relations, -> { where(relation_type: "blocks") }, class_name: "IssueRelation", inverse_of: :issue
+  has_many :blocked_issues, through: :blocking_relations, source: :related_issue
+  has_many :blocked_by_relations, -> { where(relation_type: "blocks") }, class_name: "IssueRelation", foreign_key: :related_issue_id, inverse_of: :related_issue
+  has_many :blocking_issues, through: :blocked_by_relations, source: :issue
 
   validates :title, presence: true, length: { minimum: 1, maximum: 500 }
   validates :identifier, presence: true, uniqueness: true
   validates :number, presence: true, uniqueness: { scope: :team_id }
-  validates :status, presence: true, inclusion: { in: %w[backlog todo in_progress in_review done canceled] }
+  # Status is optional when using workflow_state (Linear migration)
+  validates :status, inclusion: { in: %w[backlog todo in_progress in_review done canceled] }, allow_nil: true
   validates :priority, presence: true, inclusion: { in: 0..4 }
+
+  # Sync status from workflow_state for backwards compatibility
+  before_save :sync_status_from_workflow_state
 
   before_validation :set_identifier, on: :create
   after_create :record_created_activity
@@ -116,5 +134,12 @@ class Issue < ApplicationRecord
         new_value: new_value.to_s
       )
     end
+  end
+
+  # Sync legacy status from workflow_state for backwards compatibility
+  def sync_status_from_workflow_state
+    return unless workflow_state.present?
+
+    self.status = workflow_state.legacy_status
   end
 end
