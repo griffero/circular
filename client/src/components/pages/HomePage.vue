@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useAppStore } from '@/stores/app'
+import { useEmojiStore } from '@/stores/emoji'
 import EmojiIcon from '@/components/ui/EmojiIcon.vue'
 import {
   Circle,
@@ -15,6 +16,7 @@ import {
 
 const authStore = useAuthStore()
 const appStore = useAppStore()
+const emojiStore = useEmojiStore()
 
 const teams = computed(() => appStore.teams)
 const projects = computed(() => appStore.projects)
@@ -35,6 +37,16 @@ const greeting = computed(() => {
 })
 
 const user = computed(() => authStore.user)
+
+// Check if an item has a valid emoji (custom slack emoji or unicode)
+function hasEmoji(icon?: string | null): boolean {
+  if (!icon) return false
+  // Check if it's a custom slack emoji
+  if (emojiStore.getEmojiUrl(icon)) return true
+  // Check if it looks like a unicode emoji
+  const stripped = icon.replace(/^:|:$/g, '')
+  return /^[\p{Emoji}\u200d]+$/u.test(stripped) && stripped.length <= 8
+}
 
 // Get status label for project
 function getProjectStatus(project: any) {
@@ -151,7 +163,7 @@ function getProjectStatus(project: any) {
               >
                 <div 
                   class="w-7 h-7 rounded flex items-center justify-center flex-shrink-0"
-                  :style="{ backgroundColor: team.color || '#6366f1' }"
+                  :style="hasEmoji(team.icon) ? {} : { backgroundColor: team.color || '#6366f1' }"
                 >
                   <EmojiIcon 
                     :name="team.icon" 
@@ -193,7 +205,7 @@ function getProjectStatus(project: any) {
               >
                 <div 
                   class="w-7 h-7 rounded flex items-center justify-center flex-shrink-0"
-                  :style="{ backgroundColor: project.color || '#6366f1' }"
+                  :style="hasEmoji(project.icon) ? {} : { backgroundColor: project.color || '#6366f1' }"
                 >
                   <EmojiIcon 
                     :name="project.icon" 

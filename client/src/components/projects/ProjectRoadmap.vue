@@ -1,13 +1,25 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useAppStore } from '@/stores/app'
+import { useEmojiStore } from '@/stores/emoji'
 import { useRouter } from 'vue-router'
 import type { Project } from '@/types'
 import { ChevronLeft, ChevronRight, Circle, CheckCircle2, PauseCircle, XCircle, ZoomIn, ZoomOut } from 'lucide-vue-next'
 import EmojiIcon from '@/components/ui/EmojiIcon.vue'
 
 const appStore = useAppStore()
+const emojiStore = useEmojiStore()
 const router = useRouter()
+
+// Check if a project has a valid emoji (custom slack emoji or unicode)
+function hasEmoji(icon?: string | null): boolean {
+  if (!icon) return false
+  // Check if it's a custom slack emoji
+  if (emojiStore.getEmojiUrl(icon)) return true
+  // Check if it looks like a unicode emoji
+  const stripped = icon.replace(/^:|:$/g, '')
+  return /^[\p{Emoji}\u200d]+$/u.test(stripped) && stripped.length <= 8
+}
 
 // Refs
 const timelineContainer = ref<HTMLElement | null>(null)
@@ -300,7 +312,7 @@ onUnmounted(() => {
             <!-- Project icon -->
             <div 
               class="w-5 h-5 rounded flex-shrink-0 flex items-center justify-center"
-              :style="{ backgroundColor: project.color || '#6366f1' }"
+              :style="hasEmoji(project.icon) ? {} : { backgroundColor: project.color || '#6366f1' }"
             >
               <EmojiIcon 
                 :name="project.icon" 

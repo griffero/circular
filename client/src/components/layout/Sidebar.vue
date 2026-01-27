@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useUiStore } from '@/stores/ui'
 import { useAppStore } from '@/stores/app'
+import { useEmojiStore } from '@/stores/emoji'
 import { cn } from '@/utils/cn'
 import Dropdown from '@/components/ui/Dropdown.vue'
 import DropdownItem from '@/components/ui/DropdownItem.vue'
@@ -31,10 +32,21 @@ const router = useRouter()
 const authStore = useAuthStore()
 const uiStore = useUiStore()
 const appStore = useAppStore()
+const emojiStore = useEmojiStore()
 
 const user = computed(() => authStore.user)
 const teams = computed(() => appStore.teams)
 const projects = computed(() => appStore.projects)
+
+// Check if a team has a valid emoji (custom slack emoji or unicode)
+function hasEmoji(icon?: string | null): boolean {
+  if (!icon) return false
+  // Check if it's a custom slack emoji
+  if (emojiStore.getEmojiUrl(icon)) return true
+  // Check if it looks like a unicode emoji
+  const stripped = icon.replace(/^:|:$/g, '')
+  return /^[\p{Emoji}\u200d]+$/u.test(stripped) && stripped.length <= 8
+}
 
 // Expanded states for teams
 const expandedTeams = ref<Set<string>>(new Set())
@@ -268,7 +280,7 @@ const workspaceName = computed(() => {
             >
               <div 
                 class="w-5 h-5 rounded flex items-center justify-center flex-shrink-0"
-                :style="{ backgroundColor: team.color || '#6366f1' }"
+                :style="hasEmoji(team.icon) ? {} : { backgroundColor: team.color || '#6366f1' }"
               >
                 <EmojiIcon 
                   :name="team.icon" 

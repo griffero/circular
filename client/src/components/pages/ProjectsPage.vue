@@ -2,12 +2,14 @@
 import { ref, computed } from 'vue'
 import { useAppStore } from '@/stores/app'
 import { useUiStore } from '@/stores/ui'
+import { useEmojiStore } from '@/stores/emoji'
 import { FolderKanban, Plus, LayoutGrid, Calendar, List, Filter } from 'lucide-vue-next'
 import ProjectRoadmap from '@/components/projects/ProjectRoadmap.vue'
 import EmojiIcon from '@/components/ui/EmojiIcon.vue'
 
 const appStore = useAppStore()
 const uiStore = useUiStore()
+const emojiStore = useEmojiStore()
 
 // View mode: 'list' | 'board' | 'roadmap'
 const viewMode = ref<'list' | 'board' | 'roadmap'>('roadmap')
@@ -29,6 +31,16 @@ const filteredProjects = computed(() => {
   
   return filtered
 })
+
+// Check if a project has a valid emoji (custom slack emoji or unicode)
+function hasEmoji(icon?: string | null): boolean {
+  if (!icon) return false
+  // Check if it's a custom slack emoji
+  if (emojiStore.getEmojiUrl(icon)) return true
+  // Check if it looks like a unicode emoji
+  const stripped = icon.replace(/^:|:$/g, '')
+  return /^[\p{Emoji}\u200d]+$/u.test(stripped) && stripped.length <= 8
+}
 </script>
 
 <template>
@@ -138,7 +150,7 @@ const filteredProjects = computed(() => {
           >
             <div 
               class="w-8 h-8 rounded flex items-center justify-center"
-              :style="{ backgroundColor: project.color || '#6366f1' }"
+              :style="hasEmoji(project.icon) ? {} : { backgroundColor: project.color || '#6366f1' }"
             >
               <EmojiIcon 
                 :name="project.icon" 
@@ -227,7 +239,7 @@ const filteredProjects = computed(() => {
                 <div class="flex items-center gap-2 mb-2">
                   <div 
                     class="w-6 h-6 rounded flex items-center justify-center"
-                    :style="{ backgroundColor: project.color || '#6366f1' }"
+                    :style="hasEmoji(project.icon) ? {} : { backgroundColor: project.color || '#6366f1' }"
                   >
                     <EmojiIcon 
                       :name="project.icon" 
