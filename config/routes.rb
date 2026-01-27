@@ -11,6 +11,7 @@ Rails.application.routes.draw do
   get "diagnostic/user" => "diagnostic#user"
   get "diagnostic/users" => "diagnostic#users"
   get "diagnostic/initiatives" => "diagnostic#initiatives"
+  get "diagnostic/memberships" => "diagnostic#memberships"
   post "diagnostic/make_admin" => "diagnostic#make_admin"
   post "diagnostic/merge_users" => "diagnostic#merge_users"
   post "diagnostic/update_user_email" => "diagnostic#update_user_email"

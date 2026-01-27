@@ -29,6 +29,7 @@ class DiagnosticController < ApplicationController
       counts: {
         users: User.count,
         teams: Team.count,
+        team_memberships: TeamMembership.count,
         projects: Project.count,
         project_updates: ProjectUpdate.count,
         initiatives: safe_count(Initiative),
@@ -58,7 +59,7 @@ class DiagnosticController < ApplicationController
   # GET /diagnostic/user?email=xxx
   def user
     email = params[:email]
-    user = User.find_by_email(email)
+    user = User.includes(:teams, :team_memberships).find_by_email(email)
     
     if user
       render json: {
@@ -69,7 +70,9 @@ class DiagnosticController < ApplicationController
         admin: user.admin?,
         owner: user.owner?,
         linear_id: user.linear_id,
-        active: user.active
+        active: user.active,
+        teams: user.teams.map { |t| { id: t.id, name: t.name, key: t.key } },
+        team_count: user.teams.count
       }
     else
       render json: { error: "User not found" }, status: :not_found
@@ -265,6 +268,25 @@ class DiagnosticController < ApplicationController
       total: Initiative.count,
       by_status: status_counts,
       sample: sample_initiatives
+    }
+  end
+
+  # GET /diagnostic/memberships
+  def memberships
+    teams_with_members = Team.includes(:members).map do |team|
+      {
+        id: team.id,
+        name: team.name,
+        key: team.key,
+        member_count: team.members.count,
+        members: team.members.limit(10).map { |m| { id: m.id, name: m.name, email: m.email } }
+      }
+    end
+
+    render json: {
+      total_teams: Team.count,
+      total_memberships: TeamMembership.count,
+      teams: teams_with_members
     }
   end
 
