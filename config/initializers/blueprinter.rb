@@ -3,4 +3,5 @@
 Blueprinter.configure do |config|
   config.generator = Oj
   config.datetime_format = ->(datetime) { datetime&.iso8601 }
+  config.default_transformers = [LowerCamelTransformer]
 end
