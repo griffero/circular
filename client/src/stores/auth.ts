@@ -67,7 +67,8 @@ export const useAuthStore = defineStore('auth', () => {
     if (loading.value) return null // Prevent duplicate calls
     loading.value = true
     try {
-      const data = await api.get<AuthResponse>('/api/v1/auth/me')
+      // Skip auth redirect here - the router guard handles it
+      const data = await api.get<AuthResponse>('/api/v1/auth/me', { skipAuthRedirect: true })
       setAuthData(data)
       return data
     } catch {

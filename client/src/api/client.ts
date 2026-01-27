@@ -4,6 +4,7 @@ const BASE_URL = import.meta.env.VITE_API_URL || ''
 
 interface RequestOptions extends Omit<RequestInit, 'body'> {
   body?: unknown
+  skipAuthRedirect?: boolean // Skip automatic redirect on 401
 }
 
 class ApiClient {
@@ -14,7 +15,7 @@ class ApiClient {
   }
 
   private async request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
-    const { body, headers: customHeaders, ...rest } = options
+    const { body, headers: customHeaders, skipAuthRedirect, ...rest } = options
 
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
@@ -34,6 +35,17 @@ class ApiClient {
 
     const url = endpoint.startsWith('http') ? endpoint : `${this.baseUrl}${endpoint}`
     const response = await fetch(url, config)
+
+    // Handle 401 Unauthorized - redirect to login
+    if (response.status === 401 && !skipAuthRedirect) {
+      // Only redirect if we're not already on an auth page
+      const isAuthPage = window.location.pathname.startsWith('/login') || 
+                         window.location.pathname.startsWith('/auth')
+      if (!isAuthPage) {
+        window.location.href = '/login'
+        throw new Error('Session expired')
+      }
+    }
 
     // Handle no content response
     if (response.status === 204) {
