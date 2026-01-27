@@ -4,6 +4,26 @@ class DiagnosticController < ApplicationController
   # No authentication required for diagnostic endpoint
 
   def show
+    # Sample project update to show data structure
+    sample_update = ProjectUpdate.includes(:project, :user).first
+    sample_data = if sample_update
+                    {
+                      id: sample_update.id,
+                      body: sample_update.body&.truncate(100),
+                      health: sample_update.health,
+                      project: sample_update.project ? {
+                        id: sample_update.project.id,
+                        name: sample_update.project.name,
+                        slug: sample_update.project.slug
+                      } : nil,
+                      user: sample_update.user ? {
+                        id: sample_update.user.id,
+                        name: sample_update.user.name,
+                        email: sample_update.user.email
+                      } : nil
+                    }
+                  end
+
     render json: {
       status: "ok",
       counts: {
@@ -25,6 +45,7 @@ class DiagnosticController < ApplicationController
         issues: Issue.where.not(linear_id: nil).count,
         labels: Label.where.not(linear_id: nil).count
       },
+      sample_project_update: sample_data,
       timestamp: Time.current.iso8601
     }
   end
