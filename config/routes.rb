@@ -12,6 +12,8 @@ Rails.application.routes.draw do
   get "diagnostic/users" => "diagnostic#users"
   get "diagnostic/initiatives" => "diagnostic#initiatives"
   post "diagnostic/make_admin" => "diagnostic#make_admin"
+  post "diagnostic/merge_users" => "diagnostic#merge_users"
+  post "diagnostic/update_user_email" => "diagnostic#update_user_email"
 
   # Sidekiq Web UI (protected in production)
   mount Sidekiq::Web => "/sidekiq"
