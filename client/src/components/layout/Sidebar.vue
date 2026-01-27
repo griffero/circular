@@ -20,11 +20,14 @@ import {
   ChevronRight,
   Zap,
   User,
+  Users,
+  UsersRound,
   Lightbulb,
   FolderKanban,
   LayoutGrid,
   MoreHorizontal,
-  PenLine
+  PenLine,
+  SlidersHorizontal
 } from 'lucide-vue-next'
 
 const route = useRoute()
@@ -245,13 +248,37 @@ const workspaceName = computed(() => {
             <span>Views</span>
           </router-link>
 
-          <router-link
-            to="/settings"
-            class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded text-[13px] text-gray-400 hover:bg-[#1a1a1a] hover:text-white transition-colors"
-          >
-            <MoreHorizontal class="w-4 h-4" />
-            <span>More</span>
-          </router-link>
+          <!-- More dropdown -->
+          <Dropdown align="left" width="w-48">
+            <template #trigger>
+              <button
+                :class="cn(
+                  'w-full flex items-center gap-2.5 px-2 py-1.5 rounded text-[13px] transition-colors',
+                  (route.path.startsWith('/settings/members') || route.path.startsWith('/settings/teams'))
+                    ? 'bg-[#1a1a1a] text-white'
+                    : 'text-gray-400 hover:bg-[#1a1a1a] hover:text-white'
+                )"
+              >
+                <MoreHorizontal class="w-4 h-4" />
+                <span>More</span>
+              </button>
+            </template>
+            <template #default="{ close }">
+              <DropdownItem @click="router.push('/settings/teams'); close()">
+                <UsersRound class="w-4 h-4" />
+                Teams
+              </DropdownItem>
+              <DropdownItem @click="router.push('/settings/members'); close()">
+                <Users class="w-4 h-4" />
+                Members
+              </DropdownItem>
+              <div class="border-t border-[#2a2a2a] my-1" />
+              <DropdownItem @click="close()">
+                <SlidersHorizontal class="w-4 h-4" />
+                Customize sidebar
+              </DropdownItem>
+            </template>
+          </Dropdown>
         </div>
       </div>
 
