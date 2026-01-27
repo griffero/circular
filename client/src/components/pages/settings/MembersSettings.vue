@@ -6,7 +6,6 @@ import { api } from '@/api/client'
 import Button from '@/components/ui/Button.vue'
 import Input from '@/components/ui/Input.vue'
 import Modal from '@/components/ui/Modal.vue'
-import Badge from '@/components/ui/Badge.vue'
 import Avatar from '@/components/ui/Avatar.vue'
 import UserLink from '@/components/ui/UserLink.vue'
 import Dropdown from '@/components/ui/Dropdown.vue'
@@ -94,8 +93,6 @@ async function handleInvite() {
   inviteError.value = ''
 
   try {
-    // In single-tenant mode, we would create a new user or send an invite
-    // For now, just close the modal
     showInviteModal.value = false
     inviteEmail.value = ''
     inviteRole.value = 'member'
@@ -107,15 +104,38 @@ async function handleInvite() {
   }
 }
 
-function getRoleBadge(role: string) {
-  switch (role) {
-    case 'owner':
-      return { variant: 'warning' as const, icon: Crown, label: 'Owner' }
-    case 'admin':
-      return { variant: 'primary' as const, icon: Shield, label: 'Admin' }
-    default:
-      return { variant: 'secondary' as const, icon: User, label: 'Member' }
+function getRoleLabel(member: UserType): string {
+  if (member.guest) return 'Guest'
+  switch (member.role) {
+    case 'owner': return 'Owner'
+    case 'admin': return 'Admin'
+    default: return 'Member'
   }
+}
+
+function getTeamsCount(member: UserType): string {
+  const count = member.teamMemberships?.length || member.teams?.length || 0
+  if (count === 0) return ''
+  return count === 1 ? '1 team' : `${count} teams`
+}
+
+function formatDate(dateStr?: string): string {
+  if (!dateStr) return ''
+  const date = new Date(dateStr)
+  const now = new Date()
+  const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24))
+  
+  if (diffDays < 1) return 'Today'
+  if (diffDays < 7) return `${diffDays}d ago`
+  
+  const month = date.toLocaleDateString('en-US', { month: 'short' })
+  const year = date.getFullYear()
+  const currentYear = now.getFullYear()
+  
+  if (year === currentYear) {
+    return month
+  }
+  return `${month} ${year}`
 }
 
 // Open modals with selected member
@@ -148,7 +168,6 @@ function openSuspend(member: UserType) {
 
 function openManageTeams(member: UserType) {
   selectedMember.value = member
-  // Get current team memberships
   memberTeamIds.value = member.teamMemberships?.map(tm => tm.teamId) || []
   saveError.value = ''
   showManageTeamsModal.value = true
@@ -238,15 +257,10 @@ async function saveTeamMemberships() {
   saveError.value = ''
   
   try {
-    // Get current team memberships
     const currentTeamIds = selectedMember.value.teamMemberships?.map(tm => tm.teamId) || []
-    
-    // Teams to add
     const teamsToAdd = memberTeamIds.value.filter(id => !currentTeamIds.includes(id))
-    // Teams to remove
     const teamsToRemove = currentTeamIds.filter(id => !memberTeamIds.value.includes(id))
     
-    // Add to new teams
     for (const teamId of teamsToAdd) {
       const team = teams.value.find(t => t.id === teamId)
       if (team) {
@@ -256,7 +270,6 @@ async function saveTeamMemberships() {
       }
     }
     
-    // Remove from teams
     for (const teamId of teamsToRemove) {
       const team = teams.value.find(t => t.id === teamId)
       if (team) {
@@ -288,106 +301,135 @@ function isUserSuspended(member: UserType): boolean {
 </script>
 
 <template>
-  <div class="p-6 max-w-4xl">
-    <div class="flex items-center justify-between mb-6">
-      <div>
-        <h1 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-1">
-          Members
-        </h1>
-        <p class="text-sm text-gray-500">
-          Manage team members and their roles
-        </p>
-      </div>
-      <Button v-if="isAdmin" @click="showInviteModal = true">
+  <div class="h-full bg-[#0d0d0d]">
+    <!-- Header -->
+    <div class="flex items-center justify-between px-6 py-4 border-b border-[#1f1f1f]">
+      <h1 class="text-[15px] font-medium text-white">Members</h1>
+      <Button v-if="isAdmin" @click="showInviteModal = true" size="sm">
         <UserPlus class="h-4 w-4" />
         Invite member
       </Button>
     </div>
 
-    <!-- Members list -->
-    <div v-if="loading" class="text-center py-12">
-      <div class="animate-spin rounded-full h-8 w-8 border-2 border-primary-600 border-t-transparent mx-auto"></div>
+    <!-- Loading -->
+    <div v-if="loading" class="flex items-center justify-center py-12">
+      <div class="animate-spin rounded-full h-8 w-8 border-2 border-indigo-600 border-t-transparent"></div>
     </div>
 
-    <div v-else class="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 divide-y divide-gray-200 dark:divide-gray-800">
-      <div
-        v-for="member in members"
-        :key="member.id"
-        :class="[
-          'flex items-center justify-between px-4 py-3',
-          isUserSuspended(member) && 'opacity-50'
-        ]"
-      >
-        <div class="flex items-center gap-3">
-          <UserLink
-            :userId="member.id"
-            :name="member.name || 'U'"
-            :avatarUrl="member.avatarUrl"
-            :showName="false"
-            avatarSize="md"
-          />
-          <div>
-            <div class="flex items-center gap-2">
-              <UserLink
-                :userId="member.id"
-                :name="member.name || 'Unknown'"
-                :showAvatar="false"
-                class="font-medium text-gray-900 dark:text-gray-100 hover:text-indigo-400"
-              />
-              <span
-                v-if="member.id === currentUser?.id"
-                class="text-xs text-gray-500 px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 rounded"
-              >
-                You
-              </span>
-              <span
-                v-if="isUserSuspended(member)"
-                class="text-xs text-red-400 px-1.5 py-0.5 bg-red-500/10 rounded"
-              >
-                Suspended
-              </span>
+    <!-- Table -->
+    <div v-else class="overflow-x-auto">
+      <!-- Table header -->
+      <div class="grid grid-cols-[1fr_100px_100px_100px_100px_48px] gap-4 px-6 py-2 border-b border-[#1f1f1f] text-[11px] text-gray-500 uppercase tracking-wider">
+        <div></div>
+        <div>Status</div>
+        <div>Teams</div>
+        <div>Joined</div>
+        <div>Last seen</div>
+        <div></div>
+      </div>
+
+      <!-- Table body -->
+      <div class="divide-y divide-[#1a1a1a]">
+        <div
+          v-for="member in members"
+          :key="member.id"
+          :class="[
+            'grid grid-cols-[1fr_100px_100px_100px_100px_48px] gap-4 px-6 py-3 items-center hover:bg-[#151515] transition-colors',
+            isUserSuspended(member) && 'opacity-50'
+          ]"
+        >
+          <!-- User info -->
+          <div class="flex items-center gap-3 min-w-0">
+            <Avatar
+              :name="member.name || 'U'"
+              :src="member.avatarUrl"
+              size="md"
+            />
+            <div class="min-w-0">
+              <div class="flex items-center gap-2">
+                <UserLink
+                  :userId="member.id"
+                  :name="member.name || 'Unknown'"
+                  :showAvatar="false"
+                  class="text-[14px] font-medium text-white truncate hover:text-indigo-400"
+                />
+                <span
+                  v-if="member.id === currentUser?.id"
+                  class="text-[11px] text-gray-500 px-1.5 py-0.5 bg-[#252525] rounded flex-shrink-0"
+                >
+                  You
+                </span>
+              </div>
+              <p class="text-[13px] text-gray-500 truncate">{{ member.email }}</p>
             </div>
-            <p class="text-sm text-gray-500">{{ member.email }}</p>
           </div>
-        </div>
-        <div class="flex items-center gap-3">
-          <Badge :variant="getRoleBadge(member.role).variant">
-            <component :is="getRoleBadge(member.role).icon" class="h-3 w-3 mr-1" />
-            {{ getRoleBadge(member.role).label }}
-          </Badge>
-          
-          <!-- Dropdown menu -->
-          <Dropdown v-if="isOwner && member.id !== currentUser?.id" align="right" width="w-52">
-            <template #trigger>
-              <button class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md">
-                <MoreHorizontal class="h-4 w-4" />
-              </button>
-            </template>
-            <template #default="{ close }">
-              <DropdownItem @click="() => { openChangeRole(member); close() }">
-                <UserCog class="h-4 w-4" />
-                Change role...
-              </DropdownItem>
-              <DropdownItem @click="() => { openUpdateName(member); close() }">
-                <Pencil class="h-4 w-4" />
-                Update name...
-              </DropdownItem>
-              <DropdownItem @click="() => { openUpdateEmail(member); close() }">
-                <AtSign class="h-4 w-4" />
-                Update email...
-              </DropdownItem>
-              <div class="border-t border-[#2a2a2a] my-1" />
-              <DropdownItem @click="() => { openSuspend(member); close() }" :danger="!isUserSuspended(member)">
-                <UserX class="h-4 w-4" />
-                {{ isUserSuspended(member) ? 'Reactivate user...' : 'Suspend user...' }}
-              </DropdownItem>
-              <div class="border-t border-[#2a2a2a] my-1" />
-              <DropdownItem @click="() => { openManageTeams(member); close() }">
-                <Users class="h-4 w-4" />
-                Manage teams...
-              </DropdownItem>
-            </template>
-          </Dropdown>
+
+          <!-- Status/Role badge -->
+          <div>
+            <span 
+              :class="[
+                'inline-flex items-center gap-1.5 px-2 py-1 text-[12px] rounded',
+                member.guest 
+                  ? 'bg-[#252525] text-gray-400' 
+                  : 'bg-[#252525] text-gray-300'
+              ]"
+            >
+              <User class="w-3 h-3" />
+              {{ getRoleLabel(member) }}
+            </span>
+          </div>
+
+          <!-- Teams -->
+          <div class="text-[13px] text-gray-400">
+            {{ getTeamsCount(member) }}
+          </div>
+
+          <!-- Joined -->
+          <div class="text-[13px] text-gray-500">
+            {{ formatDate(member.createdAt) }}
+          </div>
+
+          <!-- Last seen -->
+          <div class="text-[13px] text-gray-500">
+            {{ formatDate(member.updatedAt) }}
+          </div>
+
+          <!-- Actions -->
+          <div class="flex justify-end">
+            <Dropdown v-if="isOwner && member.id !== currentUser?.id" align="right" width="w-52">
+              <template #trigger>
+                <button class="p-1.5 text-gray-500 hover:text-white hover:bg-[#252525] rounded transition-colors">
+                  <MoreHorizontal class="h-4 w-4" />
+                </button>
+              </template>
+              <template #default="{ close }">
+                <DropdownItem @click="() => { openChangeRole(member); close() }">
+                  <UserCog class="h-4 w-4" />
+                  Change role...
+                </DropdownItem>
+                <DropdownItem @click="() => { openUpdateName(member); close() }">
+                  <Pencil class="h-4 w-4" />
+                  Update name...
+                </DropdownItem>
+                <DropdownItem @click="() => { openUpdateEmail(member); close() }">
+                  <AtSign class="h-4 w-4" />
+                  Update email...
+                </DropdownItem>
+                <div class="border-t border-[#2a2a2a] my-1" />
+                <DropdownItem @click="() => { openSuspend(member); close() }" :danger="!isUserSuspended(member)">
+                  <UserX class="h-4 w-4" />
+                  {{ isUserSuspended(member) ? 'Reactivate user...' : 'Suspend user...' }}
+                </DropdownItem>
+                <div class="border-t border-[#2a2a2a] my-1" />
+                <DropdownItem @click="() => { openManageTeams(member); close() }">
+                  <Users class="h-4 w-4" />
+                  Manage teams...
+                </DropdownItem>
+              </template>
+            </Dropdown>
+            <!-- Placeholder for alignment when no dropdown -->
+            <div v-else class="w-7 h-7"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -395,12 +437,12 @@ function isUserSuspended(member: UserType): boolean {
     <!-- Invite modal -->
     <Modal :open="showInviteModal" @close="showInviteModal = false" title="Invite member">
       <form @submit.prevent="handleInvite" class="space-y-4">
-        <div v-if="inviteError" class="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-600 dark:text-red-400">
+        <div v-if="inviteError" class="p-3 bg-red-900/20 border border-red-800 rounded-lg text-sm text-red-400">
           {{ inviteError }}
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label class="block text-sm font-medium text-gray-300 mb-1">
             Email address
           </label>
           <Input
@@ -412,31 +454,21 @@ function isUserSuspended(member: UserType): boolean {
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label class="block text-sm font-medium text-gray-300 mb-2">
             Role
           </label>
           <div class="space-y-2">
-            <label class="flex items-start gap-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50">
-              <input
-                v-model="inviteRole"
-                type="radio"
-                value="member"
-                class="mt-1"
-              />
+            <label class="flex items-start gap-3 p-3 border border-[#2a2a2a] rounded-lg cursor-pointer hover:bg-[#1a1a1a]" :class="inviteRole === 'member' && 'border-indigo-500 bg-indigo-500/10'">
+              <input v-model="inviteRole" type="radio" value="member" class="mt-1" />
               <div>
-                <p class="font-medium text-gray-900 dark:text-gray-100">Member</p>
+                <p class="font-medium text-gray-100">Member</p>
                 <p class="text-sm text-gray-500">Can view and create issues within teams they belong to</p>
               </div>
             </label>
-            <label class="flex items-start gap-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50">
-              <input
-                v-model="inviteRole"
-                type="radio"
-                value="admin"
-                class="mt-1"
-              />
+            <label class="flex items-start gap-3 p-3 border border-[#2a2a2a] rounded-lg cursor-pointer hover:bg-[#1a1a1a]" :class="inviteRole === 'admin' && 'border-indigo-500 bg-indigo-500/10'">
+              <input v-model="inviteRole" type="radio" value="admin" class="mt-1" />
               <div>
-                <p class="font-medium text-gray-900 dark:text-gray-100">Admin</p>
+                <p class="font-medium text-gray-100">Admin</p>
                 <p class="text-sm text-gray-500">Can manage settings, teams, and members</p>
               </div>
             </label>
@@ -458,30 +490,30 @@ function isUserSuspended(member: UserType): boolean {
     <!-- Change Role Modal -->
     <Modal :open="showChangeRoleModal" @close="showChangeRoleModal = false" title="Change role">
       <form @submit.prevent="saveRole" class="space-y-4">
-        <div v-if="saveError" class="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-600 dark:text-red-400">
+        <div v-if="saveError" class="p-3 bg-red-900/20 border border-red-800 rounded-lg text-sm text-red-400">
           {{ saveError }}
         </div>
 
-        <p class="text-sm text-gray-500">
+        <p class="text-sm text-gray-400">
           Change the role for <span class="text-white font-medium">{{ selectedMember?.name }}</span>
         </p>
 
         <div class="space-y-2">
-          <label class="flex items-start gap-3 p-3 border border-gray-700 rounded-lg cursor-pointer hover:bg-gray-800/50" :class="newRole === 'member' && 'border-indigo-500 bg-indigo-500/10'">
+          <label class="flex items-start gap-3 p-3 border border-[#2a2a2a] rounded-lg cursor-pointer hover:bg-[#1a1a1a]" :class="newRole === 'member' && 'border-indigo-500 bg-indigo-500/10'">
             <input v-model="newRole" type="radio" value="member" class="mt-1" />
             <div>
               <p class="font-medium text-gray-100">Member</p>
               <p class="text-sm text-gray-500">Can view and create issues within teams they belong to</p>
             </div>
           </label>
-          <label class="flex items-start gap-3 p-3 border border-gray-700 rounded-lg cursor-pointer hover:bg-gray-800/50" :class="newRole === 'admin' && 'border-indigo-500 bg-indigo-500/10'">
+          <label class="flex items-start gap-3 p-3 border border-[#2a2a2a] rounded-lg cursor-pointer hover:bg-[#1a1a1a]" :class="newRole === 'admin' && 'border-indigo-500 bg-indigo-500/10'">
             <input v-model="newRole" type="radio" value="admin" class="mt-1" />
             <div>
               <p class="font-medium text-gray-100">Admin</p>
               <p class="text-sm text-gray-500">Can manage settings, teams, and members</p>
             </div>
           </label>
-          <label class="flex items-start gap-3 p-3 border border-gray-700 rounded-lg cursor-pointer hover:bg-gray-800/50" :class="newRole === 'owner' && 'border-indigo-500 bg-indigo-500/10'">
+          <label class="flex items-start gap-3 p-3 border border-[#2a2a2a] rounded-lg cursor-pointer hover:bg-[#1a1a1a]" :class="newRole === 'owner' && 'border-indigo-500 bg-indigo-500/10'">
             <input v-model="newRole" type="radio" value="owner" class="mt-1" />
             <div>
               <p class="font-medium text-gray-100">Owner</p>
@@ -504,7 +536,7 @@ function isUserSuspended(member: UserType): boolean {
     <!-- Update Name Modal -->
     <Modal :open="showUpdateNameModal" @close="showUpdateNameModal = false" title="Update name">
       <form @submit.prevent="saveName" class="space-y-4">
-        <div v-if="saveError" class="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-600 dark:text-red-400">
+        <div v-if="saveError" class="p-3 bg-red-900/20 border border-red-800 rounded-lg text-sm text-red-400">
           {{ saveError }}
         </div>
 
@@ -534,7 +566,7 @@ function isUserSuspended(member: UserType): boolean {
     <!-- Update Email Modal -->
     <Modal :open="showUpdateEmailModal" @close="showUpdateEmailModal = false" title="Update email">
       <form @submit.prevent="saveEmail" class="space-y-4">
-        <div v-if="saveError" class="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-600 dark:text-red-400">
+        <div v-if="saveError" class="p-3 bg-red-900/20 border border-red-800 rounded-lg text-sm text-red-400">
           {{ saveError }}
         </div>
 
@@ -562,9 +594,9 @@ function isUserSuspended(member: UserType): boolean {
     </Modal>
 
     <!-- Suspend User Modal -->
-    <Modal :open="showSuspendModal" @close="showSuspendModal = false" :title="isUserSuspended(selectedMember!) ? 'Reactivate user' : 'Suspend user'">
+    <Modal :open="showSuspendModal" @close="showSuspendModal = false" :title="selectedMember && isUserSuspended(selectedMember) ? 'Reactivate user' : 'Suspend user'">
       <div class="space-y-4">
-        <div v-if="saveError" class="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-600 dark:text-red-400">
+        <div v-if="saveError" class="p-3 bg-red-900/20 border border-red-800 rounded-lg text-sm text-red-400">
           {{ saveError }}
         </div>
 
@@ -595,7 +627,7 @@ function isUserSuspended(member: UserType): boolean {
     <!-- Manage Teams Modal -->
     <Modal :open="showManageTeamsModal" @close="showManageTeamsModal = false" title="Manage teams">
       <div class="space-y-4">
-        <div v-if="saveError" class="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-600 dark:text-red-400">
+        <div v-if="saveError" class="p-3 bg-red-900/20 border border-red-800 rounded-lg text-sm text-red-400">
           {{ saveError }}
         </div>
 
@@ -608,12 +640,12 @@ function isUserSuspended(member: UserType): boolean {
             v-for="team in teams"
             :key="team.id"
             @click="toggleTeam(team.id)"
-            class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-gray-800/50 transition-colors text-left"
+            class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-[#1a1a1a] transition-colors text-left"
             :class="memberTeamIds.includes(team.id) && 'bg-indigo-500/10'"
           >
             <div class="flex items-center gap-3">
               <div 
-                class="w-7 h-7 rounded flex items-center justify-center text-xs font-medium"
+                class="w-7 h-7 rounded flex items-center justify-center text-xs font-medium text-white"
                 :style="{ backgroundColor: team.color || '#5e6ad2' }"
               >
                 {{ team.icon || team.name?.charAt(0).toUpperCase() }}
