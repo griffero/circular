@@ -208,6 +208,12 @@ class LinearClient
             id body health editedAt createdAt updatedAt
             project { id }
             user { id }
+            comments {
+              nodes {
+                id body createdAt updatedAt
+                user { id }
+              }
+            }
           }
           pageInfo { hasNextPage endCursor }
         }

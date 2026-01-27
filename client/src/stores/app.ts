@@ -3,6 +3,22 @@ import { ref } from 'vue'
 import type { Team, Project } from '@/types'
 import { api } from '@/api/client'
 
+export interface ProjectUpdateComment {
+  id: string
+  body: string
+  createdAt: string
+  updatedAt: string
+  projectUpdateId: string
+  userId: string
+  user: {
+    id: string
+    name: string
+    displayName?: string | null
+    email: string
+    avatarUrl?: string | null
+  }
+}
+
 export interface ProjectUpdate {
   id: string
   body: string
@@ -10,6 +26,7 @@ export interface ProjectUpdate {
   editedAt: string | null
   createdAt: string
   updatedAt: string
+  commentsCount: number
   project: Project
   user: {
     id: string
@@ -18,6 +35,7 @@ export interface ProjectUpdate {
     email: string
     avatarUrl: string | null
   }
+  comments?: ProjectUpdateComment[]
 }
 
 export const useAppStore = defineStore('app', () => {

@@ -229,7 +229,8 @@ function formatTimeAgo(dateStr: string): string {
                 <div class="flex items-center gap-3 text-xs text-gray-500">
                   <button class="flex items-center gap-1.5 hover:text-white transition-colors">
                     <MessageCircle class="w-3.5 h-3.5" />
-                    Comments
+                    <span v-if="update.commentsCount > 0">{{ update.commentsCount }} comment{{ update.commentsCount !== 1 ? 's' : '' }}</span>
+                    <span v-else>Comments</span>
                   </button>
                   <button class="flex items-center gap-1.5 hover:text-white transition-colors">
                     <Smile class="w-3.5 h-3.5" />
@@ -297,7 +298,8 @@ function formatTimeAgo(dateStr: string): string {
                 <div class="flex items-center gap-3 text-xs text-gray-500">
                   <button class="flex items-center gap-1.5 hover:text-white transition-colors">
                     <MessageCircle class="w-3.5 h-3.5" />
-                    Comments
+                    <span v-if="update.commentsCount > 0">{{ update.commentsCount }} comment{{ update.commentsCount !== 1 ? 's' : '' }}</span>
+                    <span v-else>Comments</span>
                   </button>
                   <button class="flex items-center gap-1.5 hover:text-white transition-colors">
                     <Smile class="w-3.5 h-3.5" />
@@ -365,7 +367,8 @@ function formatTimeAgo(dateStr: string): string {
                 <div class="flex items-center gap-3 text-xs text-gray-500">
                   <button class="flex items-center gap-1.5 hover:text-white transition-colors">
                     <MessageCircle class="w-3.5 h-3.5" />
-                    Comments
+                    <span v-if="update.commentsCount > 0">{{ update.commentsCount }} comment{{ update.commentsCount !== 1 ? 's' : '' }}</span>
+                    <span v-else>Comments</span>
                   </button>
                   <button class="flex items-center gap-1.5 hover:text-white transition-colors">
                     <Smile class="w-3.5 h-3.5" />

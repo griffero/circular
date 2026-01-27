@@ -33,6 +33,14 @@ module Sync
 
         project_update.save!
         log_sync("ProjectUpdate", data["id"], action)
+
+        # Sync comments if present
+        if data["comments"] && data["comments"]["nodes"]
+          data["comments"]["nodes"].each do |comment_data|
+            ProjectUpdateCommentSync.sync(comment_data, project_update)
+          end
+        end
+
         project_update
       end
 

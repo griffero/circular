@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_27_190112) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_27_231906) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -40,6 +40,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_27_190112) do
     t.datetime "updated_at", null: false
     t.string "linear_id"
     t.index ["issue_id", "created_at"], name: "index_comments_on_issue_id_and_created_at"
+    t.index ["issue_id", "user_id"], name: "index_comments_on_issue_and_user"
     t.index ["issue_id"], name: "index_comments_on_issue_id"
     t.index ["linear_id"], name: "index_comments_on_linear_id", unique: true, where: "(linear_id IS NOT NULL)"
     t.index ["parent_id"], name: "index_comments_on_parent_id"
@@ -164,11 +165,14 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_27_190112) do
     t.uuid "workflow_state_id"
     t.uuid "cycle_id"
     t.string "linear_id"
+    t.integer "comments_count", default: 0, null: false
+    t.integer "sub_issues_count", default: 0, null: false
     t.index ["assignee_id", "status"], name: "index_issues_on_assignee_id_and_status"
     t.index ["assignee_id", "workflow_state_id"], name: "index_issues_on_assignee_id_and_workflow_state_id"
     t.index ["assignee_id"], name: "index_issues_on_assignee_id"
     t.index ["created_at"], name: "index_issues_on_created_at"
     t.index ["creator_id"], name: "index_issues_on_creator_id"
+    t.index ["cycle_id", "workflow_state_id"], name: "index_issues_on_cycle_and_state"
     t.index ["cycle_id"], name: "index_issues_on_cycle_id"
     t.index ["due_date"], name: "index_issues_on_due_date"
     t.index ["identifier"], name: "index_issues_on_identifier", unique: true
@@ -182,9 +186,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_27_190112) do
     t.index ["sort_order"], name: "index_issues_on_sort_order"
     t.index ["status"], name: "index_issues_on_status"
     t.index ["team_id", "number"], name: "index_issues_on_team_id_and_number", unique: true
+    t.index ["team_id", "sort_order", "created_at"], name: "index_issues_on_team_sort_created"
     t.index ["team_id", "status"], name: "index_issues_on_team_id_and_status"
     t.index ["team_id", "workflow_state_id"], name: "index_issues_on_team_id_and_workflow_state_id"
     t.index ["team_id"], name: "index_issues_on_team_id"
+    t.index ["updated_at"], name: "index_issues_on_updated_at"
     t.index ["workflow_state_id"], name: "index_issues_on_workflow_state_id"
   end
 
@@ -227,6 +233,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_27_190112) do
     t.index ["team_id"], name: "index_project_teams_on_team_id"
   end
 
+  create_table "project_update_comments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "project_update_id", null: false
+    t.uuid "user_id", null: false
+    t.text "body"
+    t.string "linear_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["linear_id"], name: "index_project_update_comments_on_linear_id", unique: true
+    t.index ["project_update_id"], name: "index_project_update_comments_on_project_update_id"
+    t.index ["user_id"], name: "index_project_update_comments_on_user_id"
+  end
+
   create_table "project_updates", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "project_id", null: false
     t.uuid "user_id", null: false
@@ -262,11 +280,13 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_27_190112) do
     t.string "linear_id"
     t.string "slug_id"
     t.string "state", default: "backlog"
+    t.integer "issues_count", default: 0, null: false
     t.index ["lead_id"], name: "index_projects_on_lead_id"
     t.index ["linear_id"], name: "index_projects_on_linear_id", unique: true, where: "(linear_id IS NOT NULL)"
     t.index ["slug"], name: "index_projects_on_slug", unique: true
     t.index ["slug_id"], name: "index_projects_on_slug_id", unique: true, where: "(slug_id IS NOT NULL)"
     t.index ["state"], name: "index_projects_on_state"
+    t.index ["status", "created_at"], name: "index_projects_on_status_and_created"
     t.index ["status"], name: "index_projects_on_status"
   end
 
@@ -293,6 +313,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_27_190112) do
     t.datetime "updated_at", null: false
     t.index ["created_at"], name: "index_sync_logs_on_created_at"
     t.index ["entity_type", "linear_id"], name: "index_sync_logs_on_entity_type_and_linear_id"
+    t.index ["processed_at"], name: "index_sync_logs_on_processed_at"
     t.index ["status", "created_at"], name: "index_sync_logs_on_status_and_created_at"
   end
 
@@ -318,6 +339,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_27_190112) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "linear_id"
+    t.integer "issues_count", default: 0, null: false
     t.index ["key"], name: "index_teams_on_key", unique: true
     t.index ["linear_id"], name: "index_teams_on_linear_id", unique: true, where: "(linear_id IS NOT NULL)"
   end
@@ -338,6 +360,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_27_190112) do
     t.boolean "admin", default: false, null: false
     t.boolean "guest", default: false, null: false
     t.boolean "active", default: true, null: false
+    t.index ["active", "role"], name: "index_users_on_active_and_role"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["linear_id"], name: "index_users_on_linear_id", unique: true, where: "(linear_id IS NOT NULL)"
     t.index ["magic_link_token"], name: "index_users_on_magic_link_token", unique: true
@@ -388,6 +411,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_27_190112) do
   add_foreign_key "project_memberships", "users"
   add_foreign_key "project_teams", "projects"
   add_foreign_key "project_teams", "teams"
+  add_foreign_key "project_update_comments", "project_updates"
+  add_foreign_key "project_update_comments", "users"
   add_foreign_key "project_updates", "projects"
   add_foreign_key "project_updates", "users"
   add_foreign_key "projects", "users", column: "lead_id"
