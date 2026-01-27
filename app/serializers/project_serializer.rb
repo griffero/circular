@@ -15,7 +15,7 @@ class ProjectSerializer < Blueprinter::Base
   end
 
   view :minimal do
-    # Only basic fields for lists
+    fields :id, :name, :slug, :icon, :color, :status, :state
   end
 
   view :with_lead do

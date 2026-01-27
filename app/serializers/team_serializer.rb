@@ -10,7 +10,7 @@ class TeamSerializer < Blueprinter::Base
   end
 
   view :minimal do
-    # Only basic fields for lists
+    fields :id, :name, :key, :icon, :color
   end
 
   view :with_members do

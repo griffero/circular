@@ -10,6 +10,10 @@ class UserSerializer < Blueprinter::Base
     user.linear_id
   end
 
+  view :minimal do
+    fields :id, :name, :email, :avatar_url
+  end
+
   view :with_teams do
     association :teams, blueprint: TeamSerializer, view: :minimal
     
