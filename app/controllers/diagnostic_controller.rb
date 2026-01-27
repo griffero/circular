@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class DiagnosticController < ApplicationController
-  skip_before_action :authenticate!, only: [:show]
+  # No authentication required for diagnostic endpoint
 
   def show
     render json: {
