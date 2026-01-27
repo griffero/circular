@@ -16,6 +16,7 @@ const loading = ref(true)
 const pagesWithOwnHeader = [
   'home',
   'projects', 
+  'initiatives',
   'inbox', 
   'my-issues',
   'views',
