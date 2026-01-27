@@ -31,7 +31,7 @@ class DiagnosticController < ApplicationController
         teams: Team.count,
         projects: Project.count,
         project_updates: ProjectUpdate.count,
-        initiatives: Initiative.count,
+        initiatives: safe_count(Initiative),
         issues: Issue.count,
         labels: Label.count,
         workflow_states: WorkflowState.count,
@@ -43,7 +43,7 @@ class DiagnosticController < ApplicationController
         teams: Team.where.not(linear_id: nil).count,
         projects: Project.where.not(linear_id: nil).count,
         project_updates: ProjectUpdate.where.not(linear_id: nil).count,
-        initiatives: Initiative.where.not(linear_id: nil).count,
+        initiatives: safe_count(Initiative, linear_synced: true),
         issues: Issue.where.not(linear_id: nil).count,
         labels: Label.where.not(linear_id: nil).count
       },
@@ -92,5 +92,18 @@ class DiagnosticController < ApplicationController
     else
       render json: { error: "User not found" }, status: :not_found
     end
+  end
+
+  private
+
+  # Safe count that returns 0 if table doesn't exist
+  def safe_count(model, linear_synced: false)
+    if linear_synced
+      model.where.not(linear_id: nil).count
+    else
+      model.count
+    end
+  rescue ActiveRecord::StatementInvalid
+    0
   end
 end
