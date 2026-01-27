@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useAppStore } from '@/stores/app'
 import { useRouter } from 'vue-router'
 import type { Project } from '@/types'
-import { ChevronLeft, ChevronRight, Circle, CheckCircle2, PauseCircle, XCircle } from 'lucide-vue-next'
+import { ChevronLeft, ChevronRight, Circle, CheckCircle2, PauseCircle, XCircle, ZoomIn, ZoomOut } from 'lucide-vue-next'
 import EmojiIcon from '@/components/ui/EmojiIcon.vue'
 
 const appStore = useAppStore()
@@ -12,6 +12,7 @@ const router = useRouter()
 // Refs
 const timelineContainer = ref<HTMLElement | null>(null)
 const timelineHeader = ref<HTMLElement | null>(null)
+const timelineArea = ref<HTMLElement | null>(null)
 
 // Timeline range: 2 years back to 2 years forward
 const today = new Date()
@@ -57,11 +58,68 @@ const sortedProjects = computed(() => {
   return [...appStore.projects].sort((a, b) => a.name.localeCompare(b.name))
 })
 
-// Column width in pixels
-const colWidth = 50
+// Column width in pixels (reactive for zoom)
+const colWidth = ref(50)
+const MIN_COL_WIDTH = 20
+const MAX_COL_WIDTH = 150
+const ZOOM_STEP = 10
+
+// Zoom level display
+const zoomPercent = computed(() => Math.round((colWidth.value / 50) * 100))
 
 // Total timeline width
-const timelineWidth = computed(() => months.value.length * colWidth)
+const timelineWidth = computed(() => months.value.length * colWidth.value)
+
+// Handle wheel zoom on timeline
+function handleWheel(e: WheelEvent) {
+  // Only zoom if hovering over the timeline area
+  if (!timelineContainer.value) return
+  
+  // Prevent default browser zoom
+  e.preventDefault()
+  
+  const container = timelineContainer.value
+  const rect = container.getBoundingClientRect()
+  
+  // Get cursor position relative to timeline
+  const cursorX = e.clientX - rect.left + container.scrollLeft
+  const cursorRatio = cursorX / timelineWidth.value
+  
+  // Calculate new column width
+  const delta = e.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP
+  const newColWidth = Math.min(MAX_COL_WIDTH, Math.max(MIN_COL_WIDTH, colWidth.value + delta))
+  
+  if (newColWidth === colWidth.value) return
+  
+  // Update column width
+  const oldWidth = timelineWidth.value
+  colWidth.value = newColWidth
+  const newWidth = months.value.length * newColWidth
+  
+  // Adjust scroll position to keep cursor position stable
+  nextTick(() => {
+    const newCursorX = cursorRatio * newWidth
+    container.scrollLeft = newCursorX - (e.clientX - rect.left)
+    
+    // Sync header scroll
+    if (timelineHeader.value) {
+      timelineHeader.value.scrollLeft = container.scrollLeft
+    }
+  })
+}
+
+// Zoom controls
+function zoomIn() {
+  colWidth.value = Math.min(MAX_COL_WIDTH, colWidth.value + ZOOM_STEP)
+}
+
+function zoomOut() {
+  colWidth.value = Math.max(MIN_COL_WIDTH, colWidth.value - ZOOM_STEP)
+}
+
+function resetZoom() {
+  colWidth.value = 50
+}
 
 // Calculate position for a date
 function getDatePosition(dateStr: string | undefined): number | null {
@@ -141,7 +199,7 @@ function onTimelineScroll(e: Event) {
 // Scroll navigation
 function scrollTimeline(direction: 'left' | 'right') {
   if (!timelineContainer.value) return
-  const amount = colWidth * 6 // Scroll by 6 months
+  const amount = colWidth.value * 6 // Scroll by 6 months
   timelineContainer.value.scrollBy({
     left: direction === 'right' ? amount : -amount,
     behavior: 'smooth'
@@ -156,26 +214,67 @@ onMounted(async () => {
     const todayPx = (todayPosition.value / 100) * timelineWidth.value
     timelineContainer.value.scrollLeft = Math.max(0, todayPx - containerWidth / 2)
   }
+  
+  // Add wheel event listener with passive: false to allow preventDefault
+  if (timelineArea.value) {
+    timelineArea.value.addEventListener('wheel', handleWheel, { passive: false })
+  }
+})
+
+onUnmounted(() => {
+  if (timelineArea.value) {
+    timelineArea.value.removeEventListener('wheel', handleWheel)
+  }
 })
 </script>
 
 <template>
   <div class="h-full flex flex-col">
     <!-- Timeline controls -->
-    <div class="flex items-center justify-end gap-2 px-4 py-2 border-b border-[#222]">
-      <button 
-        @click="scrollTimeline('left')"
-        class="p-1.5 rounded hover:bg-[#222] text-gray-400"
-      >
-        <ChevronLeft class="w-4 h-4" />
-      </button>
-      <span class="text-xs text-gray-500">{{ today.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) }}</span>
-      <button 
-        @click="scrollTimeline('right')"
-        class="p-1.5 rounded hover:bg-[#222] text-gray-400"
-      >
-        <ChevronRight class="w-4 h-4" />
-      </button>
+    <div class="flex items-center justify-between px-4 py-2 border-b border-[#222]">
+      <!-- Zoom controls -->
+      <div class="flex items-center gap-2">
+        <button 
+          @click="zoomOut"
+          :disabled="colWidth <= MIN_COL_WIDTH"
+          class="p-1.5 rounded hover:bg-[#222] text-gray-400 disabled:opacity-30 disabled:cursor-not-allowed"
+          title="Zoom out (or scroll down on timeline)"
+        >
+          <ZoomOut class="w-4 h-4" />
+        </button>
+        <button
+          @click="resetZoom"
+          class="px-2 py-1 text-xs text-gray-500 hover:text-white hover:bg-[#222] rounded min-w-[48px]"
+          title="Reset zoom"
+        >
+          {{ zoomPercent }}%
+        </button>
+        <button 
+          @click="zoomIn"
+          :disabled="colWidth >= MAX_COL_WIDTH"
+          class="p-1.5 rounded hover:bg-[#222] text-gray-400 disabled:opacity-30 disabled:cursor-not-allowed"
+          title="Zoom in (or scroll up on timeline)"
+        >
+          <ZoomIn class="w-4 h-4" />
+        </button>
+      </div>
+      
+      <!-- Navigation controls -->
+      <div class="flex items-center gap-2">
+        <button 
+          @click="scrollTimeline('left')"
+          class="p-1.5 rounded hover:bg-[#222] text-gray-400"
+        >
+          <ChevronLeft class="w-4 h-4" />
+        </button>
+        <span class="text-xs text-gray-500">{{ today.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) }}</span>
+        <button 
+          @click="scrollTimeline('right')"
+          class="p-1.5 rounded hover:bg-[#222] text-gray-400"
+        >
+          <ChevronRight class="w-4 h-4" />
+        </button>
+      </div>
     </div>
 
     <!-- Main content area -->
@@ -232,7 +331,7 @@ onMounted(async () => {
       </div>
       
       <!-- Timeline area -->
-      <div class="flex-1 flex flex-col overflow-hidden">
+      <div ref="timelineArea" class="flex-1 flex flex-col overflow-hidden">
         <!-- Timeline header (years + months) -->
         <div class="flex-shrink-0 border-b border-[#222]">
           <!-- Years row -->
