@@ -31,6 +31,7 @@ onMounted(async () => {
     await Promise.all([
       appStore.fetchTeams(),
       appStore.fetchProjects(),
+      appStore.fetchProjectUpdates(),
       emojiStore.fetchEmojis()
     ])
   } catch (err) {

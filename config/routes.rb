@@ -53,6 +53,9 @@ Rails.application.routes.draw do
         resources :members, controller: "project_members", only: %i[index create destroy], param: :user_id
       end
 
+      # Project Updates (status reports / pulse feed)
+      resources :project_updates, only: %i[index show]
+
       # Labels (global and team-specific)
       resources :labels, only: %i[index create show update destroy]
 

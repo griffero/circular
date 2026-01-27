@@ -3,9 +3,27 @@ import { ref } from 'vue'
 import type { Team, Project } from '@/types'
 import { api } from '@/api/client'
 
+export interface ProjectUpdate {
+  id: string
+  body: string
+  health: string | null
+  editedAt: string | null
+  createdAt: string
+  updatedAt: string
+  project: Project
+  user: {
+    id: string
+    name: string
+    displayName: string | null
+    email: string
+    avatarUrl: string | null
+  }
+}
+
 export const useAppStore = defineStore('app', () => {
   const teams = ref<Team[]>([])
   const projects = ref<Project[]>([])
+  const projectUpdates = ref<ProjectUpdate[]>([])
   const users = ref<{ id: string; name: string; email: string; avatarUrl?: string }[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
@@ -40,6 +58,15 @@ export const useAppStore = defineStore('app', () => {
       users.value = data.users
     } catch (err) {
       console.error('Failed to fetch users:', err)
+    }
+  }
+
+  async function fetchProjectUpdates() {
+    try {
+      const data = await api.get<{ projectUpdates: ProjectUpdate[] }>('/api/v1/project_updates')
+      projectUpdates.value = data.projectUpdates
+    } catch (err) {
+      console.error('Failed to fetch project updates:', err)
     }
   }
 
@@ -78,6 +105,7 @@ export const useAppStore = defineStore('app', () => {
   function reset() {
     teams.value = []
     projects.value = []
+    projectUpdates.value = []
     users.value = []
     error.value = null
   }
@@ -85,11 +113,13 @@ export const useAppStore = defineStore('app', () => {
   return {
     teams,
     projects,
+    projectUpdates,
     users,
     loading,
     error,
     fetchTeams,
     fetchProjects,
+    fetchProjectUpdates,
     fetchUsers,
     createTeam,
     createProject,

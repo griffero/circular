@@ -13,6 +13,7 @@ class Project < ApplicationRecord
   has_many :issues, dependent: :nullify
   has_many :project_teams, dependent: :destroy
   has_many :teams, through: :project_teams
+  has_many :project_updates, dependent: :destroy
 
   validates :name, presence: true, length: { minimum: 2, maximum: 100 }
   validates :slug, presence: true,

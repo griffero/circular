@@ -17,6 +17,7 @@ class LinearImporter
     import_workflow_states
     import_labels
     import_projects
+    import_project_updates
     import_cycles
     import_issues
     import_comments
@@ -104,6 +105,18 @@ class LinearImporter
       @stats[:project_errors] += 1
     end
     Rails.logger.info "Imported #{stats[:projects]} projects"
+  end
+
+  def import_project_updates
+    Rails.logger.info "Importing project updates..."
+    client.project_updates.each do |data|
+      Sync::ProjectUpdateSync.upsert_from_linear(data)
+      @stats[:project_updates] += 1
+    rescue StandardError => e
+      Rails.logger.error "Failed to import project update #{data['id']}: #{e.message}"
+      @stats[:project_update_errors] += 1
+    end
+    Rails.logger.info "Imported #{stats[:project_updates]} project updates"
   end
 
   def import_cycles
