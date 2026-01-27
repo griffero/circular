@@ -481,11 +481,11 @@ onUnmounted(() => {
             v-for="project in filteredProjects" 
             :key="project.id"
             @click="goToProject(project)"
-            class="h-[44px] flex items-center gap-2 px-3 hover:bg-[#151515] cursor-pointer border-b border-[#151515] group"
+            class="h-[44px] flex items-center px-3 hover:bg-[#151515] cursor-pointer border-b border-[#151515] group"
           >
-            <!-- Project icon -->
+            <!-- Project icon - fixed width -->
             <div 
-              class="w-5 h-5 rounded flex-shrink-0 flex items-center justify-center text-[11px] font-medium"
+              class="w-6 h-6 rounded flex-shrink-0 flex items-center justify-center text-[11px] font-medium"
               :style="hasEmoji(project.icon) ? {} : { backgroundColor: project.color || '#6366f1' }"
             >
               <EmojiIcon 
@@ -495,49 +495,43 @@ onUnmounted(() => {
               />
             </div>
             
-            <!-- Project name -->
-            <span class="flex-1 text-[13px] text-gray-200 truncate min-w-0">
-              {{ project.name }}
-            </span>
-            
-            <!-- State icon -->
-            <component 
-              :is="getStateIcon(project.state)" 
-              class="w-4 h-4 flex-shrink-0" 
-              :class="getStateIconColor(project.state)"
-            />
-            
-            <!-- Health indicator -->
-            <div 
-              v-if="project.health"
-              class="w-2 h-2 rounded-full flex-shrink-0"
-              :class="getHealthColor(project.health)"
-            />
-            <div v-else class="w-4 flex-shrink-0 text-center">
-              <span class="text-gray-600 text-[11px]">---</span>
+            <!-- Project name - flexible with min width for truncation -->
+            <div class="flex-1 min-w-0 ml-2 mr-3">
+              <span class="text-[13px] text-gray-200 truncate block">
+                {{ project.name }}
+              </span>
             </div>
             
-            <!-- Lead avatar -->
-            <div v-if="project.lead" class="flex-shrink-0">
+            <!-- State icon - fixed width -->
+            <div class="w-5 flex-shrink-0 flex items-center justify-center">
+              <component 
+                :is="getStateIcon(project.state)" 
+                class="w-4 h-4" 
+                :class="getStateIconColor(project.state)"
+              />
+            </div>
+            
+            <!-- Health indicator - fixed width -->
+            <div class="w-5 flex-shrink-0 flex items-center justify-center">
+              <div 
+                v-if="project.health"
+                class="w-2 h-2 rounded-full"
+                :class="getHealthColor(project.health)"
+              />
+              <span v-else class="text-gray-600 text-[10px]">---</span>
+            </div>
+            
+            <!-- Lead avatar - fixed width -->
+            <div class="w-7 flex-shrink-0 flex items-center justify-center">
               <UserLink
+                v-if="project.lead"
                 :userId="project.lead.id"
                 :name="project.lead.name"
                 :avatarUrl="project.lead.avatarUrl"
                 :showName="false"
-                avatarSize="xs"
+                avatarSize="sm"
               />
-            </div>
-            <div v-else class="w-5 h-5 rounded-full bg-[#2a2a2a] flex-shrink-0" />
-            
-            <!-- Arrow indicator for dates outside timeline -->
-            <div class="w-16 flex-shrink-0 text-right">
-              <span 
-                v-if="isBeforeTimeline(project)" 
-                class="text-[11px] text-gray-500 flex items-center gap-0.5 justify-end"
-              >
-                <ArrowLeft class="w-3 h-3" />
-                {{ isBeforeTimeline(project) }}
-              </span>
+              <div v-else class="w-6 h-6 rounded-full bg-[#2a2a2a]" />
             </div>
           </div>
           
