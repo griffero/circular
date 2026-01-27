@@ -14,6 +14,43 @@ const router = createRouter({
       name: 'auth-verify',
       component: () => import('@/components/pages/AuthVerifyPage.vue'),
     },
+    // Settings routes with dedicated layout (like Linear)
+    {
+      path: '/settings',
+      component: () => import('@/components/pages/SettingsLayout.vue'),
+      children: [
+        {
+          path: '',
+          name: 'general-settings',
+          component: () => import('@/components/pages/settings/GeneralSettings.vue'),
+        },
+        {
+          path: 'preferences',
+          name: 'preferences-settings',
+          component: () => import('@/components/pages/settings/PreferencesSettings.vue'),
+        },
+        {
+          path: 'profile',
+          name: 'profile-settings',
+          component: () => import('@/components/pages/settings/ProfileSettings.vue'),
+        },
+        {
+          path: 'members',
+          name: 'members-settings',
+          component: () => import('@/components/pages/settings/MembersSettings.vue'),
+        },
+        {
+          path: 'teams',
+          name: 'teams-settings',
+          component: () => import('@/components/pages/settings/TeamsSettings.vue'),
+        },
+        {
+          path: 'labels',
+          name: 'labels-settings',
+          component: () => import('@/components/pages/settings/LabelsSettings.vue'),
+        },
+      ],
+    },
     {
       path: '/',
       name: 'app',
@@ -48,33 +85,6 @@ const router = createRouter({
           path: 'views',
           name: 'views',
           component: () => import('@/components/pages/ViewsPage.vue'),
-        },
-        {
-          path: 'settings',
-          name: 'settings',
-          component: () => import('@/components/pages/SettingsPage.vue'),
-          children: [
-            {
-              path: '',
-              name: 'general-settings',
-              component: () => import('@/components/pages/settings/GeneralSettings.vue'),
-            },
-            {
-              path: 'members',
-              name: 'members-settings',
-              component: () => import('@/components/pages/settings/MembersSettings.vue'),
-            },
-            {
-              path: 'teams',
-              name: 'teams-settings',
-              component: () => import('@/components/pages/settings/TeamsSettings.vue'),
-            },
-            {
-              path: 'labels',
-              name: 'labels-settings',
-              component: () => import('@/components/pages/settings/LabelsSettings.vue'),
-            },
-          ],
         },
         {
           path: 'team/:teamKey',

@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
-import Button from '@/components/ui/Button.vue'
-import Input from '@/components/ui/Input.vue'
 
 const authStore = useAuthStore()
 const isAdmin = computed(() => authStore.isAdmin)
@@ -10,22 +8,14 @@ const user = computed(() => authStore.user)
 
 const appName = ref('Linear Clone')
 const saving = ref(false)
-const error = ref('')
-const success = ref('')
 
 async function handleSave() {
   if (!isAdmin.value) return
   
   saving.value = true
-  error.value = ''
-  success.value = ''
-
   try {
     // TODO: Implement settings update API
-    success.value = 'Settings saved successfully'
-    setTimeout(() => { success.value = '' }, 3000)
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Failed to save settings'
+    await new Promise(resolve => setTimeout(resolve, 500))
   } finally {
     saving.value = false
   }
@@ -33,72 +23,75 @@ async function handleSave() {
 </script>
 
 <template>
-  <div class="p-6 max-w-2xl">
-    <h1 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-1">
+  <div class="p-8 max-w-2xl">
+    <h1 class="text-xl font-semibold text-white mb-2">
       General
     </h1>
-    <p class="text-sm text-gray-500 mb-6">
-      Manage your application settings and preferences
+    <p class="text-[13px] text-gray-500 mb-8">
+      Manage your workspace settings and preferences
     </p>
 
     <form @submit.prevent="handleSave" class="space-y-6">
-      <div v-if="error" class="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-600 dark:text-red-400">
-        {{ error }}
-      </div>
-
-      <div v-if="success" class="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-sm text-green-600 dark:text-green-400">
-        {{ success }}
-      </div>
-
+      <!-- Application name -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          Application name
+        <label class="block text-[14px] text-white mb-2">
+          Workspace name
         </label>
-        <Input
+        <input
           v-model="appName"
           type="text"
-          placeholder="Linear Clone"
           :disabled="!isAdmin"
+          class="w-full bg-[#1a1a1a] border border-[#333] rounded px-3 py-2 text-[14px] text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          placeholder="Linear Clone"
         />
-        <p class="mt-1 text-xs text-gray-500">
-          This is the display name of your application
+        <p class="mt-1 text-[12px] text-gray-500">
+          This is the display name of your workspace
         </p>
       </div>
 
+      <!-- Role -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <label class="block text-[14px] text-white mb-2">
           Your role
         </label>
-        <p class="text-sm text-gray-900 dark:text-gray-100 capitalize">
+        <p class="text-[14px] text-white capitalize">
           {{ user?.role || 'Member' }}
         </p>
-        <p class="mt-1 text-xs text-gray-500">
+        <p class="mt-1 text-[12px] text-gray-500">
           Your role determines what actions you can perform
         </p>
       </div>
 
-      <div class="pt-4 border-t border-gray-200 dark:border-gray-800">
-        <Button type="submit" :loading="saving" :disabled="!isAdmin">
-          Save changes
-        </Button>
+      <!-- Save button -->
+      <div class="pt-4">
+        <button
+          type="submit"
+          :disabled="saving || !isAdmin"
+          class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed rounded text-[14px] text-white font-medium transition-colors"
+        >
+          {{ saving ? 'Saving...' : 'Save changes' }}
+        </button>
       </div>
     </form>
 
     <!-- Danger zone -->
-    <div class="mt-12 pt-6 border-t border-gray-200 dark:border-gray-800" v-if="authStore.isOwner">
-      <h2 class="text-lg font-medium text-red-600 dark:text-red-400 mb-4">
+    <div class="mt-12 pt-6 border-t border-[#222]" v-if="authStore.isOwner">
+      <h2 class="text-lg font-medium text-red-500 mb-4">
         Danger Zone
       </h2>
-      <div class="p-4 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-lg">
-        <h3 class="text-sm font-medium text-red-800 dark:text-red-200 mb-1">
+      <div class="p-4 bg-red-950/30 border border-red-900/50 rounded-lg">
+        <h3 class="text-[14px] font-medium text-red-400 mb-1">
           Reset application
         </h3>
-        <p class="text-sm text-red-600 dark:text-red-400 mb-3">
+        <p class="text-[13px] text-red-400/80 mb-3">
           This will delete all data. This action cannot be undone.
         </p>
-        <Button variant="danger" size="sm">
+        <button
+          type="button"
+          class="px-3 py-1.5 bg-red-600 hover:bg-red-700 rounded text-[13px] text-white font-medium transition-colors"
+        >
           Reset application
-        </Button>
+        </button>
       </div>
     </div>
   </div>
