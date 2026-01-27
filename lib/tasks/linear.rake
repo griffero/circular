@@ -1,5 +1,21 @@
 # frozen_string_literal: true
 
+namespace :slack do
+  desc "Sync Slack emojis"
+  task sync_emojis: :environment do
+    puts "Starting Slack emoji sync..."
+    puts "Token: #{ENV['SLACK_BOT_TOKEN'] ? 'Present (' + ENV['SLACK_BOT_TOKEN'][0..10] + '...)' : 'MISSING!'}"
+
+    SyncSlackEmojisJob.perform_now
+
+    puts "Emoji count: #{SlackEmoji.count}"
+    puts "\n=== Sample Emojis ==="
+    SlackEmoji.limit(10).each do |emoji|
+      puts "  #{emoji.name}: #{emoji.url[0..50]}..."
+    end
+  end
+end
+
 namespace :linear do
   desc "Import all data from Linear"
   task import: :environment do
