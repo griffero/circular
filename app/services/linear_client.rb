@@ -43,7 +43,7 @@ class LinearClient
     paginate(query, { first: first, after: after }, "users")
   end
 
-  # Fetch all teams
+  # Fetch all teams with members
   def teams(first: 100, after: nil)
     query = <<~GRAPHQL
       query($first: Int!, $after: String) {
@@ -51,6 +51,11 @@ class LinearClient
           nodes {
             id name key description color icon
             issueCount createdAt
+            members {
+              nodes {
+                id
+              }
+            }
           }
           pageInfo { hasNextPage endCursor }
         }
@@ -92,7 +97,7 @@ class LinearClient
     paginate(query, { first: first, after: after }, "issueLabels")
   end
 
-  # Fetch projects
+  # Fetch projects with members
   def projects(first: 100, after: nil)
     query = <<~GRAPHQL
       query($first: Int!, $after: String) {
@@ -102,6 +107,11 @@ class LinearClient
             state startDate targetDate progress health
             lead { id }
             teams { nodes { id } }
+            members {
+              nodes {
+                id
+              }
+            }
           }
           pageInfo { hasNextPage endCursor }
         }

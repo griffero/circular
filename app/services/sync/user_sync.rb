@@ -6,6 +6,7 @@ module Sync
       def upsert_from_linear(data)
         user = User.find_or_initialize_by(linear_id: data["id"])
         action = user.new_record? ? "create" : "update"
+        is_new = user.new_record?
 
         user.assign_attributes(
           email: data["email"],
@@ -14,11 +15,19 @@ module Sync
           avatar_url: data["avatarUrl"],
           admin: data["admin"] || false,
           guest: data["guest"] || false,
-          active: data["active"] != false
+          active: data["active"] != false,
+          timezone: data["timezone"] || "UTC"
         )
 
-        # Set default role if new user
-        user.role ||= "member"
+        # Set role based on Linear admin status for new users
+        if is_new
+          user.role = if data["admin"]
+                        # First admin becomes owner, rest are admins
+                        User.owners.exists? ? "admin" : "owner"
+                      else
+                        "member"
+                      end
+        end
 
         user.save!
         log_sync("User", data["id"], action)

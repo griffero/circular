@@ -34,6 +34,9 @@ module Sync
         # Sync project teams
         sync_teams(project, data.dig("teams", "nodes") || [])
 
+        # Sync project memberships
+        sync_members(project, data) if data["members"]
+
         log_sync("Project", data["id"], action)
         project
       end
@@ -51,6 +54,25 @@ module Sync
       def sync_teams(project, teams_data)
         team_ids = teams_data.map { |t| Team.find_by(linear_id: t["id"])&.id }.compact
         project.team_ids = team_ids
+      end
+
+      def sync_members(project, data)
+        member_linear_ids = data.dig("members", "nodes")&.map { |m| m["id"] } || []
+        return if member_linear_ids.empty?
+
+        # Find users by their linear_id
+        users = User.where(linear_id: member_linear_ids)
+
+        # Get current member ids
+        current_member_ids = project.project_memberships.pluck(:user_id)
+
+        # Add new members
+        users_to_add = users.where.not(id: current_member_ids)
+        users_to_add.each do |user|
+          ProjectMembership.find_or_create_by!(project: project, user: user) do |pm|
+            pm.role = "member"
+          end
+        end
       end
 
       def map_state_to_status(state)

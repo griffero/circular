@@ -82,10 +82,56 @@ namespace :linear do
     puts "Issues: #{Issue.where.not(linear_id: nil).count} synced"
     puts "Comments: #{Comment.where.not(linear_id: nil).count} synced"
     puts "Issue Relations: #{IssueRelation.count} total"
+    puts "Team Memberships: #{TeamMembership.count} total"
+    puts "Project Memberships: #{ProjectMembership.count} total"
 
     puts "\n=== Recent Sync Logs ==="
     SyncLog.recent.limit(10).each do |log|
       puts "#{log.created_at.strftime('%H:%M:%S')} - #{log.entity_type} #{log.action} (#{log.status})"
     end
+  end
+
+  desc "Import only users from Linear (for initial setup)"
+  task import_users: :environment do
+    puts "Starting Linear users import..."
+    puts "API Key: #{ENV['LINEAR_API_KEY'] ? 'Present' : 'MISSING!'}"
+
+    importer = LinearImporter.new
+    importer.import_users
+
+    puts "\n=== Users Import Complete ==="
+    puts "Total users synced: #{User.where.not(linear_id: nil).count}"
+    puts "Owners: #{User.owners.count}"
+    puts "Admins: #{User.admins.count}"
+    puts "Members: #{User.where(role: 'member').count}"
+
+    puts "\n=== Sample Users ==="
+    User.where.not(linear_id: nil).limit(10).each do |user|
+      puts "  #{user.email} - #{user.name} (#{user.role})"
+    end
+  end
+
+  desc "List all synced users"
+  task list_users: :environment do
+    puts "=== Synced Users from Linear ==="
+    puts ""
+
+    User.where.not(linear_id: nil).order(:name).each do |user|
+      status = []
+      status << "OWNER" if user.owner?
+      status << "admin" if user.admin? && !user.owner?
+      status << "guest" if user.guest
+      status << "inactive" unless user.active
+
+      puts "#{user.name}"
+      puts "  Email: #{user.email}"
+      puts "  Display Name: #{user.display_name}" if user.display_name.present?
+      puts "  Role: #{user.role}"
+      puts "  Status: #{status.any? ? status.join(', ') : 'active member'}"
+      puts "  Teams: #{user.teams.pluck(:name).join(', ')}" if user.teams.any?
+      puts ""
+    end
+
+    puts "Total: #{User.where.not(linear_id: nil).count} users"
   end
 end
