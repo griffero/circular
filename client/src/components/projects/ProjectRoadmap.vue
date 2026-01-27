@@ -2,14 +2,16 @@
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useAppStore } from '@/stores/app'
 import { useEmojiStore } from '@/stores/emoji'
-import { useRouter } from 'vue-router'
 import type { Project } from '@/types'
 import { ChevronLeft, ChevronRight, Circle, CheckCircle2, PauseCircle, XCircle, ZoomIn, ZoomOut } from 'lucide-vue-next'
 import EmojiIcon from '@/components/ui/EmojiIcon.vue'
 
+const emit = defineEmits<{
+  (e: 'select-project', project: Project): void
+}>()
+
 const appStore = useAppStore()
 const emojiStore = useEmojiStore()
-const router = useRouter()
 
 // Check if a project has a valid emoji (custom slack emoji or unicode)
 function hasEmoji(icon?: string | null): boolean {
@@ -198,9 +200,9 @@ function getStateColor(state?: string) {
   }
 }
 
-// Navigate to project
+// Select project (emit event to parent, or navigate if no handler)
 function goToProject(project: Project) {
-  router.push(`/project/${project.slug}`)
+  emit('select-project', project)
 }
 
 // Scroll sync
