@@ -265,7 +265,7 @@ async function saveTeamMemberships() {
       const team = teams.value.find(t => t.id === teamId)
       if (team) {
         await api.post(`/api/v1/teams/${team.key}/members`, {
-          user_id: selectedMember.value.id
+          userId: selectedMember.value.id
         })
       }
     }

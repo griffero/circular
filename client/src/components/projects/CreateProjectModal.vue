@@ -111,9 +111,9 @@ async function handleSubmit() {
         icon: icon.value || undefined,
         color: color.value,
         state: status.value,
-        lead_id: leadId.value || undefined,
-        start_date: startDate.value || undefined,
-        target_date: targetDate.value || undefined,
+        leadId: leadId.value || undefined,
+        startDate: startDate.value || undefined,
+        targetDate: targetDate.value || undefined,
       }
     })
 

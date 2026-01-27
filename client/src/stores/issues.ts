@@ -199,16 +199,16 @@ export const useIssuesStore = defineStore('issues', () => {
       const data = await api.post<{ issue: Issue }>(
         '/api/v1/issues',
         {
-          team_id: issueData.teamId,
+          teamId: issueData.teamId,
           issue: {
             title: issueData.title,
             description: issueData.description,
             status: issueData.status || 'backlog',
             priority: issueData.priority ?? 0,
-            assignee_id: issueData.assigneeId,
-            project_id: issueData.projectId,
-            due_date: issueData.dueDate,
-            label_ids: issueData.labelIds
+            assigneeId: issueData.assigneeId,
+            projectId: issueData.projectId,
+            dueDate: issueData.dueDate,
+            labelIds: issueData.labelIds
           }
         }
       )
@@ -276,14 +276,14 @@ export const useIssuesStore = defineStore('issues', () => {
             title: updates.title,
             description: updates.description,
             status: updates.status,
-            workflow_state_id: updates.workflowStateId,
-            cycle_id: updates.cycleId,
+            workflowStateId: updates.workflowStateId,
+            cycleId: updates.cycleId,
             priority: updates.priority,
-            assignee_id: updates.assigneeId,
-            project_id: updates.projectId,
-            due_date: updates.dueDate,
-            label_ids: updates.labelIds,
-            sort_order: updates.sortOrder
+            assigneeId: updates.assigneeId,
+            projectId: updates.projectId,
+            dueDate: updates.dueDate,
+            labelIds: updates.labelIds,
+            sortOrder: updates.sortOrder
           }
         }
       )
@@ -401,7 +401,7 @@ export const useIssuesStore = defineStore('issues', () => {
     try {
       const data = await api.post<{ comment: Comment }>(
         `/api/v1/issues/${issueId}/comments`,
-        { comment: { body, parent_id: parentId } }
+        { comment: { body, parentId } }
       )
 
       // Replace optimistic with real
