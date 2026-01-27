@@ -62,79 +62,9 @@ function closeDetailPanel() {
   <div class="h-full flex bg-[#0d0d0d]">
     <!-- Main content -->
     <div class="flex-1 flex flex-col min-w-0">
-      <!-- Header -->
-      <div class="flex items-center justify-between px-4 py-2 border-b border-[#222]">
-        <div class="flex items-center gap-4">
-          <h1 class="text-lg font-medium text-white">Projects</h1>
-          
-          <!-- Filter tabs -->
-          <div class="flex items-center gap-1 text-sm">
-            <button 
-              @click="filter = 'all'"
-              class="px-3 py-1 rounded transition-colors"
-              :class="filter === 'all' ? 'bg-[#222] text-white' : 'text-gray-400 hover:text-white hover:bg-[#1a1a1a]'"
-            >
-              All projects
-            </button>
-            <button 
-              @click="filter = 'current'"
-              class="px-3 py-1 rounded transition-colors"
-              :class="filter === 'current' ? 'bg-[#222] text-white' : 'text-gray-400 hover:text-white hover:bg-[#1a1a1a]'"
-            >
-              Current projects
-            </button>
-            <button 
-              @click="filter = 'mine'"
-              class="px-3 py-1 rounded transition-colors"
-              :class="filter === 'mine' ? 'bg-[#222] text-white' : 'text-gray-400 hover:text-white hover:bg-[#1a1a1a]'"
-            >
-              My projects
-            </button>
-          </div>
-        </div>
-        
-        <div class="flex items-center gap-2">
-          <!-- View mode toggles -->
-          <div class="flex items-center gap-1 border border-[#333] rounded-lg p-0.5">
-            <button 
-              @click="viewMode = 'list'"
-              class="p-1.5 rounded transition-colors"
-              :class="viewMode === 'list' ? 'bg-[#333] text-white' : 'text-gray-500 hover:text-white'"
-              title="List view"
-            >
-              <List class="w-4 h-4" />
-            </button>
-            <button 
-              @click="viewMode = 'board'"
-              class="p-1.5 rounded transition-colors"
-              :class="viewMode === 'board' ? 'bg-[#333] text-white' : 'text-gray-500 hover:text-white'"
-              title="Board view"
-            >
-              <LayoutGrid class="w-4 h-4" />
-            </button>
-            <button 
-              @click="viewMode = 'roadmap'"
-              class="p-1.5 rounded transition-colors"
-              :class="viewMode === 'roadmap' ? 'bg-[#333] text-white' : 'text-gray-500 hover:text-white'"
-              title="Roadmap view"
-            >
-              <Calendar class="w-4 h-4" />
-            </button>
-          </div>
-          
-          <button 
-            @click="uiStore.openCreateProjectModal()"
-            class="flex items-center gap-2 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-lg transition-colors"
-          >
-            <Plus class="w-4 h-4" />
-            Add project
-          </button>
-        </div>
-      </div>
-      
       <!-- Content based on view mode -->
       <div class="flex-1 overflow-hidden">
-        <!-- Roadmap view -->
+        <!-- Roadmap view (has its own header) -->
         <ProjectRoadmap 
           v-if="viewMode === 'roadmap'" 
           @select-project="selectProject"
