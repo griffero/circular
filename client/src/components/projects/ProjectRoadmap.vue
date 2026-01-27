@@ -17,11 +17,14 @@ import {
   Settings2,
   Filter,
   Link2,
-  Plus
+  Plus,
+  Check
 } from 'lucide-vue-next'
 import EmojiIcon from '@/components/ui/EmojiIcon.vue'
 import Avatar from '@/components/ui/Avatar.vue'
 import UserLink from '@/components/ui/UserLink.vue'
+import Dropdown from '@/components/ui/Dropdown.vue'
+import DropdownItem from '@/components/ui/DropdownItem.vue'
 
 const emit = defineEmits<{
   (e: 'select-project', project: Project): void
@@ -33,6 +36,15 @@ const emojiStore = useEmojiStore()
 // Filter state
 const activeFilter = ref<'all' | 'current' | 'mine'>('all')
 const timeScale = ref<'year' | 'quarter' | 'month'>('year')
+
+// Display options
+const showHealth = ref(true)
+const showLead = ref(true)
+const showDates = ref(true)
+
+// Advanced filters
+const stateFilter = ref<string | null>(null)
+const healthFilter = ref<string | null>(null)
 
 // Check if a project has a valid emoji
 function hasEmoji(icon?: string | null): boolean {
@@ -151,6 +163,14 @@ const filteredProjects = computed(() => {
     projects = projects.filter(p => p.leadId === userId)
   }
   
+  // Apply advanced filters
+  if (stateFilter.value) {
+    projects = projects.filter(p => (p.state || 'backlog') === stateFilter.value)
+  }
+  if (healthFilter.value) {
+    projects = projects.filter(p => p.health === healthFilter.value)
+  }
+  
   return projects.sort((a, b) => {
     const stateA = statePriority[a.state || 'backlog'] || 7
     const stateB = statePriority[b.state || 'backlog'] || 7
@@ -164,6 +184,15 @@ const filteredProjects = computed(() => {
     return a.name.localeCompare(b.name)
   })
 })
+
+// Clear all filters
+function clearFilters() {
+  stateFilter.value = null
+  healthFilter.value = null
+}
+
+// Check if any filter is active
+const hasActiveFilters = computed(() => stateFilter.value !== null || healthFilter.value !== null)
 
 // Get date position as percentage
 function getDatePosition(dateStr: string | undefined): number | null {
@@ -394,9 +423,37 @@ onUnmounted(() => {
           <User class="w-4 h-4" />
           My projects
         </button>
-        <button class="p-1.5 text-gray-500 hover:text-white hover:bg-[#1a1a1a] rounded-md transition-colors">
-          <Settings2 class="w-4 h-4" />
-        </button>
+        <!-- Display options dropdown -->
+        <Dropdown placement="bottom-start">
+          <template #trigger>
+            <button class="p-1.5 text-gray-500 hover:text-white hover:bg-[#1a1a1a] rounded-md transition-colors">
+              <Settings2 class="w-4 h-4" />
+            </button>
+          </template>
+          <template #content>
+            <div class="py-1 min-w-[160px]">
+              <div class="px-3 py-1.5 text-[11px] text-gray-500 uppercase tracking-wider">Show columns</div>
+              <DropdownItem @click="showHealth = !showHealth">
+                <div class="flex items-center justify-between w-full">
+                  <span>Health</span>
+                  <Check v-if="showHealth" class="w-4 h-4 text-indigo-400" />
+                </div>
+              </DropdownItem>
+              <DropdownItem @click="showLead = !showLead">
+                <div class="flex items-center justify-between w-full">
+                  <span>Lead</span>
+                  <Check v-if="showLead" class="w-4 h-4 text-indigo-400" />
+                </div>
+              </DropdownItem>
+              <DropdownItem @click="showDates = !showDates">
+                <div class="flex items-center justify-between w-full">
+                  <span>Dates on bars</span>
+                  <Check v-if="showDates" class="w-4 h-4 text-indigo-400" />
+                </div>
+              </DropdownItem>
+            </div>
+          </template>
+        </Dropdown>
       </div>
       
       <div class="flex items-center gap-2">
@@ -412,10 +469,102 @@ onUnmounted(() => {
     
     <!-- Secondary toolbar -->
     <div class="flex items-center justify-between px-4 py-1.5 border-b border-[#1f1f1f]">
-      <button class="flex items-center gap-1.5 px-2 py-1 text-[13px] text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors">
-        <Filter class="w-3.5 h-3.5" />
-        Filter
-      </button>
+      <div class="flex items-center gap-2">
+        <Dropdown placement="bottom-start">
+          <template #trigger>
+            <button 
+              :class="[
+                'flex items-center gap-1.5 px-2 py-1 text-[13px] rounded transition-colors',
+                hasActiveFilters 
+                  ? 'bg-indigo-600/20 text-indigo-400' 
+                  : 'text-gray-400 hover:text-white hover:bg-[#1a1a1a]'
+              ]"
+            >
+              <Filter class="w-3.5 h-3.5" />
+              Filter
+            </button>
+          </template>
+          <template #content>
+            <div class="py-1 min-w-[180px]">
+              <div class="px-3 py-1.5 text-[11px] text-gray-500 uppercase tracking-wider">Status</div>
+              <DropdownItem @click="stateFilter = stateFilter === 'started' ? null : 'started'">
+                <div class="flex items-center justify-between w-full">
+                  <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-yellow-500"></div>
+                    <span>Started</span>
+                  </div>
+                  <Check v-if="stateFilter === 'started'" class="w-4 h-4 text-indigo-400" />
+                </div>
+              </DropdownItem>
+              <DropdownItem @click="stateFilter = stateFilter === 'planned' ? null : 'planned'">
+                <div class="flex items-center justify-between w-full">
+                  <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-blue-500"></div>
+                    <span>Planned</span>
+                  </div>
+                  <Check v-if="stateFilter === 'planned'" class="w-4 h-4 text-indigo-400" />
+                </div>
+              </DropdownItem>
+              <DropdownItem @click="stateFilter = stateFilter === 'completed' ? null : 'completed'">
+                <div class="flex items-center justify-between w-full">
+                  <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                    <span>Completed</span>
+                  </div>
+                  <Check v-if="stateFilter === 'completed'" class="w-4 h-4 text-indigo-400" />
+                </div>
+              </DropdownItem>
+              
+              <div class="border-t border-[#2a2a2a] my-1"></div>
+              <div class="px-3 py-1.5 text-[11px] text-gray-500 uppercase tracking-wider">Health</div>
+              <DropdownItem @click="healthFilter = healthFilter === 'onTrack' ? null : 'onTrack'">
+                <div class="flex items-center justify-between w-full">
+                  <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                    <span>On track</span>
+                  </div>
+                  <Check v-if="healthFilter === 'onTrack'" class="w-4 h-4 text-indigo-400" />
+                </div>
+              </DropdownItem>
+              <DropdownItem @click="healthFilter = healthFilter === 'atRisk' ? null : 'atRisk'">
+                <div class="flex items-center justify-between w-full">
+                  <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-yellow-500"></div>
+                    <span>At risk</span>
+                  </div>
+                  <Check v-if="healthFilter === 'atRisk'" class="w-4 h-4 text-indigo-400" />
+                </div>
+              </DropdownItem>
+              <DropdownItem @click="healthFilter = healthFilter === 'offTrack' ? null : 'offTrack'">
+                <div class="flex items-center justify-between w-full">
+                  <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                    <span>Off track</span>
+                  </div>
+                  <Check v-if="healthFilter === 'offTrack'" class="w-4 h-4 text-indigo-400" />
+                </div>
+              </DropdownItem>
+              
+              <template v-if="hasActiveFilters">
+                <div class="border-t border-[#2a2a2a] my-1"></div>
+                <DropdownItem @click="clearFilters" class="text-red-400">
+                  Clear filters
+                </DropdownItem>
+              </template>
+            </div>
+          </template>
+        </Dropdown>
+        
+        <!-- Active filter badges -->
+        <div v-if="stateFilter" class="flex items-center gap-1 px-2 py-0.5 bg-[#1f1f1f] rounded text-[12px] text-gray-300">
+          Status: {{ stateFilter }}
+          <button @click="stateFilter = null" class="ml-1 text-gray-500 hover:text-white">&times;</button>
+        </div>
+        <div v-if="healthFilter" class="flex items-center gap-1 px-2 py-0.5 bg-[#1f1f1f] rounded text-[12px] text-gray-300">
+          Health: {{ healthFilter }}
+          <button @click="healthFilter = null" class="ml-1 text-gray-500 hover:text-white">&times;</button>
+        </div>
+      </div>
       
       <div class="flex items-center gap-2">
         <button 
@@ -455,10 +604,37 @@ onUnmounted(() => {
           </button>
         </div>
         
-        <button class="flex items-center gap-1.5 px-2 py-1 text-[13px] text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors">
-          <Settings2 class="w-3.5 h-3.5" />
-          Display
-        </button>
+        <Dropdown placement="bottom-end">
+          <template #trigger>
+            <button class="flex items-center gap-1.5 px-2 py-1 text-[13px] text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors">
+              <Settings2 class="w-3.5 h-3.5" />
+              Display
+            </button>
+          </template>
+          <template #content>
+            <div class="py-1 min-w-[160px]">
+              <div class="px-3 py-1.5 text-[11px] text-gray-500 uppercase tracking-wider">Options</div>
+              <DropdownItem @click="showHealth = !showHealth">
+                <div class="flex items-center justify-between w-full">
+                  <span>Show health</span>
+                  <Check v-if="showHealth" class="w-4 h-4 text-indigo-400" />
+                </div>
+              </DropdownItem>
+              <DropdownItem @click="showLead = !showLead">
+                <div class="flex items-center justify-between w-full">
+                  <span>Show lead</span>
+                  <Check v-if="showLead" class="w-4 h-4 text-indigo-400" />
+                </div>
+              </DropdownItem>
+              <DropdownItem @click="showDates = !showDates">
+                <div class="flex items-center justify-between w-full">
+                  <span>Show dates</span>
+                  <Check v-if="showDates" class="w-4 h-4 text-indigo-400" />
+                </div>
+              </DropdownItem>
+            </div>
+          </template>
+        </Dropdown>
       </div>
     </div>
     
@@ -512,7 +688,7 @@ onUnmounted(() => {
             </div>
             
             <!-- Health indicator - fixed width -->
-            <div class="w-5 flex-shrink-0 flex items-center justify-center">
+            <div v-if="showHealth" class="w-5 flex-shrink-0 flex items-center justify-center">
               <div 
                 v-if="project.health"
                 class="w-2 h-2 rounded-full"
@@ -522,7 +698,7 @@ onUnmounted(() => {
             </div>
             
             <!-- Lead avatar - fixed width -->
-            <div class="w-7 flex-shrink-0 flex items-center justify-center">
+            <div v-if="showLead" class="w-7 flex-shrink-0 flex items-center justify-center">
               <UserLink
                 v-if="project.lead"
                 :userId="project.lead.id"
