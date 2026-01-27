@@ -5,6 +5,9 @@ require "sidekiq/web"
 Rails.application.routes.draw do
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check
+  
+  # Diagnostic endpoint (no auth required)
+  get "diagnostic" => "diagnostic#show"
 
   # Sidekiq Web UI (protected in production)
   mount Sidekiq::Web => "/sidekiq"
