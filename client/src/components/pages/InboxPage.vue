@@ -9,6 +9,17 @@ const loading = ref(false)
 const hasNotifications = computed(() => notifications.value.length > 0)
 
 const activeTab = ref<'all' | 'unread' | 'archived'>('all')
+
+function markAllRead() {
+  // TODO: Implement when notifications backend is ready
+  console.log('Mark all notifications as read')
+}
+
+function archiveAll() {
+  // TODO: Implement when notifications backend is ready
+  console.log('Archive all notifications')
+  notifications.value = []
+}
 </script>
 
 <template>
@@ -52,11 +63,29 @@ const activeTab = ref<'all' | 'unread' | 'archived'>('all')
       </div>
       
       <div class="flex items-center gap-2">
-        <button class="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors">
+        <button 
+          @click="markAllRead"
+          :disabled="!hasNotifications"
+          :class="[
+            'flex items-center gap-1.5 px-3 py-1.5 text-sm rounded transition-colors',
+            hasNotifications 
+              ? 'text-gray-400 hover:text-white hover:bg-[#1a1a1a]' 
+              : 'text-gray-600 cursor-not-allowed'
+          ]"
+        >
           <CheckCheck class="w-4 h-4" />
           Mark all read
         </button>
-        <button class="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors">
+        <button 
+          @click="archiveAll"
+          :disabled="!hasNotifications"
+          :class="[
+            'flex items-center gap-1.5 px-3 py-1.5 text-sm rounded transition-colors',
+            hasNotifications 
+              ? 'text-gray-400 hover:text-white hover:bg-[#1a1a1a]' 
+              : 'text-gray-600 cursor-not-allowed'
+          ]"
+        >
           <Archive class="w-4 h-4" />
           Archive all
         </button>

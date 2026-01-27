@@ -54,6 +54,9 @@ function hasEmoji(icon?: string | null): boolean {
 // Expanded states for teams
 const expandedTeams = ref<Set<string>>(new Set())
 
+// Teams section collapse state
+const teamsCollapsed = ref(false)
+
 function toggleTeam(teamId: string) {
   if (expandedTeams.value.has(teamId)) {
     expandedTeams.value.delete(teamId)
@@ -286,16 +289,19 @@ const workspaceName = computed(() => {
       <div class="mt-6">
         <div class="flex items-center justify-between px-2 mb-1">
           <span class="text-[11px] font-medium text-gray-500 uppercase tracking-wide">Your teams</span>
-          <button class="p-0.5 rounded hover:bg-[#1a1a1a]">
-            <ChevronDown class="w-3 h-3 text-gray-500" />
+          <button 
+            @click="teamsCollapsed = !teamsCollapsed"
+            class="p-0.5 rounded hover:bg-[#1a1a1a]"
+          >
+            <ChevronDown :class="cn('w-3 h-3 text-gray-500 transition-transform', teamsCollapsed && '-rotate-90')" />
           </button>
         </div>
         
-        <div v-if="teams.length === 0" class="text-xs text-gray-500 px-2 py-3 text-center">
+        <div v-if="!teamsCollapsed && teams.length === 0" class="text-xs text-gray-500 px-2 py-3 text-center">
           No teams yet
         </div>
         
-        <div v-else class="space-y-1">
+        <div v-else-if="!teamsCollapsed" class="space-y-1">
           <div 
             v-for="team in teams" 
             :key="team.id"

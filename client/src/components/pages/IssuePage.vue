@@ -1,7 +1,14 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useIssuesStore } from '@/stores/issues'
+import { useAppStore } from '@/stores/app'
+import type { Issue, WorkflowState } from '@/types'
+import Dropdown from '@/components/ui/Dropdown.vue'
+import DropdownItem from '@/components/ui/DropdownItem.vue'
+import Avatar from '@/components/ui/Avatar.vue'
+import EmojiText from '@/components/ui/EmojiText.vue'
 import {
   ArrowLeft,
   Circle,
@@ -12,61 +19,126 @@ import {
   Tag,
   FolderKanban,
   Calendar,
-  MessageSquare
+  MessageSquare,
+  ChevronDown,
+  Minus,
+  AlertCircle,
+  SignalHigh,
+  SignalMedium,
+  SignalLow
 } from 'lucide-vue-next'
 
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
+const issuesStore = useIssuesStore()
+const appStore = useAppStore()
 
 const user = computed(() => authStore.user)
 const issueId = computed(() => route.params.issueId as string)
 
-// Placeholder issue data
-const issue = ref<{
-  id: string
-  identifier: string
-  title: string
-  description: string
-  status: string
-  priority: number
-  assignee?: { id: string; name: string }
-  createdAt: string
-} | null>({
-  id: '1',
-  identifier: 'ENG-1',
-  title: 'Example Issue',
-  description: 'This is a placeholder issue. The full issue page will be implemented in F3.',
-  status: 'todo',
-  priority: 2,
-  assignee: { id: '1', name: 'John Doe' },
-  createdAt: new Date().toISOString(),
-})
+const issue = computed(() => issuesStore.currentIssue)
+const loading = computed(() => issuesStore.loading)
+const workflowStates = computed(() => issuesStore.workflowStates)
+const labels = computed(() => issuesStore.labels)
+const users = computed(() => appStore.users)
+const projects = computed(() => appStore.projects)
 
-const loading = ref(false)
+// Local state for date picker
+const showDatePicker = ref(false)
+const selectedDate = ref<string | null>(null)
 
 const priorities = [
-  { value: 0, label: 'No priority', color: 'text-gray-400' },
-  { value: 1, label: 'Urgent', color: 'text-red-500' },
-  { value: 2, label: 'High', color: 'text-orange-500' },
-  { value: 3, label: 'Medium', color: 'text-yellow-500' },
-  { value: 4, label: 'Low', color: 'text-blue-500' },
+  { value: 0, label: 'No priority', icon: Minus, color: 'text-gray-400' },
+  { value: 1, label: 'Urgent', icon: AlertCircle, color: 'text-red-500' },
+  { value: 2, label: 'High', icon: SignalHigh, color: 'text-orange-500' },
+  { value: 3, label: 'Medium', icon: SignalMedium, color: 'text-yellow-500' },
+  { value: 4, label: 'Low', icon: SignalLow, color: 'text-blue-500' },
 ]
 
-const statuses = [
-  { value: 'backlog', label: 'Backlog', icon: Circle, color: 'text-gray-400' },
-  { value: 'todo', label: 'Todo', icon: Circle, color: 'text-gray-500' },
-  { value: 'in_progress', label: 'In Progress', icon: Clock, color: 'text-yellow-500' },
-  { value: 'done', label: 'Done', icon: CheckCircle2, color: 'text-green-500' },
-  { value: 'canceled', label: 'Canceled', icon: XCircle, color: 'text-red-400' },
-]
+const statusIcons: Record<string, { icon: any; color: string }> = {
+  triage: { icon: Circle, color: 'text-gray-400' },
+  backlog: { icon: Circle, color: 'text-gray-400' },
+  unstarted: { icon: Circle, color: 'text-gray-500' },
+  started: { icon: Clock, color: 'text-yellow-500' },
+  completed: { icon: CheckCircle2, color: 'text-green-500' },
+  canceled: { icon: XCircle, color: 'text-red-400' },
+}
 
-function getStatus(value: string) {
-  return statuses.find(s => s.value === value) || statuses[0]
+function getStatusIcon(stateType?: string) {
+  return statusIcons[stateType || 'backlog'] || statusIcons.backlog
 }
 
 function getPriority(value: number) {
   return priorities.find(p => p.value === value) || priorities[0]
+}
+
+// Update functions
+async function updateStatus(state: WorkflowState) {
+  if (!issue.value) return
+  await issuesStore.updateIssue(issue.value.id, { workflowStateId: state.id })
+}
+
+async function updatePriority(priority: number) {
+  if (!issue.value) return
+  await issuesStore.updateIssue(issue.value.id, { priority })
+}
+
+async function updateAssignee(userId: string | null) {
+  if (!issue.value) return
+  await issuesStore.updateIssue(issue.value.id, { assigneeId: userId })
+}
+
+async function updateProject(projectId: string | null) {
+  if (!issue.value) return
+  await issuesStore.updateIssue(issue.value.id, { projectId })
+}
+
+async function updateDueDate(date: string | null) {
+  if (!issue.value) return
+  await issuesStore.updateIssue(issue.value.id, { dueDate: date })
+  showDatePicker.value = false
+}
+
+async function toggleLabel(labelId: string) {
+  if (!issue.value) return
+  const currentLabelIds = issue.value.labels?.map(l => l.id) || []
+  const newLabelIds = currentLabelIds.includes(labelId)
+    ? currentLabelIds.filter(id => id !== labelId)
+    : [...currentLabelIds, labelId]
+  await issuesStore.updateIssue(issue.value.id, { labelIds: newLabelIds })
+}
+
+// Load issue when route changes
+async function loadIssue() {
+  if (issueId.value) {
+    await issuesStore.fetchIssue(issueId.value)
+    // Load workflow states for the team if we have the issue
+    if (issue.value?.teamId) {
+      await issuesStore.fetchWorkflowStates(issue.value.teamId)
+      await issuesStore.fetchLabels(issue.value.teamId)
+    }
+  }
+}
+
+// Load users and projects
+onMounted(async () => {
+  await loadIssue()
+  if (users.value.length === 0) {
+    await appStore.fetchUsers()
+  }
+  if (projects.value.length === 0) {
+    await appStore.fetchProjects()
+  }
+})
+
+watch(issueId, loadIssue)
+
+// Format date for display
+function formatDate(dateString?: string | null) {
+  if (!dateString) return null
+  const date = new Date(dateString)
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 </script>
 
@@ -98,8 +170,9 @@ function getPriority(value: number) {
         <div
           v-if="issue.description"
           class="prose prose-invert max-w-none mb-8 prose-p:my-3 prose-ul:my-3 prose-ol:my-3"
-          v-html="issue.description"
-        />
+        >
+          <EmojiText :text="issue.description" />
+        </div>
         <div v-else class="text-sm text-gray-500 mb-8">
           No description
         </div>
@@ -135,65 +208,245 @@ function getPriority(value: number) {
         <!-- Status -->
         <div>
           <label class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 block">Status</label>
-          <button class="w-full flex items-center gap-2 px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded hover:bg-[#222] text-sm text-white transition-colors">
-            <component :is="getStatus(issue.status).icon" :class="['h-4 w-4', getStatus(issue.status).color]" />
-            {{ getStatus(issue.status).label }}
-          </button>
+          <Dropdown align="left" :full-width="true">
+            <template #trigger>
+              <button class="w-full flex items-center justify-between gap-2 px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded hover:bg-[#222] text-sm text-white transition-colors">
+                <div class="flex items-center gap-2">
+                  <component 
+                    :is="getStatusIcon(issue.workflowState?.stateType).icon" 
+                    :class="['h-4 w-4', getStatusIcon(issue.workflowState?.stateType).color]" 
+                  />
+                  {{ issue.workflowState?.name || 'Backlog' }}
+                </div>
+                <ChevronDown class="h-4 w-4 text-gray-500" />
+              </button>
+            </template>
+            <div class="py-1 min-w-[200px]">
+              <DropdownItem 
+                v-for="state in workflowStates" 
+                :key="state.id"
+                @click="updateStatus(state)"
+              >
+                <div class="flex items-center gap-2">
+                  <component 
+                    :is="getStatusIcon(state.stateType).icon" 
+                    :class="['h-4 w-4', getStatusIcon(state.stateType).color]" 
+                  />
+                  {{ state.name }}
+                </div>
+              </DropdownItem>
+            </div>
+          </Dropdown>
         </div>
 
         <!-- Priority -->
         <div>
           <label class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 block">Priority</label>
-          <button class="w-full flex items-center gap-2 px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded hover:bg-[#222] text-sm text-white transition-colors">
-            <span :class="['font-mono font-bold', getPriority(issue.priority).color]">
-              {{ issue.priority === 0 ? '—' : 'P' + issue.priority }}
-            </span>
-            {{ getPriority(issue.priority).label }}
-          </button>
+          <Dropdown align="left" :full-width="true">
+            <template #trigger>
+              <button class="w-full flex items-center justify-between gap-2 px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded hover:bg-[#222] text-sm text-white transition-colors">
+                <div class="flex items-center gap-2">
+                  <component 
+                    :is="getPriority(issue.priority || 0).icon" 
+                    :class="['h-4 w-4', getPriority(issue.priority || 0).color]" 
+                  />
+                  {{ getPriority(issue.priority || 0).label }}
+                </div>
+                <ChevronDown class="h-4 w-4 text-gray-500" />
+              </button>
+            </template>
+            <div class="py-1 min-w-[180px]">
+              <DropdownItem 
+                v-for="p in priorities" 
+                :key="p.value"
+                @click="updatePriority(p.value)"
+              >
+                <div class="flex items-center gap-2">
+                  <component :is="p.icon" :class="['h-4 w-4', p.color]" />
+                  {{ p.label }}
+                </div>
+              </DropdownItem>
+            </div>
+          </Dropdown>
         </div>
 
         <!-- Assignee -->
         <div>
           <label class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 block">Assignee</label>
-          <button class="w-full flex items-center gap-2 px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded hover:bg-[#222] text-sm transition-colors">
-            <template v-if="issue.assignee">
-              <div class="w-5 h-5 rounded-full bg-indigo-600 flex items-center justify-center text-[10px] text-white">
-                {{ issue.assignee.name.charAt(0) }}
-              </div>
-              <span class="text-white">{{ issue.assignee.name }}</span>
+          <Dropdown align="left" :full-width="true">
+            <template #trigger>
+              <button class="w-full flex items-center justify-between gap-2 px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded hover:bg-[#222] text-sm transition-colors">
+                <div class="flex items-center gap-2">
+                  <template v-if="issue.assignee">
+                    <Avatar :src="issue.assignee.avatarUrl" :name="issue.assignee.name" size="xs" />
+                    <span class="text-white">{{ issue.assignee.displayName || issue.assignee.name }}</span>
+                  </template>
+                  <template v-else>
+                    <User class="h-4 w-4 text-gray-400" />
+                    <span class="text-gray-500">Unassigned</span>
+                  </template>
+                </div>
+                <ChevronDown class="h-4 w-4 text-gray-500" />
+              </button>
             </template>
-            <template v-else>
-              <User class="h-4 w-4 text-gray-400" />
-              <span class="text-gray-500">Unassigned</span>
-            </template>
-          </button>
+            <div class="py-1 min-w-[200px] max-h-[300px] overflow-auto">
+              <DropdownItem @click="updateAssignee(null)">
+                <div class="flex items-center gap-2">
+                  <User class="h-4 w-4 text-gray-400" />
+                  <span class="text-gray-400">Unassigned</span>
+                </div>
+              </DropdownItem>
+              <div class="border-t border-[#2a2a2a] my-1"></div>
+              <DropdownItem 
+                v-for="u in users" 
+                :key="u.id"
+                @click="updateAssignee(u.id)"
+              >
+                <div class="flex items-center gap-2">
+                  <Avatar :src="u.avatarUrl" :name="u.name" size="xs" />
+                  <span>{{ u.name }}</span>
+                </div>
+              </DropdownItem>
+            </div>
+          </Dropdown>
         </div>
 
-        <!-- Labels placeholder -->
+        <!-- Labels -->
         <div>
           <label class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 block">Labels</label>
-          <button class="w-full flex items-center gap-2 px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded hover:bg-[#222] text-sm text-gray-500 transition-colors">
-            <Tag class="h-4 w-4" />
-            Add labels
-          </button>
+          <Dropdown align="left" :full-width="true">
+            <template #trigger>
+              <button class="w-full flex items-center justify-between gap-2 px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded hover:bg-[#222] text-sm transition-colors">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <template v-if="issue.labels && issue.labels.length > 0">
+                    <span 
+                      v-for="label in issue.labels" 
+                      :key="label.id"
+                      class="px-2 py-0.5 rounded text-xs"
+                      :style="{ backgroundColor: label.color + '20', color: label.color }"
+                    >
+                      {{ label.name }}
+                    </span>
+                  </template>
+                  <template v-else>
+                    <Tag class="h-4 w-4 text-gray-400" />
+                    <span class="text-gray-500">Add labels</span>
+                  </template>
+                </div>
+                <ChevronDown class="h-4 w-4 text-gray-500 flex-shrink-0" />
+              </button>
+            </template>
+            <div class="py-1 min-w-[200px] max-h-[300px] overflow-auto">
+              <template v-if="labels.length > 0">
+                <DropdownItem 
+                  v-for="label in labels" 
+                  :key="label.id"
+                  @click="toggleLabel(label.id)"
+                >
+                  <div class="flex items-center justify-between w-full">
+                    <div class="flex items-center gap-2">
+                      <div 
+                        class="w-3 h-3 rounded-full" 
+                        :style="{ backgroundColor: label.color }"
+                      ></div>
+                      <span>{{ label.name }}</span>
+                    </div>
+                    <CheckCircle2 
+                      v-if="issue.labels?.some(l => l.id === label.id)" 
+                      class="h-4 w-4 text-indigo-400" 
+                    />
+                  </div>
+                </DropdownItem>
+              </template>
+              <div v-else class="px-3 py-2 text-sm text-gray-500">
+                No labels available
+              </div>
+            </div>
+          </Dropdown>
         </div>
 
-        <!-- Project placeholder -->
+        <!-- Project -->
         <div>
           <label class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 block">Project</label>
-          <button class="w-full flex items-center gap-2 px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded hover:bg-[#222] text-sm text-gray-500 transition-colors">
-            <FolderKanban class="h-4 w-4" />
-            Add to project
-          </button>
+          <Dropdown align="left" :full-width="true">
+            <template #trigger>
+              <button class="w-full flex items-center justify-between gap-2 px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded hover:bg-[#222] text-sm transition-colors">
+                <div class="flex items-center gap-2">
+                  <template v-if="issue.project">
+                    <div 
+                      class="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold text-white"
+                      :style="{ backgroundColor: issue.project.color || '#6366f1' }"
+                    >
+                      {{ (issue.project.icon || issue.project.name?.charAt(0) || 'P').toUpperCase() }}
+                    </div>
+                    <span class="text-white">{{ issue.project.name }}</span>
+                  </template>
+                  <template v-else>
+                    <FolderKanban class="h-4 w-4 text-gray-400" />
+                    <span class="text-gray-500">Add to project</span>
+                  </template>
+                </div>
+                <ChevronDown class="h-4 w-4 text-gray-500" />
+              </button>
+            </template>
+            <div class="py-1 min-w-[200px] max-h-[300px] overflow-auto">
+              <DropdownItem @click="updateProject(null)">
+                <div class="flex items-center gap-2">
+                  <FolderKanban class="h-4 w-4 text-gray-400" />
+                  <span class="text-gray-400">No project</span>
+                </div>
+              </DropdownItem>
+              <div class="border-t border-[#2a2a2a] my-1"></div>
+              <DropdownItem 
+                v-for="p in projects" 
+                :key="p.id"
+                @click="updateProject(p.id)"
+              >
+                <div class="flex items-center gap-2">
+                  <div 
+                    class="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold text-white"
+                    :style="{ backgroundColor: p.color || '#6366f1' }"
+                  >
+                    {{ (p.icon || p.name?.charAt(0) || 'P').toUpperCase() }}
+                  </div>
+                  <span>{{ p.name }}</span>
+                </div>
+              </DropdownItem>
+            </div>
+          </Dropdown>
         </div>
 
-        <!-- Due date placeholder -->
+        <!-- Due date -->
         <div>
           <label class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 block">Due date</label>
-          <button class="w-full flex items-center gap-2 px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded hover:bg-[#222] text-sm text-gray-500 transition-colors">
-            <Calendar class="h-4 w-4" />
-            Set due date
-          </button>
+          <Dropdown align="left" :full-width="true">
+            <template #trigger>
+              <button class="w-full flex items-center justify-between gap-2 px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded hover:bg-[#222] text-sm transition-colors">
+                <div class="flex items-center gap-2">
+                  <Calendar class="h-4 w-4" :class="issue.dueDate ? 'text-indigo-400' : 'text-gray-400'" />
+                  <span :class="issue.dueDate ? 'text-white' : 'text-gray-500'">
+                    {{ formatDate(issue.dueDate) || 'Set due date' }}
+                  </span>
+                </div>
+                <ChevronDown class="h-4 w-4 text-gray-500" />
+              </button>
+            </template>
+            <div class="p-3 min-w-[200px]">
+              <input 
+                type="date" 
+                :value="issue.dueDate?.split('T')[0]"
+                @change="(e) => updateDueDate((e.target as HTMLInputElement).value)"
+                class="w-full px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded text-sm text-white focus:outline-none focus:border-indigo-500"
+              />
+              <button 
+                v-if="issue.dueDate"
+                @click="updateDueDate(null)"
+                class="w-full mt-2 px-3 py-1.5 text-sm text-red-400 hover:bg-[#1a1a1a] rounded transition-colors"
+              >
+                Remove due date
+              </button>
+            </div>
+          </Dropdown>
         </div>
       </div>
     </div>

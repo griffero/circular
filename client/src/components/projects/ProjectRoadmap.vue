@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useAppStore } from '@/stores/app'
 import { useEmojiStore } from '@/stores/emoji'
+import { useUiStore } from '@/stores/ui'
 import type { Project } from '@/types'
 import { 
   ChevronLeft, 
@@ -32,6 +33,7 @@ const emit = defineEmits<{
 
 const appStore = useAppStore()
 const emojiStore = useEmojiStore()
+const uiStore = useUiStore()
 
 // Filter state
 const activeFilter = ref<'all' | 'current' | 'mine'>('all')
@@ -457,10 +459,17 @@ onUnmounted(() => {
       </div>
       
       <div class="flex items-center gap-2">
-        <button class="p-1.5 text-gray-500 hover:text-white hover:bg-[#1a1a1a] rounded-md transition-colors">
+        <button 
+          @click="navigator.clipboard.writeText(window.location.href)"
+          title="Copy link"
+          class="p-1.5 text-gray-500 hover:text-white hover:bg-[#1a1a1a] rounded-md transition-colors"
+        >
           <Link2 class="w-4 h-4" />
         </button>
-        <button class="flex items-center gap-1.5 px-2.5 py-1.5 text-[13px] text-white bg-[#5e6ad2] hover:bg-[#6872d9] rounded-md transition-colors">
+        <button 
+          @click="uiStore.openCreateProjectModal()"
+          class="flex items-center gap-1.5 px-2.5 py-1.5 text-[13px] text-white bg-[#5e6ad2] hover:bg-[#6872d9] rounded-md transition-colors"
+        >
           <Plus class="w-4 h-4" />
           Add project
         </button>

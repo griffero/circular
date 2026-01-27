@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { api } from '@/api/client'
 import { useEmojiStore } from '@/stores/emoji'
+import { useUiStore } from '@/stores/ui'
 import EmojiIcon from '@/components/ui/EmojiIcon.vue'
 import Avatar from '@/components/ui/Avatar.vue'
 import UserLink from '@/components/ui/UserLink.vue'
@@ -29,6 +30,7 @@ import DropdownItem from '@/components/ui/DropdownItem.vue'
 
 const router = useRouter()
 const emojiStore = useEmojiStore()
+const uiStore = useUiStore()
 
 // Types
 interface Project {
@@ -309,7 +311,10 @@ onMounted(() => {
       </div>
       
       <div class="flex items-center gap-2">
-        <button class="flex items-center gap-1.5 px-2.5 py-1.5 text-[13px] text-white bg-[#5e6ad2] hover:bg-[#6872d9] rounded-md transition-colors">
+        <button 
+          @click="uiStore.openCreateInitiativeModal()"
+          class="flex items-center gap-1.5 px-2.5 py-1.5 text-[13px] text-white bg-[#5e6ad2] hover:bg-[#6872d9] rounded-md transition-colors"
+        >
           <Plus class="w-4 h-4" />
           New initiative
         </button>
@@ -398,7 +403,10 @@ onMounted(() => {
         </button>
       </div>
       
-      <button class="flex items-center gap-1.5 px-2 py-1 text-[13px] text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors">
+      <button 
+        title="Display options (coming soon)"
+        class="flex items-center gap-1.5 px-2 py-1 text-[13px] text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors opacity-60 cursor-not-allowed"
+      >
         <Settings2 class="w-3.5 h-3.5" />
         Display
       </button>
@@ -423,7 +431,10 @@ onMounted(() => {
         <p class="text-sm text-gray-500 text-center max-w-sm mb-4">
           Initiatives help you track larger goals across multiple projects and teams.
         </p>
-        <button class="flex items-center gap-2 px-4 py-2 bg-[#5e6ad2] hover:bg-[#6872d9] text-white text-sm rounded-lg transition-colors">
+        <button 
+          @click="uiStore.openCreateInitiativeModal()"
+          class="flex items-center gap-2 px-4 py-2 bg-[#5e6ad2] hover:bg-[#6872d9] text-white text-sm rounded-lg transition-colors"
+        >
           <Plus class="w-4 h-4" />
           Create initiative
         </button>

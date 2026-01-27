@@ -5,6 +5,8 @@ import { useAppStore } from '@/stores/app'
 import { useUiStore } from '@/stores/ui'
 import { useEmojiStore } from '@/stores/emoji'
 import EmojiIcon from '@/components/ui/EmojiIcon.vue'
+import Dropdown from '@/components/ui/Dropdown.vue'
+import DropdownItem from '@/components/ui/DropdownItem.vue'
 import {
   LayoutList,
   Columns3,
@@ -13,7 +15,10 @@ import {
   Plus,
   Filter,
   MoreHorizontal,
-  Settings
+  Settings,
+  Bookmark,
+  Share2,
+  Copy
 } from 'lucide-vue-next'
 
 const route = useRoute()
@@ -89,7 +94,11 @@ function hasEmoji(icon?: string | null): boolean {
           </router-link>
         </nav>
         
-        <button class="p-1.5 rounded hover:bg-[#1a1a1a] ml-1 text-gray-500 hover:text-white transition-colors">
+        <button 
+          @click="router.push('/settings/teams')"
+          class="p-1.5 rounded hover:bg-[#1a1a1a] ml-1 text-gray-500 hover:text-white transition-colors"
+          title="Team settings"
+        >
           <Settings class="w-4 h-4" />
         </button>
       </div>
@@ -109,9 +118,27 @@ function hasEmoji(icon?: string | null): boolean {
           <Plus class="h-4 w-4" />
           New issue
         </button>
-        <button class="p-1.5 hover:bg-[#1a1a1a] rounded text-gray-500 hover:text-white transition-colors">
-          <MoreHorizontal class="h-4 w-4" />
-        </button>
+        <Dropdown align="right">
+          <template #trigger>
+            <button class="p-1.5 hover:bg-[#1a1a1a] rounded text-gray-500 hover:text-white transition-colors">
+              <MoreHorizontal class="h-4 w-4" />
+            </button>
+          </template>
+          <div class="py-1 min-w-[160px]">
+            <DropdownItem @click="navigator.clipboard.writeText(window.location.href)">
+              <Copy class="w-4 h-4" />
+              Copy link
+            </DropdownItem>
+            <DropdownItem>
+              <Bookmark class="w-4 h-4" />
+              Add to favorites
+            </DropdownItem>
+            <DropdownItem @click="router.push('/settings/teams')">
+              <Settings class="w-4 h-4" />
+              Team settings
+            </DropdownItem>
+          </div>
+        </Dropdown>
       </div>
     </div>
 

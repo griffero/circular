@@ -19,7 +19,10 @@ import {
   Circle,
   Clock,
   CheckCircle2,
-  X
+  X,
+  Copy,
+  Settings,
+  Star
 } from 'lucide-vue-next'
 
 const route = useRoute()
@@ -251,9 +254,27 @@ watch(() => route.params.projectSlug, () => {
             <Plus class="h-4 w-4" />
             Add issue
           </button>
-          <button class="p-1.5 hover:bg-[#1a1a1a] rounded text-gray-500 hover:text-white transition-colors">
-            <MoreHorizontal class="h-4 w-4" />
-          </button>
+          <Dropdown align="right">
+            <template #trigger>
+              <button class="p-1.5 hover:bg-[#1a1a1a] rounded text-gray-500 hover:text-white transition-colors">
+                <MoreHorizontal class="h-4 w-4" />
+              </button>
+            </template>
+            <div class="py-1 min-w-[160px]">
+              <DropdownItem @click="navigator.clipboard.writeText(window.location.href)">
+                <Copy class="w-4 h-4" />
+                Copy link
+              </DropdownItem>
+              <DropdownItem>
+                <Star class="w-4 h-4" />
+                Add to favorites
+              </DropdownItem>
+              <DropdownItem @click="router.push('/settings/teams')">
+                <Settings class="w-4 h-4" />
+                Project settings
+              </DropdownItem>
+            </div>
+          </Dropdown>
         </div>
       </div>
 

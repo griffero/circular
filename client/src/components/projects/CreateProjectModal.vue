@@ -169,7 +169,10 @@ function closeAllPickers() {
               </div>
               
               <!-- Template button -->
-              <button class="flex items-center gap-1.5 px-2 py-1 text-sm text-gray-400 hover:text-white hover:bg-[#222] rounded transition-colors">
+              <button 
+                title="Use template (coming soon)"
+                class="flex items-center gap-1.5 px-2 py-1 text-sm text-gray-400 cursor-not-allowed opacity-60"
+              >
                 <svg class="w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
                   <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z"/>
                 </svg>
@@ -325,7 +328,10 @@ function closeAllPickers() {
               </div>
 
               <!-- Members -->
-              <button class="flex items-center gap-1.5 px-2.5 py-1.5 text-sm rounded-md border border-[#333] hover:bg-[#222] transition-colors text-gray-400">
+              <button 
+                title="Add team members (coming soon)"
+                class="flex items-center gap-1.5 px-2.5 py-1.5 text-sm rounded-md border border-[#333] hover:bg-[#222] transition-colors text-gray-400 cursor-not-allowed opacity-60"
+              >
                 <Users class="w-3.5 h-3.5" />
                 Members
               </button>
@@ -367,19 +373,28 @@ function closeAllPickers() {
               </div>
 
               <!-- Initiatives -->
-              <button class="flex items-center gap-1.5 px-2.5 py-1.5 text-sm rounded-md border border-[#333] hover:bg-[#222] transition-colors text-gray-400">
+              <button 
+                title="Link to initiatives (coming soon)"
+                class="flex items-center gap-1.5 px-2.5 py-1.5 text-sm rounded-md border border-[#333] hover:bg-[#222] transition-colors text-gray-400 cursor-not-allowed opacity-60"
+              >
                 <Lightbulb class="w-3.5 h-3.5" />
                 Initiatives
               </button>
 
               <!-- Labels -->
-              <button class="flex items-center gap-1.5 px-2.5 py-1.5 text-sm rounded-md border border-[#333] hover:bg-[#222] transition-colors text-gray-400">
+              <button 
+                title="Add labels (coming soon)"
+                class="flex items-center gap-1.5 px-2.5 py-1.5 text-sm rounded-md border border-[#333] hover:bg-[#222] transition-colors text-gray-400 cursor-not-allowed opacity-60"
+              >
                 <Tag class="w-3.5 h-3.5" />
                 Labels
               </button>
 
               <!-- Dependencies -->
-              <button class="flex items-center gap-1.5 px-2.5 py-1.5 text-sm rounded-md border border-[#333] hover:bg-[#222] transition-colors text-gray-400">
+              <button 
+                title="Set dependencies (coming soon)"
+                class="flex items-center gap-1.5 px-2.5 py-1.5 text-sm rounded-md border border-[#333] hover:bg-[#222] transition-colors text-gray-400 cursor-not-allowed opacity-60"
+              >
                 <GitBranch class="w-3.5 h-3.5" />
                 Dependencies
               </button>

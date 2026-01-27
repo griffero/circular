@@ -345,7 +345,10 @@ function handleClickOutside(event: MouseEvent) {
         <div class="flex-1" />
 
         <!-- Display options -->
-        <button class="flex items-center gap-1.5 px-3 py-1.5 text-[13px] text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded-md transition-colors">
+        <button 
+          title="Display options (coming soon)"
+          class="flex items-center gap-1.5 px-3 py-1.5 text-[13px] text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded-md transition-colors opacity-60 cursor-not-allowed"
+        >
           <SlidersHorizontal class="w-4 h-4" />
           <span>Display</span>
         </button>

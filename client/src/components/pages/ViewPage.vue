@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Eye, Plus, Filter, Inbox } from 'lucide-vue-next'
+import { useUiStore } from '@/stores/ui'
+import { Eye, Plus, Filter, Inbox, Settings2 } from 'lucide-vue-next'
 
 const route = useRoute()
 const router = useRouter()
+const uiStore = useUiStore()
 
 const viewId = computed(() => route.params.viewId as string)
 
@@ -23,6 +25,15 @@ const view = ref<{
 
 const issues = ref<unknown[]>([])
 const loading = ref(false)
+const showFilterEditor = ref(false)
+
+function openFilterEditor() {
+  showFilterEditor.value = true
+}
+
+function addIssue() {
+  uiStore.openCreateIssueModal()
+}
 </script>
 
 <template>
@@ -43,11 +54,17 @@ const loading = ref(false)
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <button class="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors">
+        <button 
+          @click="openFilterEditor"
+          class="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors"
+        >
           <Filter class="h-4 w-4" />
           Edit filters
         </button>
-        <button class="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded transition-colors">
+        <button 
+          @click="addIssue"
+          class="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded transition-colors"
+        >
           <Plus class="h-4 w-4" />
           Add issue
         </button>
@@ -70,7 +87,10 @@ const loading = ref(false)
         <p class="text-sm text-gray-500 text-center max-w-sm mb-4">
           Try adjusting your filters or create new issues that match this view's criteria.
         </p>
-        <button class="flex items-center gap-1.5 px-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors">
+        <button 
+          @click="openFilterEditor"
+          class="flex items-center gap-1.5 px-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors"
+        >
           <Filter class="h-4 w-4" />
           Edit filters
         </button>

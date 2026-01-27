@@ -271,7 +271,10 @@ watch(userId, () => {
       </div>
       
       <div class="flex items-center gap-2">
-        <button class="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors">
+        <button 
+          title="Add to favorites (coming soon)"
+          class="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors opacity-60 cursor-not-allowed"
+        >
           <Star class="w-4 h-4" />
         </button>
       </div>
@@ -363,7 +366,10 @@ watch(userId, () => {
         </div>
       </Dropdown>
       
-      <button class="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors">
+      <button 
+        title="Display options (coming soon)"
+        class="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors opacity-60 cursor-not-allowed"
+      >
         <LayoutGrid class="w-4 h-4" />
         Display
       </button>

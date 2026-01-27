@@ -206,10 +206,16 @@ const projectTeams = computed(() => {
 
         <!-- Actions -->
         <div class="flex items-center gap-1 flex-shrink-0">
-          <button class="p-1.5 hover:bg-[#1a1a1a] rounded transition-colors">
+          <button 
+            title="Add to favorites (coming soon)"
+            class="p-1.5 hover:bg-[#1a1a1a] rounded transition-colors opacity-60 cursor-not-allowed"
+          >
             <Star class="w-4 h-4 text-gray-500" />
           </button>
-          <button class="p-1.5 hover:bg-[#1a1a1a] rounded transition-colors">
+          <button 
+            title="More options (coming soon)"
+            class="p-1.5 hover:bg-[#1a1a1a] rounded transition-colors opacity-60 cursor-not-allowed"
+          >
             <MoreHorizontal class="w-4 h-4 text-gray-500" />
           </button>
           <button 
@@ -365,7 +371,10 @@ const projectTeams = computed(() => {
             <!-- Labels -->
             <div class="flex items-center justify-between">
               <span class="text-[13px] text-gray-500 w-24">Labels</span>
-              <button class="flex items-center gap-1 text-[13px] text-gray-400 hover:text-white transition-colors">
+              <button 
+                title="Add label (coming soon)"
+                class="flex items-center gap-1 text-[13px] text-gray-400 hover:text-white transition-colors opacity-60 cursor-not-allowed"
+              >
                 <Tag class="w-3.5 h-3.5" />
                 Add label
               </button>

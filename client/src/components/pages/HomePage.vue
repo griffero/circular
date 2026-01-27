@@ -6,12 +6,19 @@ import { useEmojiStore } from '@/stores/emoji'
 import EmojiIcon from '@/components/ui/EmojiIcon.vue'
 import EmojiText from '@/components/ui/EmojiText.vue'
 import UserLink from '@/components/ui/UserLink.vue'
+import Dropdown from '@/components/ui/Dropdown.vue'
+import DropdownItem from '@/components/ui/DropdownItem.vue'
 import {
   Zap,
   MessageCircle,
   Smile,
   ChevronDown,
-  MoreHorizontal
+  MoreHorizontal,
+  Copy,
+  Bell,
+  BellOff,
+  ExternalLink,
+  CheckCircle2
 } from 'lucide-vue-next'
 
 const authStore = useAuthStore()
@@ -23,6 +30,29 @@ const projectUpdates = computed(() => appStore.projectUpdates)
 
 // Active tab
 const activeTab = ref<'pulse' | 'forme' | 'popular' | 'recent'>('pulse')
+
+// Expanded comments tracking
+const expandedComments = ref<Set<string>>(new Set())
+
+// Subscription type
+const subscriptionType = ref<'all' | 'following' | 'mentions'>('all')
+
+function toggleComments(updateId: string) {
+  if (expandedComments.value.has(updateId)) {
+    expandedComments.value.delete(updateId)
+  } else {
+    expandedComments.value.add(updateId)
+  }
+}
+
+function copyUpdateLink(updateId: string) {
+  const url = `${window.location.origin}/update/${updateId}`
+  navigator.clipboard.writeText(url)
+}
+
+function setSubscription(type: 'all' | 'following' | 'mentions') {
+  subscriptionType.value = type
+}
 
 // Group updates by time period
 const groupedUpdates = computed(() => {
@@ -142,10 +172,43 @@ function formatTimeAgo(dateStr: string): string {
       </div>
       
       <div class="flex items-center gap-2">
-        <button class="p-1.5 text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors">
-          <span class="text-xs">Subscription</span>
-          <ChevronDown class="w-3 h-3 inline ml-1" />
-        </button>
+        <Dropdown align="right">
+          <template #trigger>
+            <button class="flex items-center gap-1 p-1.5 text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors">
+              <span class="text-xs">{{ subscriptionType === 'all' ? 'All updates' : subscriptionType === 'following' ? 'Following' : 'Mentions only' }}</span>
+              <ChevronDown class="w-3 h-3" />
+            </button>
+          </template>
+          <div class="py-1 min-w-[160px]">
+            <DropdownItem @click="setSubscription('all')">
+              <div class="flex items-center justify-between w-full">
+                <div class="flex items-center gap-2">
+                  <Bell class="w-4 h-4" />
+                  All updates
+                </div>
+                <CheckCircle2 v-if="subscriptionType === 'all'" class="w-4 h-4 text-indigo-400" />
+              </div>
+            </DropdownItem>
+            <DropdownItem @click="setSubscription('following')">
+              <div class="flex items-center justify-between w-full">
+                <div class="flex items-center gap-2">
+                  <Bell class="w-4 h-4" />
+                  Following
+                </div>
+                <CheckCircle2 v-if="subscriptionType === 'following'" class="w-4 h-4 text-indigo-400" />
+              </div>
+            </DropdownItem>
+            <DropdownItem @click="setSubscription('mentions')">
+              <div class="flex items-center justify-between w-full">
+                <div class="flex items-center gap-2">
+                  <BellOff class="w-4 h-4" />
+                  Mentions only
+                </div>
+                <CheckCircle2 v-if="subscriptionType === 'mentions'" class="w-4 h-4 text-indigo-400" />
+              </div>
+            </DropdownItem>
+          </div>
+        </Dropdown>
       </div>
     </div>
 
@@ -215,9 +278,23 @@ function formatTimeAgo(dateStr: string): string {
                       </div>
                     </div>
                   </div>
-                  <button class="p-1 text-gray-500 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors">
-                    <MoreHorizontal class="w-4 h-4" />
-                  </button>
+                  <Dropdown align="right">
+                    <template #trigger>
+                      <button class="p-1 text-gray-500 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors">
+                        <MoreHorizontal class="w-4 h-4" />
+                      </button>
+                    </template>
+                    <div class="py-1 min-w-[140px]">
+                      <DropdownItem @click="copyUpdateLink(update.id)">
+                        <Copy class="w-4 h-4" />
+                        Copy link
+                      </DropdownItem>
+                      <DropdownItem>
+                        <ExternalLink class="w-4 h-4" />
+                        Open in Linear
+                      </DropdownItem>
+                    </div>
+                  </Dropdown>
                 </div>
 
                 <!-- Update content -->
@@ -227,14 +304,28 @@ function formatTimeAgo(dateStr: string): string {
 
                 <!-- Footer -->
                 <div class="flex items-center gap-3 text-xs text-gray-500">
-                  <button class="flex items-center gap-1.5 hover:text-white transition-colors">
+                  <button 
+                    @click="toggleComments(update.id)"
+                    class="flex items-center gap-1.5 hover:text-white transition-colors"
+                  >
                     <MessageCircle class="w-3.5 h-3.5" />
                     <span v-if="update.commentsCount > 0">{{ update.commentsCount }} comment{{ update.commentsCount !== 1 ? 's' : '' }}</span>
                     <span v-else>Comments</span>
                   </button>
-                  <button class="flex items-center gap-1.5 hover:text-white transition-colors">
+                  <button 
+                    title="Add reaction (coming soon)"
+                    class="flex items-center gap-1.5 hover:text-white transition-colors opacity-60 cursor-not-allowed"
+                  >
                     <Smile class="w-3.5 h-3.5" />
                   </button>
+                </div>
+                
+                <!-- Expanded comments -->
+                <div 
+                  v-if="expandedComments.has(update.id) && update.commentsCount > 0"
+                  class="mt-4 pt-4 border-t border-[#1f1f1f]"
+                >
+                  <p class="text-xs text-gray-500">Comments will be displayed here when loaded...</p>
                 </div>
               </div>
             </div>
@@ -284,9 +375,23 @@ function formatTimeAgo(dateStr: string): string {
                       </div>
                     </div>
                   </div>
-                  <button class="p-1 text-gray-500 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors">
-                    <MoreHorizontal class="w-4 h-4" />
-                  </button>
+                  <Dropdown align="right">
+                    <template #trigger>
+                      <button class="p-1 text-gray-500 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors">
+                        <MoreHorizontal class="w-4 h-4" />
+                      </button>
+                    </template>
+                    <div class="py-1 min-w-[140px]">
+                      <DropdownItem @click="copyUpdateLink(update.id)">
+                        <Copy class="w-4 h-4" />
+                        Copy link
+                      </DropdownItem>
+                      <DropdownItem>
+                        <ExternalLink class="w-4 h-4" />
+                        Open in Linear
+                      </DropdownItem>
+                    </div>
+                  </Dropdown>
                 </div>
 
                 <!-- Update content -->
@@ -296,14 +401,28 @@ function formatTimeAgo(dateStr: string): string {
 
                 <!-- Footer -->
                 <div class="flex items-center gap-3 text-xs text-gray-500">
-                  <button class="flex items-center gap-1.5 hover:text-white transition-colors">
+                  <button 
+                    @click="toggleComments(update.id)"
+                    class="flex items-center gap-1.5 hover:text-white transition-colors"
+                  >
                     <MessageCircle class="w-3.5 h-3.5" />
                     <span v-if="update.commentsCount > 0">{{ update.commentsCount }} comment{{ update.commentsCount !== 1 ? 's' : '' }}</span>
                     <span v-else>Comments</span>
                   </button>
-                  <button class="flex items-center gap-1.5 hover:text-white transition-colors">
+                  <button 
+                    title="Add reaction (coming soon)"
+                    class="flex items-center gap-1.5 hover:text-white transition-colors opacity-60 cursor-not-allowed"
+                  >
                     <Smile class="w-3.5 h-3.5" />
                   </button>
+                </div>
+                
+                <!-- Expanded comments -->
+                <div 
+                  v-if="expandedComments.has(update.id) && update.commentsCount > 0"
+                  class="mt-4 pt-4 border-t border-[#1f1f1f]"
+                >
+                  <p class="text-xs text-gray-500">Comments will be displayed here when loaded...</p>
                 </div>
               </div>
             </div>
@@ -353,9 +472,23 @@ function formatTimeAgo(dateStr: string): string {
                       </div>
                     </div>
                   </div>
-                  <button class="p-1 text-gray-500 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors">
-                    <MoreHorizontal class="w-4 h-4" />
-                  </button>
+                  <Dropdown align="right">
+                    <template #trigger>
+                      <button class="p-1 text-gray-500 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors">
+                        <MoreHorizontal class="w-4 h-4" />
+                      </button>
+                    </template>
+                    <div class="py-1 min-w-[140px]">
+                      <DropdownItem @click="copyUpdateLink(update.id)">
+                        <Copy class="w-4 h-4" />
+                        Copy link
+                      </DropdownItem>
+                      <DropdownItem>
+                        <ExternalLink class="w-4 h-4" />
+                        Open in Linear
+                      </DropdownItem>
+                    </div>
+                  </Dropdown>
                 </div>
 
                 <!-- Update content -->
@@ -365,14 +498,28 @@ function formatTimeAgo(dateStr: string): string {
 
                 <!-- Footer -->
                 <div class="flex items-center gap-3 text-xs text-gray-500">
-                  <button class="flex items-center gap-1.5 hover:text-white transition-colors">
+                  <button 
+                    @click="toggleComments(update.id)"
+                    class="flex items-center gap-1.5 hover:text-white transition-colors"
+                  >
                     <MessageCircle class="w-3.5 h-3.5" />
                     <span v-if="update.commentsCount > 0">{{ update.commentsCount }} comment{{ update.commentsCount !== 1 ? 's' : '' }}</span>
                     <span v-else>Comments</span>
                   </button>
-                  <button class="flex items-center gap-1.5 hover:text-white transition-colors">
+                  <button 
+                    title="Add reaction (coming soon)"
+                    class="flex items-center gap-1.5 hover:text-white transition-colors opacity-60 cursor-not-allowed"
+                  >
                     <Smile class="w-3.5 h-3.5" />
                   </button>
+                </div>
+                
+                <!-- Expanded comments -->
+                <div 
+                  v-if="expandedComments.has(update.id) && update.commentsCount > 0"
+                  class="mt-4 pt-4 border-t border-[#1f1f1f]"
+                >
+                  <p class="text-xs text-gray-500">Comments will be displayed here when loaded...</p>
                 </div>
               </div>
             </div>
