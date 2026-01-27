@@ -268,15 +268,22 @@ const workspaceName = computed(() => {
           No teams yet
         </div>
         
-        <div v-else class="space-y-0.5">
-          <div v-for="team in teams" :key="team.id">
+        <div v-else class="space-y-1">
+          <div 
+            v-for="team in teams" 
+            :key="team.id"
+            :class="cn(
+              'rounded-md transition-all',
+              expandedTeams.has(team.id) && isTeamActive(team.key) && 'ring-1 ring-blue-500/50 bg-[#0f1419]'
+            )"
+          >
             <!-- Team header -->
             <button
               @click="toggleTeam(team.id)"
               :class="cn(
                 'w-full flex items-center gap-2 px-2 py-1.5 rounded text-[13px] transition-colors',
                 isTeamActive(team.key)
-                  ? 'bg-[#1a1a1a] text-white'
+                  ? 'text-white'
                   : 'text-gray-400 hover:bg-[#1a1a1a] hover:text-white'
               )"
             >
@@ -291,20 +298,20 @@ const workspaceName = computed(() => {
                 />
               </div>
               <span class="flex-1 text-left truncate">{{ team.name }}</span>
-              <ChevronRight 
+              <ChevronDown 
                 :class="cn(
                   'w-3.5 h-3.5 text-gray-500 transition-transform',
-                  expandedTeams.has(team.id) && 'rotate-90'
+                  !expandedTeams.has(team.id) && '-rotate-90'
                 )" 
               />
             </button>
             
             <!-- Team sub-items -->
-            <div v-if="expandedTeams.has(team.id)" class="ml-4 mt-0.5 space-y-0.5">
+            <div v-if="expandedTeams.has(team.id)" class="pb-1">
               <router-link
                 :to="`/team/${team.key}/active`"
                 :class="cn(
-                  'flex items-center gap-2.5 px-2 py-1 rounded text-[12px] transition-colors',
+                  'flex items-center gap-2.5 ml-5 px-2 py-1 rounded text-[13px] transition-colors',
                   isTeamSubPageActive(team.key, 'active')
                     ? 'bg-[#1a1a1a] text-white'
                     : 'text-gray-500 hover:bg-[#1a1a1a] hover:text-gray-300'
@@ -317,7 +324,7 @@ const workspaceName = computed(() => {
               <router-link
                 :to="`/team/${team.key}/backlog`"
                 :class="cn(
-                  'flex items-center gap-2.5 px-2 py-1 rounded text-[12px] transition-colors',
+                  'flex items-center gap-2.5 ml-5 px-2 py-1 rounded text-[13px] transition-colors',
                   isTeamSubPageActive(team.key, 'backlog')
                     ? 'bg-[#1a1a1a] text-white'
                     : 'text-gray-500 hover:bg-[#1a1a1a] hover:text-gray-300'
@@ -330,7 +337,7 @@ const workspaceName = computed(() => {
               <router-link
                 :to="`/team/${team.key}/board`"
                 :class="cn(
-                  'flex items-center gap-2.5 px-2 py-1 rounded text-[12px] transition-colors',
+                  'flex items-center gap-2.5 ml-5 px-2 py-1 rounded text-[13px] transition-colors',
                   isTeamSubPageActive(team.key, 'board')
                     ? 'bg-[#1a1a1a] text-white'
                     : 'text-gray-500 hover:bg-[#1a1a1a] hover:text-gray-300'
