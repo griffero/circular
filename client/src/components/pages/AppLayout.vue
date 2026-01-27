@@ -55,7 +55,7 @@ onMounted(async () => {
     <!-- Main content -->
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
       <Topbar v-if="showTopbar" />
-      <main class="flex-1 overflow-auto bg-[#0d0d0d]">
+      <main class="flex-1 overflow-auto bg-[#0d0d0d] min-h-0">
         <router-view />
       </main>
     </div>

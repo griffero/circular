@@ -89,7 +89,7 @@ function formatTimeAgo(dateStr: string): string {
 </script>
 
 <template>
-  <div class="h-full flex flex-col bg-[#0d0d0d]">
+  <div class="min-h-full flex flex-col bg-[#0d0d0d]">
     <!-- Header with tabs -->
     <div class="flex items-center justify-between px-4 py-2 border-b border-[#1f1f1f]">
       <div class="flex items-center gap-1">
