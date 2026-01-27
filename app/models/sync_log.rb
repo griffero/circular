@@ -4,6 +4,7 @@ class SyncLog < ApplicationRecord
   ENTITY_TYPES = %w[
     Issue Project User Team WorkflowState Cycle
     Label IssueLabel Comment Attachment IssueRelation
+    Reaction ProjectUpdate
   ].freeze
 
   ACTIONS = %w[create update delete].freeze
