@@ -3,8 +3,8 @@ import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAppStore } from '@/stores/app'
 import { useUiStore } from '@/stores/ui'
-import { cn } from '@/utils/cn'
-import Button from '@/components/ui/Button.vue'
+import { useEmojiStore } from '@/stores/emoji'
+import EmojiIcon from '@/components/ui/EmojiIcon.vue'
 import {
   LayoutList,
   Columns3,
@@ -12,13 +12,15 @@ import {
   CircleDot,
   Plus,
   Filter,
-  MoreHorizontal
+  MoreHorizontal,
+  Settings
 } from 'lucide-vue-next'
 
 const route = useRoute()
 const router = useRouter()
 const appStore = useAppStore()
 const uiStore = useUiStore()
+const emojiStore = useEmojiStore()
 
 const teams = computed(() => appStore.teams)
 const currentTeam = computed(() => {
@@ -29,67 +31,86 @@ const currentTeam = computed(() => {
 interface Tab {
   name: string
   to: string
-  icon: typeof LayoutList
-  active: boolean
+  routeName: string
 }
 
 const tabs = computed<Tab[]>(() => {
   if (!currentTeam.value) return []
   const base = `/team/${currentTeam.value.key}`
   return [
-    { name: 'All Issues', to: `${base}/board`, icon: LayoutList, active: route.name === 'team-board' },
-    { name: 'Active', to: `${base}/active`, icon: CircleDot, active: route.name === 'team-active' },
-    { name: 'Backlog', to: `${base}/backlog`, icon: LayoutList, active: route.name === 'team-backlog' },
-    { name: 'Cycles', to: `${base}/cycles`, icon: Clock, active: route.name === 'team-cycles' },
+    { name: 'All Issues', to: `${base}/board`, routeName: 'team-board' },
+    { name: 'Active', to: `${base}/active`, routeName: 'team-active' },
+    { name: 'Backlog', to: `${base}/backlog`, routeName: 'team-backlog' },
+    { name: 'Cycles', to: `${base}/cycles`, routeName: 'team-cycles' },
   ]
 })
+
+// Check if has emoji
+function hasEmoji(icon?: string | null): boolean {
+  if (!icon) return false
+  if (emojiStore.getEmojiUrl(icon)) return true
+  const stripped = icon.replace(/^:|:$/g, '')
+  return /^[\p{Emoji}\u200d]+$/u.test(stripped) && stripped.length <= 8
+}
 </script>
 
 <template>
-  <div v-if="currentTeam" class="flex flex-col h-full">
+  <div v-if="currentTeam" class="flex flex-col h-full bg-[#0d0d0d]">
     <!-- Team header with tabs -->
-    <div class="flex items-center justify-between px-4 py-2 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
-      <div class="flex items-center gap-4">
+    <div class="flex items-center justify-between px-4 py-2 border-b border-[#1f1f1f]">
+      <div class="flex items-center gap-3">
         <div class="flex items-center gap-2">
           <div 
-            class="w-6 h-6 rounded flex items-center justify-center text-white text-xs font-bold"
-            :style="{ backgroundColor: currentTeam.color || '#6b7280' }"
+            class="w-5 h-5 rounded flex items-center justify-center"
+            :style="hasEmoji(currentTeam.icon) ? {} : { backgroundColor: currentTeam.color || '#6366f1' }"
           >
-            {{ currentTeam.key.charAt(0) }}
+            <EmojiIcon 
+              :name="currentTeam.icon" 
+              :fallback="currentTeam.key.substring(0, 2)" 
+              size="sm"
+            />
           </div>
-          <h2 class="font-medium text-gray-900 dark:text-gray-100">{{ currentTeam.name }}</h2>
+          <span class="text-sm font-medium text-white">{{ currentTeam.name }}</span>
         </div>
 
-        <nav class="flex items-center gap-1">
+        <nav class="flex items-center gap-1 ml-2">
           <router-link
             v-for="tab in tabs"
             :key="tab.name"
             :to="tab.to"
-            :class="cn(
-              'flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md',
-              'transition-colors',
-              tab.active
-                ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
-                : 'text-gray-500 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800/50'
-            )"
+            :class="[
+              'px-3 py-1.5 text-sm rounded-md transition-colors',
+              route.name === tab.routeName
+                ? 'bg-[#1a1a1a] text-white'
+                : 'text-gray-400 hover:text-white hover:bg-[#1a1a1a]'
+            ]"
           >
-            <component :is="tab.icon" class="h-4 w-4" />
             {{ tab.name }}
           </router-link>
         </nav>
+        
+        <button class="p-1.5 rounded hover:bg-[#1a1a1a] ml-1 text-gray-500 hover:text-white transition-colors">
+          <Settings class="w-4 h-4" />
+        </button>
       </div>
 
       <div class="flex items-center gap-2">
-        <Button size="sm" variant="ghost" @click="uiStore.toggleFilters()">
+        <button 
+          @click="uiStore.toggleFilters()"
+          class="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors"
+        >
           <Filter class="h-4 w-4" />
           Filter
-        </Button>
-        <Button size="sm" @click="uiStore.openCreateIssueModal()">
+        </button>
+        <button 
+          @click="uiStore.openCreateIssueModal()"
+          class="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded transition-colors"
+        >
           <Plus class="h-4 w-4" />
           New issue
-        </Button>
-        <button class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md">
-          <MoreHorizontal class="h-4 w-4 text-gray-500" />
+        </button>
+        <button class="p-1.5 hover:bg-[#1a1a1a] rounded text-gray-500 hover:text-white transition-colors">
+          <MoreHorizontal class="h-4 w-4" />
         </button>
       </div>
     </div>
@@ -100,12 +121,15 @@ const tabs = computed<Tab[]>(() => {
     </div>
   </div>
 
-  <div v-else class="flex items-center justify-center h-full">
+  <div v-else class="flex items-center justify-center h-full bg-[#0d0d0d]">
     <div class="text-center">
       <p class="text-gray-500">Team not found</p>
-      <Button variant="ghost" class="mt-4" @click="router.push('/')">
+      <button 
+        @click="router.push('/')"
+        class="mt-4 px-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors"
+      >
         Go back home
-      </Button>
+      </button>
     </div>
   </div>
 </template>

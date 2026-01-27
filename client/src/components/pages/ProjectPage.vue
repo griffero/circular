@@ -2,11 +2,9 @@
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAppStore } from '@/stores/app'
-import Button from '@/components/ui/Button.vue'
-import Badge from '@/components/ui/Badge.vue'
+import { useEmojiStore } from '@/stores/emoji'
 import EmojiIcon from '@/components/ui/EmojiIcon.vue'
 import {
-  FolderKanban,
   Plus,
   Filter,
   MoreHorizontal,
@@ -18,6 +16,7 @@ import {
 const route = useRoute()
 const router = useRouter()
 const appStore = useAppStore()
+const emojiStore = useEmojiStore()
 
 const projects = computed(() => appStore.projects)
 const currentProject = computed(() => {
@@ -29,33 +28,41 @@ const currentProject = computed(() => {
 const issues = ref<unknown[]>([])
 const loading = ref(false)
 
-function getStatusBadge(status: string) {
-  switch (status) {
-    case 'in_progress':
-      return { variant: 'success' as const, label: 'Active' }
-    case 'backlog':
-      return { variant: 'secondary' as const, label: 'Backlog' }
-    case 'todo':
-      return { variant: 'warning' as const, label: 'Todo' }
-    case 'done':
-      return { variant: 'primary' as const, label: 'Completed' }
+// Check if has emoji
+function hasEmoji(icon?: string | null): boolean {
+  if (!icon) return false
+  if (emojiStore.getEmojiUrl(icon)) return true
+  const stripped = icon.replace(/^:|:$/g, '')
+  return /^[\p{Emoji}\u200d]+$/u.test(stripped) && stripped.length <= 8
+}
+
+function getStatusBadge(state: string) {
+  switch (state) {
+    case 'started':
+      return { class: 'bg-green-500/20 text-green-400', label: 'Active' }
+    case 'planned':
+      return { class: 'bg-blue-500/20 text-blue-400', label: 'Planned' }
+    case 'paused':
+      return { class: 'bg-yellow-500/20 text-yellow-400', label: 'Paused' }
+    case 'completed':
+      return { class: 'bg-emerald-500/20 text-emerald-400', label: 'Completed' }
     case 'canceled':
-      return { variant: 'danger' as const, label: 'Canceled' }
+      return { class: 'bg-red-500/20 text-red-400', label: 'Canceled' }
     default:
-      return { variant: 'secondary' as const, label: status }
+      return { class: 'bg-gray-500/20 text-gray-400', label: 'Backlog' }
   }
 }
 </script>
 
 <template>
-  <div v-if="currentProject" class="flex flex-col h-full">
+  <div v-if="currentProject" class="flex flex-col h-full bg-[#0d0d0d]">
     <!-- Project header -->
-    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
-      <div class="flex items-center justify-between mb-4">
+    <div class="px-4 py-3 border-b border-[#1f1f1f]">
+      <div class="flex items-center justify-between mb-3">
         <div class="flex items-center gap-3">
           <div 
             class="w-10 h-10 rounded-lg flex items-center justify-center"
-            :style="{ backgroundColor: currentProject.color || '#6b7280' }"
+            :style="hasEmoji(currentProject.icon) ? {} : { backgroundColor: currentProject.color || '#6366f1' }"
           >
             <EmojiIcon 
               :name="currentProject.icon" 
@@ -64,7 +71,7 @@ function getStatusBadge(status: string) {
             />
           </div>
           <div>
-            <h1 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
+            <h1 class="text-lg font-semibold text-white">
               {{ currentProject.name }}
             </h1>
             <p v-if="currentProject.description" class="text-sm text-gray-500">
@@ -73,19 +80,22 @@ function getStatusBadge(status: string) {
           </div>
         </div>
         <div class="flex items-center gap-2">
-          <Badge :variant="getStatusBadge(currentProject.status).variant">
-            {{ getStatusBadge(currentProject.status).label }}
-          </Badge>
-          <Button variant="ghost" size="sm">
+          <span 
+            class="text-xs px-2 py-1 rounded"
+            :class="getStatusBadge(currentProject.state).class"
+          >
+            {{ getStatusBadge(currentProject.state).label }}
+          </span>
+          <button class="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors">
             <Filter class="h-4 w-4" />
             Filter
-          </Button>
-          <Button size="sm">
+          </button>
+          <button class="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded transition-colors">
             <Plus class="h-4 w-4" />
             Add issue
-          </Button>
-          <button class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md">
-            <MoreHorizontal class="h-4 w-4 text-gray-500" />
+          </button>
+          <button class="p-1.5 hover:bg-[#1a1a1a] rounded text-gray-500 hover:text-white transition-colors">
+            <MoreHorizontal class="h-4 w-4" />
           </button>
         </div>
       </div>
@@ -106,23 +116,23 @@ function getStatusBadge(status: string) {
     <!-- Content -->
     <div class="flex-1 overflow-auto p-6">
       <div v-if="loading" class="flex items-center justify-center py-16">
-        <div class="animate-spin rounded-full h-8 w-8 border-2 border-primary-600 border-t-transparent"></div>
+        <div class="animate-spin rounded-full h-8 w-8 border-2 border-indigo-500 border-t-transparent"></div>
       </div>
 
       <div v-else-if="issues.length === 0" class="flex flex-col items-center justify-center py-16">
-        <div class="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
-          <Inbox class="h-8 w-8 text-gray-400" />
+        <div class="w-16 h-16 rounded-full bg-[#1a1a1a] flex items-center justify-center mb-4">
+          <Inbox class="h-8 w-8 text-gray-500" />
         </div>
-        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-1">
+        <h3 class="text-lg font-medium text-white mb-1">
           No issues in this project
         </h3>
         <p class="text-sm text-gray-500 text-center max-w-sm mb-4">
           Add issues to this project to track progress and organize work.
         </p>
-        <Button>
+        <button class="flex items-center gap-1.5 px-4 py-2 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded transition-colors">
           <Plus class="h-4 w-4" />
           Add issue
-        </Button>
+        </button>
       </div>
 
       <div v-else>
@@ -131,12 +141,15 @@ function getStatusBadge(status: string) {
     </div>
   </div>
 
-  <div v-else class="flex items-center justify-center h-full">
+  <div v-else class="flex items-center justify-center h-full bg-[#0d0d0d]">
     <div class="text-center">
       <p class="text-gray-500">Project not found</p>
-      <Button variant="ghost" class="mt-4" @click="router.push('/')">
+      <button 
+        @click="router.push('/')"
+        class="mt-4 px-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors"
+      >
         Go back home
-      </Button>
+      </button>
     </div>
   </div>
 </template>

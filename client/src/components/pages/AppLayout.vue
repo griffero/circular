@@ -13,7 +13,16 @@ const emojiStore = useEmojiStore()
 const loading = ref(true)
 
 // Pages that have their own header (don't show Topbar)
-const pagesWithOwnHeader = ['home', 'projects', 'inbox', 'my-issues', 'initiatives', 'views']
+const pagesWithOwnHeader = [
+  'home',
+  'projects', 
+  'inbox', 
+  'my-issues',
+  'team', 'team-active', 'team-backlog', 'team-board', 'team-cycles',
+  'project',
+  'issue',
+  'view'
+]
 const showTopbar = computed(() => !pagesWithOwnHeader.includes(route.name as string))
 
 onMounted(async () => {

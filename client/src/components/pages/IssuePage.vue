@@ -2,9 +2,6 @@
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { cn } from '@/utils/cn'
-import Button from '@/components/ui/Button.vue'
-import Avatar from '@/components/ui/Avatar.vue'
 import {
   ArrowLeft,
   Circle,
@@ -74,33 +71,33 @@ function getPriority(value: number) {
 </script>
 
 <template>
-  <div class="h-full flex">
+  <div class="h-full flex bg-[#0d0d0d]">
     <!-- Main content -->
     <div class="flex-1 flex flex-col overflow-hidden">
       <!-- Header -->
-      <div class="flex items-center gap-3 px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+      <div class="flex items-center gap-3 px-4 py-2 border-b border-[#1f1f1f]">
         <button 
           @click="router.back()"
-          class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
+          class="p-1.5 hover:bg-[#1a1a1a] rounded text-gray-500 hover:text-white transition-colors"
         >
-          <ArrowLeft class="h-4 w-4 text-gray-500" />
+          <ArrowLeft class="h-4 w-4" />
         </button>
         <span class="text-sm font-mono text-gray-500">{{ issue?.identifier }}</span>
       </div>
 
       <!-- Issue content -->
       <div v-if="loading" class="flex items-center justify-center py-16">
-        <div class="animate-spin rounded-full h-8 w-8 border-2 border-primary-600 border-t-transparent"></div>
+        <div class="animate-spin rounded-full h-8 w-8 border-2 border-indigo-500 border-t-transparent"></div>
       </div>
 
       <div v-else-if="issue" class="flex-1 overflow-auto p-6">
-        <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+        <h1 class="text-2xl font-semibold text-white mb-4">
           {{ issue.title }}
         </h1>
 
         <div
           v-if="issue.description"
-          class="prose dark:prose-invert max-w-none mb-8 prose-p:my-3 prose-ul:my-3 prose-ol:my-3"
+          class="prose prose-invert max-w-none mb-8 prose-p:my-3 prose-ul:my-3 prose-ol:my-3"
           v-html="issue.description"
         />
         <div v-else class="text-sm text-gray-500 mb-8">
@@ -108,8 +105,8 @@ function getPriority(value: number) {
         </div>
 
         <!-- Comments section placeholder -->
-        <div class="border-t border-gray-200 dark:border-gray-800 pt-6">
-          <h2 class="text-sm font-medium text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+        <div class="border-t border-[#1f1f1f] pt-6">
+          <h2 class="text-sm font-medium text-white mb-4 flex items-center gap-2">
             <MessageSquare class="h-4 w-4" />
             Activity
           </h2>
@@ -122,21 +119,24 @@ function getPriority(value: number) {
       <div v-else class="flex items-center justify-center h-full">
         <div class="text-center">
           <p class="text-gray-500">Issue not found</p>
-          <Button variant="ghost" class="mt-4" @click="router.push('/')">
+          <button 
+            @click="router.push('/')"
+            class="mt-4 px-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors"
+          >
             Go back home
-          </Button>
+          </button>
         </div>
       </div>
     </div>
 
     <!-- Sidebar -->
-    <div v-if="issue" class="w-72 border-l border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 p-4 overflow-auto">
+    <div v-if="issue" class="w-72 border-l border-[#1f1f1f] bg-[#111] p-4 overflow-auto">
       <div class="space-y-4">
         <!-- Status -->
         <div>
           <label class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 block">Status</label>
-          <button class="w-full flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 text-sm">
-            <component :is="getStatus(issue.status).icon" :class="cn('h-4 w-4', getStatus(issue.status).color)" />
+          <button class="w-full flex items-center gap-2 px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded hover:bg-[#222] text-sm text-white transition-colors">
+            <component :is="getStatus(issue.status).icon" :class="['h-4 w-4', getStatus(issue.status).color]" />
             {{ getStatus(issue.status).label }}
           </button>
         </div>
@@ -144,8 +144,8 @@ function getPriority(value: number) {
         <!-- Priority -->
         <div>
           <label class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 block">Priority</label>
-          <button class="w-full flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 text-sm">
-            <span :class="cn('font-mono font-bold', getPriority(issue.priority).color)">
+          <button class="w-full flex items-center gap-2 px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded hover:bg-[#222] text-sm text-white transition-colors">
+            <span :class="['font-mono font-bold', getPriority(issue.priority).color]">
               {{ issue.priority === 0 ? '—' : 'P' + issue.priority }}
             </span>
             {{ getPriority(issue.priority).label }}
@@ -155,10 +155,12 @@ function getPriority(value: number) {
         <!-- Assignee -->
         <div>
           <label class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 block">Assignee</label>
-          <button class="w-full flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 text-sm">
+          <button class="w-full flex items-center gap-2 px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded hover:bg-[#222] text-sm transition-colors">
             <template v-if="issue.assignee">
-              <Avatar :name="issue.assignee.name" size="xs" />
-              {{ issue.assignee.name }}
+              <div class="w-5 h-5 rounded-full bg-indigo-600 flex items-center justify-center text-[10px] text-white">
+                {{ issue.assignee.name.charAt(0) }}
+              </div>
+              <span class="text-white">{{ issue.assignee.name }}</span>
             </template>
             <template v-else>
               <User class="h-4 w-4 text-gray-400" />
@@ -170,7 +172,7 @@ function getPriority(value: number) {
         <!-- Labels placeholder -->
         <div>
           <label class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 block">Labels</label>
-          <button class="w-full flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 text-sm text-gray-500">
+          <button class="w-full flex items-center gap-2 px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded hover:bg-[#222] text-sm text-gray-500 transition-colors">
             <Tag class="h-4 w-4" />
             Add labels
           </button>
@@ -179,7 +181,7 @@ function getPriority(value: number) {
         <!-- Project placeholder -->
         <div>
           <label class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 block">Project</label>
-          <button class="w-full flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 text-sm text-gray-500">
+          <button class="w-full flex items-center gap-2 px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded hover:bg-[#222] text-sm text-gray-500 transition-colors">
             <FolderKanban class="h-4 w-4" />
             Add to project
           </button>
@@ -188,7 +190,7 @@ function getPriority(value: number) {
         <!-- Due date placeholder -->
         <div>
           <label class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 block">Due date</label>
-          <button class="w-full flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 text-sm text-gray-500">
+          <button class="w-full flex items-center gap-2 px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded hover:bg-[#222] text-sm text-gray-500 transition-colors">
             <Calendar class="h-4 w-4" />
             Set due date
           </button>
