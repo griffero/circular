@@ -4,6 +4,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useAppStore, type ProjectUpdate } from '@/stores/app'
 import { useEmojiStore } from '@/stores/emoji'
 import EmojiIcon from '@/components/ui/EmojiIcon.vue'
+import EmojiText from '@/components/ui/EmojiText.vue'
 import UserLink from '@/components/ui/UserLink.vue'
 import {
   Zap,
@@ -220,8 +221,8 @@ function formatTimeAgo(dateStr: string): string {
                 </div>
 
                 <!-- Update content -->
-                <div class="text-sm text-gray-300 mb-4 leading-relaxed whitespace-pre-wrap">
-                  {{ update.body }}
+                <div class="text-sm text-gray-300 mb-4 leading-relaxed">
+                  <EmojiText :text="update.body" />
                 </div>
 
                 <!-- Footer -->
@@ -288,8 +289,8 @@ function formatTimeAgo(dateStr: string): string {
                 </div>
 
                 <!-- Update content -->
-                <div class="text-sm text-gray-300 mb-4 leading-relaxed whitespace-pre-wrap">
-                  {{ update.body }}
+                <div class="text-sm text-gray-300 mb-4 leading-relaxed">
+                  <EmojiText :text="update.body" />
                 </div>
 
                 <!-- Footer -->
@@ -356,8 +357,8 @@ function formatTimeAgo(dateStr: string): string {
                 </div>
 
                 <!-- Update content -->
-                <div class="text-sm text-gray-300 mb-4 leading-relaxed whitespace-pre-wrap">
-                  {{ update.body }}
+                <div class="text-sm text-gray-300 mb-4 leading-relaxed">
+                  <EmojiText :text="update.body" />
                 </div>
 
                 <!-- Footer -->
