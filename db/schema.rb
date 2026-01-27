@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_27_171259) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_27_190112) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -63,6 +63,39 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_27_171259) do
     t.index ["team_id", "number"], name: "index_cycles_on_team_id_and_number", unique: true
     t.index ["team_id", "starts_at"], name: "index_cycles_on_team_id_and_starts_at"
     t.index ["team_id"], name: "index_cycles_on_team_id"
+  end
+
+  create_table "initiative_projects", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "initiative_id", null: false
+    t.uuid "project_id", null: false
+    t.integer "sort_order", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["initiative_id", "project_id"], name: "index_initiative_projects_on_initiative_id_and_project_id", unique: true
+    t.index ["initiative_id"], name: "index_initiative_projects_on_initiative_id"
+    t.index ["project_id"], name: "index_initiative_projects_on_project_id"
+  end
+
+  create_table "initiatives", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "name", null: false
+    t.string "slug", null: false
+    t.text "description"
+    t.string "icon"
+    t.string "color"
+    t.uuid "owner_id"
+    t.string "status", default: "backlog"
+    t.string "health"
+    t.integer "target_year"
+    t.integer "target_quarter"
+    t.date "target_date"
+    t.integer "sort_order", default: 0
+    t.string "linear_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["linear_id"], name: "index_initiatives_on_linear_id", unique: true, where: "(linear_id IS NOT NULL)"
+    t.index ["owner_id"], name: "index_initiatives_on_owner_id"
+    t.index ["slug"], name: "index_initiatives_on_slug", unique: true
+    t.index ["status"], name: "index_initiatives_on_status"
   end
 
   create_table "issue_activities", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -333,6 +366,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_27_171259) do
   add_foreign_key "comments", "issues"
   add_foreign_key "comments", "users"
   add_foreign_key "cycles", "teams"
+  add_foreign_key "initiative_projects", "initiatives"
+  add_foreign_key "initiative_projects", "projects"
+  add_foreign_key "initiatives", "users", column: "owner_id"
   add_foreign_key "issue_activities", "issues"
   add_foreign_key "issue_activities", "users"
   add_foreign_key "issue_labels", "issues"

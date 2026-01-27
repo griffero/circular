@@ -22,7 +22,7 @@ class CreateInitiatives < ActiveRecord::Migration[8.0]
       t.index :slug, unique: true
       t.index :status
       t.index :linear_id, unique: true, where: "linear_id IS NOT NULL"
-      t.index :owner_id
+      # owner_id index is created automatically by t.references :owner
     end
 
     # Join table for initiatives and projects
