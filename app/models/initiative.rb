@@ -10,12 +10,12 @@ class Initiative < ApplicationRecord
   validates :name, presence: true
   validates :slug, presence: true, uniqueness: true
 
-  # Scopes
+  # Scopes - wrapped in lambdas to defer evaluation
   scope :ordered, -> { order(sort_order: :asc, created_at: :desc) }
   scope :active, -> { where(status: "started") }
   scope :planned, -> { where(status: "planned") }
   scope :completed, -> { where(status: "completed") }
-  scope :by_status, ->(status) { where(status: status) if status.present? }
+  scope :by_status, ->(status) { status.present? ? where(status: status) : all }
 
   # Callbacks
   before_validation :generate_slug, on: :create

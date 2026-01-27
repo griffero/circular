@@ -4,6 +4,12 @@ module Api
   module V1
     class InitiativesController < BaseController
       def index
+        # Handle case where table doesn't exist yet
+        unless table_exists?
+          render json: { initiatives: [] }
+          return
+        end
+
         initiatives = Initiative.includes(:owner, :projects).ordered
 
         # Filter by status if provided
@@ -17,6 +23,11 @@ module Api
       end
 
       def show
+        unless table_exists?
+          render json: { error: "Initiatives not available yet" }, status: :service_unavailable
+          return
+        end
+
         initiative = Initiative.includes(:owner, :projects).find_by!(slug: params[:id])
         render json: {
           initiative: InitiativeSerializer.render_as_hash(initiative, view: :with_projects)
@@ -27,6 +38,14 @@ module Api
         render json: {
           initiative: InitiativeSerializer.render_as_hash(initiative, view: :with_projects)
         }
+      end
+
+      private
+
+      def table_exists?
+        Initiative.table_exists?
+      rescue StandardError
+        false
       end
     end
   end
