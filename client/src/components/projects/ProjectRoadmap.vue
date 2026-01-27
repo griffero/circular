@@ -70,9 +70,13 @@ const zoomPercent = computed(() => Math.round((colWidth.value / 50) * 100))
 // Total timeline width
 const timelineWidth = computed(() => months.value.length * colWidth.value)
 
-// Handle wheel zoom on timeline
+// Handle wheel/pinch zoom on timeline
+// Pinch gestures on trackpad are detected as wheel events with ctrlKey=true
 function handleWheel(e: WheelEvent) {
-  // Only zoom if hovering over the timeline area
+  // Only zoom on pinch gesture (ctrlKey is true for trackpad pinch)
+  // Regular scroll should pan the timeline normally
+  if (!e.ctrlKey) return
+  
   if (!timelineContainer.value) return
   
   // Prevent default browser zoom
@@ -85,14 +89,13 @@ function handleWheel(e: WheelEvent) {
   const cursorX = e.clientX - rect.left + container.scrollLeft
   const cursorRatio = cursorX / timelineWidth.value
   
-  // Calculate new column width
-  const delta = e.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP
-  const newColWidth = Math.min(MAX_COL_WIDTH, Math.max(MIN_COL_WIDTH, colWidth.value + delta))
+  // Calculate new column width (pinch uses smaller deltas, so use deltaY directly)
+  const zoomDelta = e.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP
+  const newColWidth = Math.min(MAX_COL_WIDTH, Math.max(MIN_COL_WIDTH, colWidth.value + zoomDelta))
   
   if (newColWidth === colWidth.value) return
   
   // Update column width
-  const oldWidth = timelineWidth.value
   colWidth.value = newColWidth
   const newWidth = months.value.length * newColWidth
   
@@ -238,7 +241,7 @@ onUnmounted(() => {
           @click="zoomOut"
           :disabled="colWidth <= MIN_COL_WIDTH"
           class="p-1.5 rounded hover:bg-[#222] text-gray-400 disabled:opacity-30 disabled:cursor-not-allowed"
-          title="Zoom out (or scroll down on timeline)"
+          title="Zoom out (or pinch on trackpad)"
         >
           <ZoomOut class="w-4 h-4" />
         </button>
@@ -253,7 +256,7 @@ onUnmounted(() => {
           @click="zoomIn"
           :disabled="colWidth >= MAX_COL_WIDTH"
           class="p-1.5 rounded hover:bg-[#222] text-gray-400 disabled:opacity-30 disabled:cursor-not-allowed"
-          title="Zoom in (or scroll up on timeline)"
+          title="Zoom in (or pinch on trackpad)"
         >
           <ZoomIn class="w-4 h-4" />
         </button>
