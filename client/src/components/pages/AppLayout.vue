@@ -1,14 +1,20 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { useAppStore } from '@/stores/app'
 import { useEmojiStore } from '@/stores/emoji'
 import Sidebar from '@/components/layout/Sidebar.vue'
 import Topbar from '@/components/layout/Topbar.vue'
 
+const route = useRoute()
 const appStore = useAppStore()
 const emojiStore = useEmojiStore()
 
 const loading = ref(true)
+
+// Pages that have their own header (don't show Topbar)
+const pagesWithOwnHeader = ['home', 'projects', 'inbox', 'my-issues', 'initiatives', 'views']
+const showTopbar = computed(() => !pagesWithOwnHeader.includes(route.name as string))
 
 onMounted(async () => {
   try {
@@ -37,7 +43,7 @@ onMounted(async () => {
 
     <!-- Main content -->
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
-      <Topbar />
+      <Topbar v-if="showTopbar" />
       <main class="flex-1 overflow-auto bg-[#0d0d0d]">
         <router-view />
       </main>
