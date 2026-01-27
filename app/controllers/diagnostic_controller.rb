@@ -226,7 +226,7 @@ class DiagnosticController < ApplicationController
     
     render json: {
       total: users.count,
-      users: users.limit(50).map do |u|
+      users: users.limit(100).map do |u|
         {
           id: u.id,
           email: u.email,
