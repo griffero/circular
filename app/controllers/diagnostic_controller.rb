@@ -45,7 +45,10 @@ class DiagnosticController < ApplicationController
         project_updates: ProjectUpdate.where.not(linear_id: nil).count,
         initiatives: safe_count(Initiative, linear_synced: true),
         issues: Issue.where.not(linear_id: nil).count,
-        labels: Label.where.not(linear_id: nil).count
+        labels: Label.where.not(linear_id: nil).count,
+        cycles: Cycle.where.not(linear_id: nil).count,
+        comments: Comment.where.not(linear_id: nil).count,
+        workflow_states: WorkflowState.where.not(linear_id: nil).count
       },
       sample_project_update: sample_data,
       timestamp: Time.current.iso8601
