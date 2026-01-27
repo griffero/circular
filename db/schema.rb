@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_26_190110) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_27_171259) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -194,6 +194,22 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_26_190110) do
     t.index ["team_id"], name: "index_project_teams_on_team_id"
   end
 
+  create_table "project_updates", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "project_id", null: false
+    t.uuid "user_id", null: false
+    t.text "body", null: false
+    t.text "body_html"
+    t.string "health"
+    t.string "linear_id"
+    t.datetime "edited_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["linear_id"], name: "index_project_updates_on_linear_id", unique: true, where: "(linear_id IS NOT NULL)"
+    t.index ["project_id", "created_at"], name: "index_project_updates_on_project_id_and_created_at"
+    t.index ["project_id"], name: "index_project_updates_on_project_id"
+    t.index ["user_id"], name: "index_project_updates_on_user_id"
+  end
+
   create_table "projects", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name", null: false
     t.string "slug", null: false
@@ -336,6 +352,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_26_190110) do
   add_foreign_key "project_memberships", "users"
   add_foreign_key "project_teams", "projects"
   add_foreign_key "project_teams", "teams"
+  add_foreign_key "project_updates", "projects"
+  add_foreign_key "project_updates", "users"
   add_foreign_key "projects", "users", column: "lead_id"
   add_foreign_key "team_memberships", "teams"
   add_foreign_key "team_memberships", "users"

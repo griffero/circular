@@ -12,7 +12,14 @@ module Sync
         user = User.find_by(linear_id: data.dig("user", "id"))
 
         # Skip if we don't have the project or user
-        return nil unless project && user
+        unless project
+          Rails.logger.warn "ProjectUpdateSync: Skipping update #{data['id']} - project not found: #{data.dig('project', 'id')}"
+          return nil
+        end
+        unless user
+          Rails.logger.warn "ProjectUpdateSync: Skipping update #{data['id']} - user not found: #{data.dig('user', 'id')}"
+          return nil
+        end
 
         project_update.assign_attributes(
           project: project,
