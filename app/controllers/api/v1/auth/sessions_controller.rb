@@ -34,6 +34,13 @@ module Api
             unless user.save
               return render json: { error: user.errors.full_messages.join(", ") }, status: :unprocessable_entity
             end
+
+            # Add new user to all existing teams
+            Team.find_each do |team|
+              TeamMembership.find_or_create_by!(team: team, user: user) do |tm|
+                tm.role = "member"
+              end
+            end
           end
 
           # Generate and send magic link
