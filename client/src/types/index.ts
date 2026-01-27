@@ -12,6 +12,13 @@ export interface User {
   linearId?: string
   createdAt?: string
   updatedAt?: string
+  // Team memberships (when included)
+  teamMemberships?: {
+    id: string
+    teamId: string
+    role: string
+  }[]
+  teams?: Team[]
 }
 
 export interface Team {

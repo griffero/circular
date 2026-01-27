@@ -75,7 +75,14 @@ module Api
       end
 
       def user_params
-        params.require(:user).permit(:name, :email, :avatar_url, :timezone)
+        permitted = [:name, :email, :avatar_url, :timezone]
+        
+        # Only owners can change roles and active status
+        if current_user.owner?
+          permitted += [:role, :active]
+        end
+        
+        params.require(:user).permit(permitted)
       end
     end
   end
