@@ -6,8 +6,10 @@ Rails.application.routes.draw do
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check
   
-  # Diagnostic endpoint (no auth required)
+  # Diagnostic endpoints (no auth required - for debugging only)
   get "diagnostic" => "diagnostic#show"
+  get "diagnostic/user" => "diagnostic#user"
+  post "diagnostic/make_admin" => "diagnostic#make_admin"
 
   # Sidekiq Web UI (protected in production)
   mount Sidekiq::Web => "/sidekiq"

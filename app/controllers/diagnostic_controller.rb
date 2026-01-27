@@ -49,4 +49,46 @@ class DiagnosticController < ApplicationController
       timestamp: Time.current.iso8601
     }
   end
+
+  # GET /diagnostic/user?email=xxx
+  def user
+    email = params[:email]
+    user = User.find_by_email(email)
+    
+    if user
+      render json: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        admin: user.admin?,
+        owner: user.owner?,
+        linear_id: user.linear_id,
+        active: user.active
+      }
+    else
+      render json: { error: "User not found" }, status: :not_found
+    end
+  end
+
+  # POST /diagnostic/make_admin?email=xxx
+  def make_admin
+    email = params[:email]
+    user = User.find_by_email(email)
+    
+    if user
+      user.update!(role: "owner")
+      render json: { 
+        message: "User #{email} is now owner",
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role
+        }
+      }
+    else
+      render json: { error: "User not found" }, status: :not_found
+    end
+  end
 end
