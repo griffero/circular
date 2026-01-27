@@ -162,23 +162,6 @@ function formatTimeAgo(dateStr: string): string {
           </p>
         </div>
 
-        <!-- Notification frequency prompt -->
-        <div class="bg-[#151515] border border-[#252525] rounded-lg p-4 mb-8 flex items-center justify-between">
-          <div>
-            <p class="text-sm text-white">Choose your summary notification frequency</p>
-            <p class="text-xs text-gray-500">Summary of Pulse updates delivered straight to your Inbox</p>
-          </div>
-          <div class="flex items-center gap-2">
-            <button class="flex items-center gap-1 px-3 py-1.5 text-sm text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors">
-              Never
-              <ChevronDown class="w-3 h-3" />
-            </button>
-            <button class="px-4 py-1.5 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded transition-colors">
-              Confirm
-            </button>
-          </div>
-        </div>
-
         <!-- Empty state if no updates -->
         <div v-if="projectUpdates.length === 0" class="text-center py-16">
           <p class="text-gray-500">No project updates yet</p>
