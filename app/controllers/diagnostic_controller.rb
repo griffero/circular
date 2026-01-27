@@ -94,6 +94,31 @@ class DiagnosticController < ApplicationController
     end
   end
 
+  # GET /diagnostic/users?search=xxx
+  def users
+    search = params[:search]&.downcase
+    
+    users = if search.present?
+              User.where("LOWER(email) LIKE ? OR LOWER(name) LIKE ?", "%#{search}%", "%#{search}%")
+            else
+              User.all
+            end
+    
+    render json: {
+      total: users.count,
+      users: users.limit(50).map do |u|
+        {
+          id: u.id,
+          email: u.email,
+          name: u.name,
+          role: u.role,
+          linear_id: u.linear_id,
+          has_linear: u.linear_id.present?
+        }
+      end
+    }
+  end
+
   # GET /diagnostic/initiatives
   def initiatives
     unless Initiative.table_exists?
