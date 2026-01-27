@@ -106,9 +106,11 @@ const workspaceName = computed(() => {
       <Dropdown align="left" width="w-56">
         <template #trigger>
           <button class="flex items-center gap-2 hover:bg-[#1a1a1a] rounded px-1.5 py-1 -mx-1.5 transition-colors">
-            <div class="w-5 h-5 rounded bg-indigo-600 flex items-center justify-center">
-              <span class="text-[10px] font-bold text-white">{{ workspaceName.charAt(0) }}</span>
-            </div>
+            <img 
+              src="/fintoc-logo.png" 
+              alt="Fintoc" 
+              class="w-5 h-5 rounded"
+            />
             <span class="text-[13px] font-medium text-white">{{ workspaceName }}</span>
             <ChevronDown class="w-3.5 h-3.5 text-gray-500" />
           </button>
