@@ -216,6 +216,30 @@ class LinearClient
     paginate(query, { first: first, after: after }, "projectUpdates")
   end
 
+  # Fetch initiatives
+  def initiatives(first: 100, after: nil)
+    query = <<~GRAPHQL
+      query($first: Int!, $after: String) {
+        initiatives(first: $first, after: $after) {
+          nodes {
+            id name slugId description icon color
+            status health sortOrder
+            targetDate
+            owner { id }
+            projects {
+              nodes {
+                id
+              }
+            }
+            createdAt updatedAt
+          }
+          pageInfo { hasNextPage endCursor }
+        }
+      }
+    GRAPHQL
+    paginate(query, { first: first, after: after }, "initiatives")
+  end
+
   # Fetch attachments for a specific issue
   def issue_attachments(issue_id)
     query = <<~GRAPHQL

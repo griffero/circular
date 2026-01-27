@@ -61,6 +61,9 @@ Rails.application.routes.draw do
       # Project Updates (status reports / pulse feed)
       resources :project_updates, only: %i[index show]
 
+      # Initiatives
+      resources :initiatives, only: %i[index show]
+
       # Labels (global and team-specific)
       resources :labels, only: %i[index create show update destroy]
 

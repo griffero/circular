@@ -31,6 +31,7 @@ class DiagnosticController < ApplicationController
         teams: Team.count,
         projects: Project.count,
         project_updates: ProjectUpdate.count,
+        initiatives: Initiative.count,
         issues: Issue.count,
         labels: Label.count,
         workflow_states: WorkflowState.count,
@@ -42,6 +43,7 @@ class DiagnosticController < ApplicationController
         teams: Team.where.not(linear_id: nil).count,
         projects: Project.where.not(linear_id: nil).count,
         project_updates: ProjectUpdate.where.not(linear_id: nil).count,
+        initiatives: Initiative.where.not(linear_id: nil).count,
         issues: Issue.where.not(linear_id: nil).count,
         labels: Label.where.not(linear_id: nil).count
       },

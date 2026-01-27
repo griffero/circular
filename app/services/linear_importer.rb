@@ -18,6 +18,7 @@ class LinearImporter
     import_labels
     import_projects
     import_project_updates
+    import_initiatives  # After projects so we can link them
     import_cycles
     import_issues
     import_comments
@@ -117,6 +118,17 @@ class LinearImporter
       @stats[:project_update_errors] += 1
     end
     Rails.logger.info "Imported #{stats[:project_updates]} project updates"
+  end
+
+  def import_initiatives
+    Rails.logger.info "Importing initiatives..."
+    sync = Sync::InitiativeSync.new(client)
+    count = sync.sync_all
+    @stats[:initiatives] = count
+    Rails.logger.info "Imported #{count} initiatives"
+  rescue StandardError => e
+    Rails.logger.error "Failed to import initiatives: #{e.message}"
+    @stats[:initiative_errors] = 1
   end
 
   def import_cycles
