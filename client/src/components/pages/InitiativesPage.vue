@@ -54,13 +54,13 @@ interface Initiative {
   color?: string
   status: string
   health?: string
-  target_year?: number
-  target_quarter?: number
-  target_display?: string
-  sort_order: number
+  targetYear?: number
+  targetQuarter?: number
+  targetDisplay?: string
+  sortOrder: number
   owner?: User
   projects: Project[]
-  projects_progress: { completed: number; total: number }
+  projectsProgress: { completed: number; total: number }
 }
 
 // State
@@ -390,8 +390,8 @@ onMounted(() => {
               
               <!-- Target column -->
               <div class="w-20 text-center">
-                <span v-if="initiative.target_display" class="text-[13px] text-gray-400">
-                  {{ initiative.target_display }}
+                <span v-if="initiative.targetDisplay" class="text-[13px] text-gray-400">
+                  {{ initiative.targetDisplay }}
                 </span>
                 <span v-else class="text-[13px] text-gray-600">—</span>
               </div>
@@ -400,7 +400,7 @@ onMounted(() => {
               <div class="w-20 flex items-center justify-center gap-1">
                 <CheckCircle2 class="w-3.5 h-3.5 text-blue-400" />
                 <span class="text-[13px] text-gray-400">
-                  {{ initiative.projects_progress.completed }} / {{ initiative.projects_progress.total }}
+                  {{ initiative.projectsProgress.completed }} / {{ initiative.projectsProgress.total }}
                 </span>
               </div>
               
