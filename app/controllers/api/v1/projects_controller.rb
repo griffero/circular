@@ -58,7 +58,7 @@ module Api
       private
 
       def set_project
-        @project = Project.find_by!(slug: params[:slug])
+        @project = Project.includes(:lead, :members, :teams).find_by!(slug: params[:slug])
       end
 
       def authorize_project_access!

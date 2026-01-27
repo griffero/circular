@@ -22,6 +22,9 @@ module Api
         # Filter by status
         issues = issues.where(status: params[:status]) if params[:status].present?
 
+        # Filter by workflow_state
+        issues = issues.where(workflow_state_id: params[:workflow_state_id]) if params[:workflow_state_id].present?
+
         # Filter by priority
         issues = issues.by_priority(params[:priority]) if params[:priority].present?
 
@@ -45,8 +48,20 @@ module Api
           issues = issues.order(sort_order: :asc, created_at: :desc)
         end
 
+        # Pagination
+        page = (params[:page] || 1).to_i
+        per_page = [(params[:per_page] || 100).to_i, 500].min
+        total_count = issues.count
+        issues = issues.offset((page - 1) * per_page).limit(per_page)
+
         render json: {
-          issues: IssueSerializer.render_as_hash(issues, view: :list)
+          issues: IssueSerializer.render_as_hash(issues, view: :list),
+          meta: {
+            page: page,
+            per_page: per_page,
+            total_count: total_count,
+            total_pages: (total_count.to_f / per_page).ceil
+          }
         }
       end
 
@@ -109,7 +124,12 @@ module Api
       private
 
       def set_issue
-        @issue = Issue.find(params[:id])
+        @issue = Issue.includes(
+          :creator, :assignee, :team, :project, :labels,
+          :workflow_state, :cycle, :attachments,
+          sub_issues: [:assignee, :workflow_state],
+          parent: [:assignee, :workflow_state]
+        ).find(params[:id])
       end
 
       def issue_params

@@ -3,11 +3,11 @@
 class Issue < ApplicationRecord
   include PgSearch::Model
 
-  belongs_to :team
+  belongs_to :team, counter_cache: true
   belongs_to :creator, class_name: "User"
   belongs_to :assignee, class_name: "User", optional: true
-  belongs_to :project, optional: true
-  belongs_to :parent, class_name: "Issue", optional: true
+  belongs_to :project, optional: true, counter_cache: true
+  belongs_to :parent, class_name: "Issue", optional: true, counter_cache: :sub_issues_count
   belongs_to :workflow_state, optional: true
   belongs_to :cycle, optional: true
 

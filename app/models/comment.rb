@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Comment < ApplicationRecord
-  belongs_to :issue
+  belongs_to :issue, counter_cache: true
   belongs_to :user
   belongs_to :parent, class_name: "Comment", optional: true
 
