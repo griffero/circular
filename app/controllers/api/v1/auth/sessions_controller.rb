@@ -20,26 +20,22 @@ module Api
                           status: :unprocessable_entity
           end
 
-          user = User.find_by_email(email)
+          # Case-insensitive email lookup
+          user = User.where("LOWER(email) = ?", email.downcase).first
 
           if user.nil?
-            # Create new user - first user becomes owner
-            is_first_user = User.count.zero?
-            user = User.new(
-              email: email,
-              name: email,
-              role: is_first_user ? "owner" : "member"
-            )
-
-            unless user.save
-              return render json: { error: user.errors.full_messages.join(", ") }, status: :unprocessable_entity
-            end
-
-            # Add new user to all existing teams
-            Team.find_each do |team|
-              TeamMembership.find_or_create_by!(team: team, user: user) do |tm|
-                tm.role = "member"
-              end
+            # Check if we should auto-create users (only if no users exist yet, for initial setup)
+            if User.count.zero?
+              user = User.create!(
+                email: email,
+                name: email.split("@").first.titleize,
+                role: "owner"
+              )
+            else
+              # User not found - they need to be synced from Linear first
+              return render json: { 
+                error: "No account found for this email. Please contact your workspace admin to be added to Linear first." 
+              }, status: :not_found
             end
           end
 
