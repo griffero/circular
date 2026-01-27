@@ -9,4 +9,13 @@ class UserSerializer < Blueprinter::Base
   field :linear_id do |user|
     user.linear_id
   end
+
+  view :with_teams do
+    association :teams, blueprint: TeamSerializer, view: :minimal
+  end
+
+  view :detailed do
+    include_view :with_teams
+    association :projects, blueprint: ProjectSerializer, view: :minimal
+  end
 end
