@@ -122,13 +122,14 @@ class LinearImporter
 
   def import_initiatives
     Rails.logger.info "Importing initiatives..."
-    sync = Sync::InitiativeSync.new(client)
-    count = sync.sync_all
-    @stats[:initiatives] = count
-    Rails.logger.info "Imported #{count} initiatives"
-  rescue StandardError => e
-    Rails.logger.error "Failed to import initiatives: #{e.message}"
-    @stats[:initiative_errors] = 1
+    client.initiatives.each do |data|
+      Sync::InitiativeSync.upsert_from_linear(data)
+      @stats[:initiatives] += 1
+    rescue StandardError => e
+      Rails.logger.error "Failed to import initiative #{data['id']}: #{e.message}"
+      @stats[:initiative_errors] += 1
+    end
+    Rails.logger.info "Imported #{stats[:initiatives]} initiatives"
   end
 
   def import_cycles
