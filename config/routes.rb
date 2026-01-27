@@ -9,6 +9,7 @@ Rails.application.routes.draw do
   # Diagnostic endpoints (no auth required - for debugging only)
   get "diagnostic" => "diagnostic#show"
   get "diagnostic/user" => "diagnostic#user"
+  get "diagnostic/initiatives" => "diagnostic#initiatives"
   post "diagnostic/make_admin" => "diagnostic#make_admin"
 
   # Sidekiq Web UI (protected in production)

@@ -94,6 +94,32 @@ class DiagnosticController < ApplicationController
     end
   end
 
+  # GET /diagnostic/initiatives
+  def initiatives
+    unless Initiative.table_exists?
+      render json: { error: "Initiatives table does not exist" }
+      return
+    end
+
+    status_counts = Initiative.group(:status).count
+    sample_initiatives = Initiative.includes(:owner, :projects).limit(5).map do |init|
+      {
+        id: init.id,
+        name: init.name,
+        status: init.status,
+        health: init.health,
+        projects_count: init.projects.count,
+        owner: init.owner&.name
+      }
+    end
+
+    render json: {
+      total: Initiative.count,
+      by_status: status_counts,
+      sample: sample_initiatives
+    }
+  end
+
   private
 
   # Safe count that returns 0 if table doesn't exist
