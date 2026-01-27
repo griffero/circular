@@ -6,9 +6,6 @@ Rails.application.routes.draw do
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check
 
-  # Temporary debug endpoint (REMOVE AFTER TESTING)
-  get "debug/status" => "debug#status"
-
   # Sidekiq Web UI (protected in production)
   mount Sidekiq::Web => "/sidekiq"
 
