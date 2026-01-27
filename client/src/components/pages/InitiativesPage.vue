@@ -19,7 +19,9 @@ import {
   Minus,
   TrendingUp,
   TrendingDown,
-  AlertTriangle
+  AlertTriangle,
+  ChevronsUp,
+  ChevronsDown
 } from 'lucide-vue-next'
 
 const router = useRouter()
@@ -33,6 +35,7 @@ interface Project {
   icon?: string
   color?: string
   state?: string
+  teams?: { id: string; name: string; key: string }[]
 }
 
 interface User {
@@ -63,7 +66,7 @@ interface Initiative {
 // State
 const initiatives = ref<Initiative[]>([])
 const loading = ref(true)
-const activeFilter = ref<'all' | 'active' | 'planned' | 'completed'>('all')
+const activeFilter = ref<'active' | 'planned' | 'completed'>('active')
 const expandedGroups = ref<Set<string>>(new Set())
 
 // Fetch initiatives
@@ -73,13 +76,9 @@ async function fetchInitiatives() {
     const data = await api.get<{ initiatives: Initiative[] }>('/api/v1/initiatives')
     initiatives.value = data.initiatives
     
-    // Auto-expand groups that have initiatives
+    // Auto-expand all groups
     const groups = new Set<string>()
     data.initiatives.forEach(init => {
-      // Group by first project's team or by initiative name first letter
-      if (init.projects.length > 0) {
-        // Use first project as grouping hint (we'll group by parent initiative or category later)
-      }
       groups.add(getGroupKey(init))
     })
     expandedGroups.value = groups
@@ -90,14 +89,15 @@ async function fetchInitiatives() {
   }
 }
 
-// Filter initiatives
+// Filter initiatives - "active" includes started AND planned (like Linear)
 const filteredInitiatives = computed(() => {
   let result = initiatives.value
   
   if (activeFilter.value === 'active') {
-    result = result.filter(i => i.status === 'started')
+    // Active = started or planned (not completed, not canceled)
+    result = result.filter(i => i.status === 'started' || i.status === 'planned' || i.status === 'backlog')
   } else if (activeFilter.value === 'planned') {
-    result = result.filter(i => i.status === 'planned')
+    result = result.filter(i => i.status === 'planned' || i.status === 'backlog')
   } else if (activeFilter.value === 'completed') {
     result = result.filter(i => i.status === 'completed')
   }
@@ -105,11 +105,27 @@ const filteredInitiatives = computed(() => {
   return result
 })
 
-// Group initiatives by some criteria (we'll use a simple grouping for now)
+// Group initiatives by first project's team name, or by a category
 function getGroupKey(initiative: Initiative): string {
-  // For simplicity, return a fixed group or first letter
-  // In a real implementation, this could be by team or category
-  return 'All Initiatives'
+  // Try to get the team from the first project
+  if (initiative.projects && initiative.projects.length > 0) {
+    const firstProject = initiative.projects[0]
+    if (firstProject.teams && firstProject.teams.length > 0) {
+      return firstProject.teams[0].name
+    }
+  }
+  // Fallback to a generic group
+  return 'Other'
+}
+
+// Get group icon/color - try to derive from first initiative in group
+function getGroupInfo(groupKey: string, initiatives: Initiative[]) {
+  // Find first initiative that has an icon
+  const firstWithIcon = initiatives.find(i => i.icon)
+  return {
+    icon: firstWithIcon?.icon,
+    color: firstWithIcon?.color || '#6366f1'
+  }
 }
 
 const groupedInitiatives = computed(() => {
@@ -123,7 +139,19 @@ const groupedInitiatives = computed(() => {
     groups[key].push(init)
   })
   
-  return groups
+  // Sort groups alphabetically, but put "Other" last
+  const sortedGroups: Record<string, Initiative[]> = {}
+  const keys = Object.keys(groups).sort((a, b) => {
+    if (a === 'Other') return 1
+    if (b === 'Other') return -1
+    return a.localeCompare(b)
+  })
+  
+  keys.forEach(key => {
+    sortedGroups[key] = groups[key]
+  })
+  
+  return sortedGroups
 })
 
 // Check if emoji
@@ -144,16 +172,16 @@ function toggleGroup(key: string) {
 }
 
 // Get health display
-function getHealthDisplay(health?: string) {
+function getHealthDisplay(health?: string, hasRecentUpdate?: boolean) {
   switch (health) {
     case 'onTrack':
-      return { label: 'On track', class: 'text-green-400', icon: TrendingUp }
+      return { label: 'On track', class: 'text-green-400', icon: TrendingUp, dotClass: 'bg-green-500' }
     case 'atRisk':
-      return { label: 'At risk', class: 'text-yellow-400', icon: AlertTriangle }
+      return { label: 'At risk', class: 'text-yellow-400', icon: AlertTriangle, dotClass: 'bg-yellow-500' }
     case 'offTrack':
-      return { label: 'Off track', class: 'text-red-400', icon: TrendingDown }
+      return { label: 'Off track', class: 'text-red-400', icon: TrendingDown, dotClass: 'bg-red-500' }
     default:
-      return { label: 'No updates', class: 'text-gray-500', icon: Circle }
+      return { label: 'No updates', class: 'text-gray-500', icon: Circle, dotClass: 'bg-gray-600' }
   }
 }
 
@@ -163,7 +191,7 @@ function getStatusIcon(status: string) {
     case 'completed':
       return { icon: CheckCircle2, class: 'text-green-500' }
     case 'started':
-      return { icon: Clock, class: 'text-yellow-500' }
+      return { icon: Circle, class: 'text-yellow-500', filled: true }
     case 'planned':
       return { icon: Circle, class: 'text-blue-400' }
     default:
@@ -173,7 +201,6 @@ function getStatusIcon(status: string) {
 
 // Navigate to initiative detail (future)
 function goToInitiative(initiative: Initiative) {
-  // For now, just log - could open a detail panel
   console.log('Navigate to initiative:', initiative.slug)
 }
 
@@ -187,14 +214,14 @@ onMounted(() => {
     <!-- Header -->
     <div class="flex items-center justify-between px-4 py-2 border-b border-[#1f1f1f]">
       <div class="flex items-center gap-1">
-        <span class="text-[15px] font-medium text-white mr-2">Initiatives</span>
+        <span class="text-[15px] font-medium text-white mr-3">Initiatives</span>
         
         <!-- Filter tabs -->
         <button 
-          @click="activeFilter = 'all'"
+          @click="activeFilter = 'active'"
           :class="[
             'flex items-center gap-1.5 px-2.5 py-1 text-[13px] rounded-md transition-colors',
-            activeFilter === 'all' 
+            activeFilter === 'active' 
               ? 'bg-[#2a2a2a] text-white' 
               : 'text-gray-400 hover:text-white hover:bg-[#1a1a1a]'
           ]"
@@ -277,70 +304,77 @@ onMounted(() => {
       <!-- Initiatives table -->
       <div v-else>
         <!-- Table header -->
-        <div class="flex items-center px-4 py-2 border-b border-[#1f1f1f] text-[11px] text-gray-500 uppercase tracking-wider">
-          <div class="flex-1 min-w-0">Name</div>
-          <div class="w-20 text-center">Owner</div>
-          <div class="w-24 text-center">Target</div>
+        <div class="sticky top-0 bg-[#0d0d0d] z-10 flex items-center px-4 py-2 border-b border-[#1f1f1f] text-[11px] text-gray-500 uppercase tracking-wider">
+          <div class="flex-1 min-w-0 pl-7">Name</div>
+          <div class="w-16 text-center">Owner</div>
+          <div class="w-20 text-center">Target</div>
           <div class="w-20 text-center">Projects</div>
           <div class="w-32 text-center">Initiative Health</div>
-          <div class="w-20 text-center">Activity</div>
+          <div class="w-16 text-center">Activity</div>
         </div>
         
         <!-- Grouped initiatives -->
-        <div v-for="(groupInitiatives, groupKey) in groupedInitiatives" :key="groupKey">
-          <!-- Group header (optional, can be removed if only one group) -->
-          <!--
+        <div v-for="(groupInits, groupKey) in groupedInitiatives" :key="groupKey">
+          <!-- Group header -->
           <button
             @click="toggleGroup(groupKey)"
-            class="w-full flex items-center gap-2 px-4 py-2 text-[13px] text-gray-400 hover:bg-[#151515] border-b border-[#1f1f1f]"
+            class="w-full flex items-center gap-2 px-4 py-2 text-[13px] hover:bg-[#151515] border-b border-[#1a1a1a] transition-colors"
           >
             <ChevronRight 
-              :class="['w-4 h-4 transition-transform', expandedGroups.has(groupKey) && 'rotate-90']" 
+              :class="['w-4 h-4 text-gray-500 transition-transform', expandedGroups.has(groupKey) && 'rotate-90']" 
             />
-            <span>{{ groupKey }}</span>
+            <!-- Group icon -->
+            <div 
+              class="w-5 h-5 rounded flex items-center justify-center text-[10px] font-medium"
+              :style="{ backgroundColor: getGroupInfo(groupKey, groupInits).color }"
+            >
+              <EmojiIcon 
+                v-if="getGroupInfo(groupKey, groupInits).icon"
+                :name="getGroupInfo(groupKey, groupInits).icon" 
+                :fallback="groupKey.charAt(0).toUpperCase()" 
+                size="xs"
+              />
+              <span v-else class="text-white">{{ groupKey.charAt(0).toUpperCase() }}</span>
+            </div>
+            <span class="text-white font-medium">{{ groupKey }}</span>
           </button>
-          -->
           
           <!-- Initiative rows -->
-          <div v-if="expandedGroups.has(groupKey) || true">
+          <div v-if="expandedGroups.has(groupKey)">
             <div
-              v-for="initiative in groupInitiatives"
+              v-for="initiative in groupInits"
               :key="initiative.id"
               @click="goToInitiative(initiative)"
-              class="flex items-center px-4 py-3 hover:bg-[#151515] cursor-pointer border-b border-[#151515] group"
+              class="flex items-center px-4 py-2.5 hover:bg-[#151515] cursor-pointer border-b border-[#151515]/50 group"
             >
               <!-- Name column -->
-              <div class="flex-1 min-w-0 flex items-start gap-3">
-                <!-- Icon -->
-                <div 
-                  class="w-6 h-6 rounded flex-shrink-0 flex items-center justify-center text-[11px] font-medium mt-0.5"
-                  :style="hasEmoji(initiative.icon) ? {} : { backgroundColor: initiative.color || '#5e6ad2' }"
-                >
-                  <EmojiIcon 
-                    :name="initiative.icon" 
-                    :fallback="initiative.name.charAt(0).toUpperCase()" 
-                    size="sm"
+              <div class="flex-1 min-w-0 flex items-start gap-2 pl-7">
+                <!-- Status icon -->
+                <div class="w-5 h-5 flex-shrink-0 flex items-center justify-center mt-0.5">
+                  <div 
+                    v-if="initiative.status === 'started'"
+                    class="w-4 h-4 rounded-full border-2 border-yellow-500"
+                    style="background: radial-gradient(circle at center, #eab308 50%, transparent 50%);"
+                  />
+                  <component 
+                    v-else
+                    :is="getStatusIcon(initiative.status).icon" 
+                    class="w-4 h-4" 
+                    :class="getStatusIcon(initiative.status).class"
                   />
                 </div>
                 
                 <!-- Name and description -->
-                <div class="min-w-0">
-                  <div class="flex items-center gap-2">
-                    <component 
-                      :is="getStatusIcon(initiative.status).icon" 
-                      class="w-4 h-4 flex-shrink-0" 
-                      :class="getStatusIcon(initiative.status).class"
-                    />
-                    <span class="text-[13px] text-white truncate">{{ initiative.name }}</span>
-                  </div>
-                  <p v-if="initiative.description" class="text-[12px] text-gray-500 truncate mt-0.5 ml-6">
+                <div class="min-w-0 flex-1">
+                  <span class="text-[13px] text-white block truncate">{{ initiative.name }}</span>
+                  <p v-if="initiative.description" class="text-[12px] text-gray-500 truncate mt-0.5">
                     {{ initiative.description }}
                   </p>
                 </div>
               </div>
               
               <!-- Owner column -->
-              <div class="w-20 flex justify-center">
+              <div class="w-16 flex justify-center">
                 <UserLink
                   v-if="initiative.owner"
                   :userId="initiative.owner.id"
@@ -353,7 +387,7 @@ onMounted(() => {
               </div>
               
               <!-- Target column -->
-              <div class="w-24 text-center">
+              <div class="w-20 text-center">
                 <span v-if="initiative.target_display" class="text-[13px] text-gray-400">
                   {{ initiative.target_display }}
                 </span>
@@ -362,7 +396,7 @@ onMounted(() => {
               
               <!-- Projects column -->
               <div class="w-20 flex items-center justify-center gap-1">
-                <CheckCircle2 class="w-3.5 h-3.5 text-green-500" />
+                <CheckCircle2 class="w-3.5 h-3.5 text-blue-400" />
                 <span class="text-[13px] text-gray-400">
                   {{ initiative.projects_progress.completed }} / {{ initiative.projects_progress.total }}
                 </span>
@@ -381,8 +415,9 @@ onMounted(() => {
               </div>
               
               <!-- Activity column -->
-              <div class="w-20 flex justify-center">
-                <Minus class="w-4 h-4 text-gray-600" />
+              <div class="w-16 flex justify-center">
+                <ChevronsUp v-if="initiative.health === 'onTrack'" class="w-4 h-4 text-green-500" />
+                <Minus v-else class="w-4 h-4 text-gray-600" />
               </div>
             </div>
           </div>
