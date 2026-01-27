@@ -4,6 +4,8 @@ class LinearWebhookHandler
   ENTITY_HANDLERS = {
     "Issue" => Sync::IssueSync,
     "Project" => Sync::ProjectSync,
+    "ProjectUpdate" => Sync::ProjectUpdateSync,
+    "Initiative" => Sync::InitiativeSync,
     "User" => Sync::UserSync,
     "Team" => Sync::TeamSync,
     "Label" => Sync::LabelSync,
