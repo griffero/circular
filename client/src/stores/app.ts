@@ -63,8 +63,8 @@ export const useAppStore = defineStore('app', () => {
 
   async function fetchProjectUpdates() {
     try {
-      const data = await api.get<{ projectUpdates: ProjectUpdate[] }>('/api/v1/project_updates')
-      projectUpdates.value = data.projectUpdates
+      const data = await api.get<{ project_updates: ProjectUpdate[] }>('/api/v1/project_updates')
+      projectUpdates.value = data.project_updates
     } catch (err) {
       console.error('Failed to fetch project updates:', err)
     }
