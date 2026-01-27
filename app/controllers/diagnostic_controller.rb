@@ -123,7 +123,10 @@ class DiagnosticController < ApplicationController
     ActiveRecord::Base.transaction do
       # Transfer linear_id if target doesn't have one
       if target.linear_id.nil? && source.linear_id.present?
-        target.update!(linear_id: source.linear_id)
+        linear_id_to_transfer = source.linear_id
+        # First remove from source to avoid unique constraint violation
+        source.update_column(:linear_id, nil)
+        target.update!(linear_id: linear_id_to_transfer)
       end
 
       # Keep better name (not just email)
