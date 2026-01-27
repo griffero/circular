@@ -8,6 +8,7 @@ import Input from '@/components/ui/Input.vue'
 import Modal from '@/components/ui/Modal.vue'
 import Badge from '@/components/ui/Badge.vue'
 import Avatar from '@/components/ui/Avatar.vue'
+import UserLink from '@/components/ui/UserLink.vue'
 import { UserPlus, Mail, MoreHorizontal, Shield, User, Crown } from 'lucide-vue-next'
 import type { User as UserType } from '@/types'
 
@@ -103,10 +104,21 @@ function getRoleBadge(role: string) {
         class="flex items-center justify-between px-4 py-3"
       >
         <div class="flex items-center gap-3">
-          <Avatar :name="member.name || 'U'" size="md" />
+          <UserLink
+            :userId="member.id"
+            :name="member.name || 'U'"
+            :avatarUrl="member.avatarUrl"
+            :showName="false"
+            avatarSize="md"
+          />
           <div>
             <div class="flex items-center gap-2">
-              <h3 class="font-medium text-gray-900 dark:text-gray-100">{{ member.name }}</h3>
+              <UserLink
+                :userId="member.id"
+                :name="member.name || 'Unknown'"
+                :showAvatar="false"
+                class="font-medium text-gray-900 dark:text-gray-100 hover:text-indigo-400"
+              />
               <span
                 v-if="member.id === currentUser?.id"
                 class="text-xs text-gray-500 px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 rounded"

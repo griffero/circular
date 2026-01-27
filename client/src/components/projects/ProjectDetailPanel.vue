@@ -7,6 +7,7 @@ import { api } from '@/api/client'
 import { cn } from '@/utils/cn'
 import Avatar from '@/components/ui/Avatar.vue'
 import EmojiIcon from '@/components/ui/EmojiIcon.vue'
+import UserLink from '@/components/ui/UserLink.vue'
 import type { Project, User, Team } from '@/types'
 import {
   X,
@@ -274,21 +275,15 @@ const projectTeams = computed(() => {
             <!-- Lead -->
             <div class="flex items-center justify-between">
               <span class="text-[13px] text-gray-500 w-24">Lead</span>
-              <div v-if="project.lead" class="flex items-center gap-2">
-                <div 
-                  v-if="project.lead.avatarUrl"
-                  class="w-5 h-5 rounded-full bg-cover bg-center"
-                  :style="{ backgroundImage: `url(${project.lead.avatarUrl})` }"
-                />
-                <div 
-                  v-else
-                  class="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-medium text-white"
-                  :style="{ backgroundColor: getUserColor(project.lead.name) }"
-                >
-                  {{ getInitials(project.lead.name) }}
-                </div>
-                <span class="text-[13px] text-white">{{ project.lead.displayName || project.lead.name }}</span>
-              </div>
+              <UserLink
+                v-if="project.lead"
+                :userId="project.lead.id"
+                :name="project.lead.name"
+                :displayName="project.lead.displayName"
+                :avatarUrl="project.lead.avatarUrl"
+                avatarSize="xs"
+                class="text-[13px] text-white"
+              />
               <span v-else class="text-[13px] text-gray-400">No lead</span>
             </div>
 
@@ -297,15 +292,16 @@ const projectTeams = computed(() => {
               <span class="text-[13px] text-gray-500 w-24">Members</span>
               <div v-if="projectMembers.length > 0" class="flex items-center gap-1">
                 <div class="flex -space-x-1">
-                  <div 
+                  <UserLink
                     v-for="member in projectMembers.slice(0, 3)" 
                     :key="member.id"
-                    class="w-5 h-5 rounded-full border border-[#0d0d0d] flex items-center justify-center text-[9px] font-medium text-white"
-                    :style="{ backgroundColor: member.avatarUrl ? 'transparent' : getUserColor(member.name), backgroundImage: member.avatarUrl ? `url(${member.avatarUrl})` : undefined, backgroundSize: 'cover' }"
-                    :title="member.name"
-                  >
-                    <span v-if="!member.avatarUrl">{{ getInitials(member.name) }}</span>
-                  </div>
+                    :userId="member.id"
+                    :name="member.name"
+                    :avatarUrl="member.avatarUrl"
+                    :showName="false"
+                    avatarSize="xs"
+                    class="border border-[#0d0d0d] rounded-full"
+                  />
                 </div>
                 <span v-if="projectMembers.length > 3" class="text-[12px] text-gray-400">
                   +{{ projectMembers.length - 3 }}

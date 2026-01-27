@@ -22,7 +22,8 @@ const pagesWithOwnHeader = [
   'team', 'team-active', 'team-backlog', 'team-board', 'team-cycles',
   'project',
   'issue',
-  'view'
+  'view',
+  'user-profile'
 ]
 const showTopbar = computed(() => !pagesWithOwnHeader.includes(route.name as string))
 

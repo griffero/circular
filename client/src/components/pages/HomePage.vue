@@ -4,6 +4,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useAppStore, type ProjectUpdate } from '@/stores/app'
 import { useEmojiStore } from '@/stores/emoji'
 import EmojiIcon from '@/components/ui/EmojiIcon.vue'
+import UserLink from '@/components/ui/UserLink.vue'
 import {
   Zap,
   MessageCircle,
@@ -217,18 +218,14 @@ function formatTimeAgo(dateStr: string): string {
                         Project {{ getStatusLabel(update.health) }}
                       </span>
                       <div class="flex items-center gap-1.5 text-xs text-gray-500">
-                        <img 
-                          v-if="update.user.avatarUrl" 
-                          :src="update.user.avatarUrl" 
-                          class="w-4 h-4 rounded-full"
+                        <UserLink
+                          :userId="update.user.id"
+                          :name="update.user.name"
+                          :displayName="update.user.displayName"
+                          :avatarUrl="update.user.avatarUrl"
+                          avatarSize="xs"
+                          class="text-gray-400"
                         />
-                        <div 
-                          v-else 
-                          class="w-4 h-4 rounded-full bg-indigo-600 flex items-center justify-center text-[10px] text-white"
-                        >
-                          {{ update.user.name.charAt(0) }}
-                        </div>
-                        <span>{{ update.user.displayName || update.user.name }}</span>
                         <span class="text-gray-600">·</span>
                         <span>{{ formatTimeAgo(update.createdAt) }}</span>
                       </div>
@@ -289,18 +286,14 @@ function formatTimeAgo(dateStr: string): string {
                         Project {{ getStatusLabel(update.health) }}
                       </span>
                       <div class="flex items-center gap-1.5 text-xs text-gray-500">
-                        <img 
-                          v-if="update.user.avatarUrl" 
-                          :src="update.user.avatarUrl" 
-                          class="w-4 h-4 rounded-full"
+                        <UserLink
+                          :userId="update.user.id"
+                          :name="update.user.name"
+                          :displayName="update.user.displayName"
+                          :avatarUrl="update.user.avatarUrl"
+                          avatarSize="xs"
+                          class="text-gray-400"
                         />
-                        <div 
-                          v-else 
-                          class="w-4 h-4 rounded-full bg-indigo-600 flex items-center justify-center text-[10px] text-white"
-                        >
-                          {{ update.user.name.charAt(0) }}
-                        </div>
-                        <span>{{ update.user.displayName || update.user.name }}</span>
                         <span class="text-gray-600">·</span>
                         <span>{{ formatTimeAgo(update.createdAt) }}</span>
                       </div>
@@ -361,18 +354,14 @@ function formatTimeAgo(dateStr: string): string {
                         Project {{ getStatusLabel(update.health) }}
                       </span>
                       <div class="flex items-center gap-1.5 text-xs text-gray-500">
-                        <img 
-                          v-if="update.user.avatarUrl" 
-                          :src="update.user.avatarUrl" 
-                          class="w-4 h-4 rounded-full"
+                        <UserLink
+                          :userId="update.user.id"
+                          :name="update.user.name"
+                          :displayName="update.user.displayName"
+                          :avatarUrl="update.user.avatarUrl"
+                          avatarSize="xs"
+                          class="text-gray-400"
                         />
-                        <div 
-                          v-else 
-                          class="w-4 h-4 rounded-full bg-indigo-600 flex items-center justify-center text-[10px] text-white"
-                        >
-                          {{ update.user.name.charAt(0) }}
-                        </div>
-                        <span>{{ update.user.displayName || update.user.name }}</span>
                         <span class="text-gray-600">·</span>
                         <span>{{ formatTimeAgo(update.createdAt) }}</span>
                       </div>
