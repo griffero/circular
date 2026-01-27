@@ -293,6 +293,73 @@ class DiagnosticController < ApplicationController
     }
   end
 
+  # POST /diagnostic/unmerge_user
+  # Separates a user that was incorrectly merged - creates new user with linear_id
+  def unmerge_user
+    email = params[:email]&.downcase
+    new_email = params[:new_email]&.downcase
+    linear_id = params[:linear_id]
+    new_name = params[:new_name]
+
+    if email.blank? || new_email.blank? || linear_id.blank? || new_name.blank?
+      return render json: { error: "Required: email, new_email, linear_id, new_name" }, status: :unprocessable_entity
+    end
+
+    source = User.find_by_email(email)
+    if source.nil?
+      return render json: { error: "Source user not found: #{email}" }, status: :not_found
+    end
+
+    if User.find_by_email(new_email)
+      return render json: { error: "Email already in use: #{new_email}" }, status: :unprocessable_entity
+    end
+
+    if source.linear_id != linear_id
+      return render json: { error: "Linear ID mismatch. Source has: #{source.linear_id}, you provided: #{linear_id}" }, status: :unprocessable_entity
+    end
+
+    ActiveRecord::Base.transaction do
+      # Remove linear_id from source
+      source.update!(linear_id: nil, name: email.split("@").first.titleize)
+
+      # Create new user with the linear_id
+      new_user = User.create!(
+        email: new_email,
+        name: new_name,
+        linear_id: linear_id,
+        role: "member",
+        active: true
+      )
+
+      render json: {
+        message: "Unmerged successfully",
+        source_user: {
+          id: source.id,
+          email: source.email,
+          name: source.name,
+          linear_id: source.linear_id
+        },
+        new_user: {
+          id: new_user.id,
+          email: new_user.email,
+          name: new_user.name,
+          linear_id: new_user.linear_id
+        }
+      }
+    end
+  rescue StandardError => e
+    render json: { error: "Unmerge failed: #{e.message}" }, status: :internal_server_error
+  end
+
+  # POST /diagnostic/trigger_linear_sync
+  # Triggers a full sync from Linear
+  def trigger_linear_sync
+    LinearImporter.new.import_all
+    render json: { message: "Linear sync triggered" }
+  rescue StandardError => e
+    render json: { error: "Sync failed: #{e.message}" }, status: :internal_server_error
+  end
+
   private
 
   # Safe count that returns 0 if table doesn't exist
