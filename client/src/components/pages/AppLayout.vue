@@ -18,6 +18,7 @@ const pagesWithOwnHeader = [
   'projects', 
   'inbox', 
   'my-issues',
+  'views',
   'team', 'team-active', 'team-backlog', 'team-board', 'team-cycles',
   'project',
   'issue',
