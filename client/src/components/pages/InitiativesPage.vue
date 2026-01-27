@@ -74,11 +74,13 @@ async function fetchInitiatives() {
   loading.value = true
   try {
     const data = await api.get<{ initiatives: Initiative[] }>('/api/v1/initiatives')
-    initiatives.value = data.initiatives
+    console.log('Initiatives API response:', data)
+    console.log('Initiatives count:', data.initiatives?.length)
+    initiatives.value = data.initiatives || []
     
     // Auto-expand all groups
     const groups = new Set<string>()
-    data.initiatives.forEach(init => {
+    initiatives.value.forEach(init => {
       groups.add(getGroupKey(init))
     })
     expandedGroups.value = groups
