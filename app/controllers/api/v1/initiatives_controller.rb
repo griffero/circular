@@ -10,7 +10,7 @@ module Api
           return
         end
 
-        initiatives = Initiative.includes(:owner, :projects).ordered
+        initiatives = Initiative.includes(:owner, projects: :teams).ordered
 
         # Filter by status if provided
         if params[:status].present?
@@ -28,13 +28,13 @@ module Api
           return
         end
 
-        initiative = Initiative.includes(:owner, :projects).find_by!(slug: params[:id])
+        initiative = Initiative.includes(:owner, projects: :teams).find_by!(slug: params[:id])
         render json: {
           initiative: InitiativeSerializer.render_as_hash(initiative, view: :with_projects)
         }
       rescue ActiveRecord::RecordNotFound
         # Try to find by ID instead
-        initiative = Initiative.includes(:owner, :projects).find(params[:id])
+        initiative = Initiative.includes(:owner, projects: :teams).find(params[:id])
         render json: {
           initiative: InitiativeSerializer.render_as_hash(initiative, view: :with_projects)
         }

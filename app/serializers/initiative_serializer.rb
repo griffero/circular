@@ -22,6 +22,6 @@ class InitiativeSerializer < Blueprinter::Base
 
   view :with_projects do
     include_view :default
-    association :projects, blueprint: ProjectSerializer
+    association :projects, blueprint: ProjectSerializer, view: :with_teams
   end
 end
