@@ -29,7 +29,14 @@ class Project < ApplicationRecord
 
   scope :active, -> { where(status: "active") }
   scope :public_projects, -> { where(privacy: "public") }
-  scope :ordered, -> { order(:name) }
+  # Order by state priority (started first), then by start_date, then by name
+  scope :ordered, lambda {
+    order(
+      Arel.sql("CASE state WHEN 'started' THEN 1 WHEN 'planned' THEN 2 WHEN 'paused' THEN 3 WHEN 'backlog' THEN 4 WHEN 'completed' THEN 5 WHEN 'canceled' THEN 6 ELSE 7 END"),
+      Arel.sql("start_date ASC NULLS LAST"),
+      :name
+    )
+  }
 
   def active?
     status == "active"

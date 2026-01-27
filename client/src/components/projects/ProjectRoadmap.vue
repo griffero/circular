@@ -67,9 +67,38 @@ const years = computed(() => {
   return result
 })
 
-// All projects sorted by name
+// State priority for sorting (started first, then planned, etc.)
+const statePriority: Record<string, number> = {
+  started: 1,
+  planned: 2,
+  paused: 3,
+  backlog: 4,
+  completed: 5,
+  canceled: 6
+}
+
+// All projects sorted by state, then start_date, then name
 const sortedProjects = computed(() => {
-  return [...appStore.projects].sort((a, b) => a.name.localeCompare(b.name))
+  return [...appStore.projects].sort((a, b) => {
+    // First by state priority
+    const stateA = statePriority[a.state || 'backlog'] || 7
+    const stateB = statePriority[b.state || 'backlog'] || 7
+    if (stateA !== stateB) return stateA - stateB
+    
+    // Then by start date (nulls last)
+    if (a.startDate && b.startDate) {
+      const dateA = new Date(a.startDate).getTime()
+      const dateB = new Date(b.startDate).getTime()
+      if (dateA !== dateB) return dateA - dateB
+    } else if (a.startDate) {
+      return -1
+    } else if (b.startDate) {
+      return 1
+    }
+    
+    // Finally by name
+    return a.name.localeCompare(b.name)
+  })
 })
 
 // Column width in pixels (reactive for zoom)
