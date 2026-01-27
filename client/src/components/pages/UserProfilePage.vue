@@ -16,8 +16,11 @@ import {
   CheckCircle2,
   XCircle,
   Clock,
-  AlertCircle
+  AlertCircle,
+  X
 } from 'lucide-vue-next'
+import Dropdown from '@/components/ui/Dropdown.vue'
+import DropdownItem from '@/components/ui/DropdownItem.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -33,6 +36,38 @@ const activeTab = ref<'assigned' | 'created'>('assigned')
 const assignedIssues = ref<Issue[]>([])
 const createdIssues = ref<Issue[]>([])
 const issuesLoading = ref(false)
+
+// Filters
+const statusFilter = ref<string | null>(null)
+const priorityFilter = ref<number | null>(null)
+
+// Filter options
+const statusFilterOptions = [
+  { value: 'in_progress', label: 'In Progress' },
+  { value: 'todo', label: 'Todo' },
+  { value: 'backlog', label: 'Backlog' },
+  { value: 'done', label: 'Done' },
+]
+
+const priorityFilterOptions = [
+  { value: 1, label: 'Urgent', color: 'bg-red-500' },
+  { value: 2, label: 'High', color: 'bg-orange-500' },
+  { value: 3, label: 'Medium', color: 'bg-yellow-500' },
+  { value: 4, label: 'Low', color: 'bg-blue-500' },
+]
+
+const hasActiveFilters = computed(() => statusFilter.value !== null || priorityFilter.value !== null)
+const activeFiltersCount = computed(() => {
+  let count = 0
+  if (statusFilter.value) count++
+  if (priorityFilter.value !== null) count++
+  return count
+})
+
+function clearFilters() {
+  statusFilter.value = null
+  priorityFilter.value = null
+}
 
 // Fetch user details
 async function fetchUser() {
@@ -73,9 +108,38 @@ async function fetchCreatedIssues() {
   }
 }
 
-// Group issues by status
+// Filter and group issues by status
+const filteredIssues = computed(() => {
+  let issues = activeTab.value === 'assigned' ? assignedIssues.value : createdIssues.value
+  
+  // Apply status filter
+  if (statusFilter.value) {
+    issues = issues.filter(i => {
+      const status = i.status || 'backlog'
+      if (statusFilter.value === 'in_progress') {
+        return status === 'in_progress' || status === 'started'
+      } else if (statusFilter.value === 'todo') {
+        return status === 'todo' || status === 'unstarted'
+      } else if (statusFilter.value === 'backlog') {
+        return status === 'backlog' || status === 'triage'
+      } else if (statusFilter.value === 'done') {
+        return status === 'done' || status === 'completed'
+      }
+      return true
+    })
+  }
+  
+  // Apply priority filter
+  if (priorityFilter.value !== null) {
+    issues = issues.filter(i => i.priority === priorityFilter.value)
+  }
+  
+  return issues
+})
+
+// Group filtered issues by status
 const groupedIssues = computed(() => {
-  const issues = activeTab.value === 'assigned' ? assignedIssues.value : createdIssues.value
+  const issues = filteredIssues.value
   
   const groups: Record<string, Issue[]> = {
     'In Progress': [],
@@ -240,13 +304,94 @@ watch(userId, () => {
       
       <div class="flex-1"></div>
       
-      <button class="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors">
-        <Filter class="w-4 h-4" />
-        Filter
-      </button>
+      <!-- Filter dropdown -->
+      <Dropdown align="right">
+        <template #trigger>
+          <button 
+            :class="[
+              'flex items-center gap-2 px-3 py-1.5 text-sm rounded transition-colors',
+              hasActiveFilters
+                ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30'
+                : 'text-gray-400 hover:text-white hover:bg-[#1a1a1a]'
+            ]"
+          >
+            <Filter class="w-4 h-4" />
+            Filter
+            <span v-if="hasActiveFilters" class="text-[11px] bg-indigo-500/30 px-1.5 rounded">
+              {{ activeFiltersCount }}
+            </span>
+          </button>
+        </template>
+        
+        <div class="p-2 min-w-[180px]">
+          <div class="text-[11px] font-medium text-gray-500 uppercase tracking-wider px-2 mb-1">Status</div>
+          <DropdownItem 
+            v-for="status in statusFilterOptions" 
+            :key="status.value"
+            @click="statusFilter = statusFilter === status.value ? null : status.value"
+          >
+            <div class="flex items-center justify-between w-full">
+              <span>{{ status.label }}</span>
+              <CheckCircle2 v-if="statusFilter === status.value" class="w-4 h-4 text-indigo-400" />
+            </div>
+          </DropdownItem>
+          
+          <div class="border-t border-[#2a2a2a] my-2"></div>
+          
+          <div class="text-[11px] font-medium text-gray-500 uppercase tracking-wider px-2 mb-1">Priority</div>
+          <DropdownItem 
+            v-for="priority in priorityFilterOptions" 
+            :key="priority.value"
+            @click="priorityFilter = priorityFilter === priority.value ? null : priority.value"
+          >
+            <div class="flex items-center justify-between w-full">
+              <div class="flex items-center gap-2">
+                <span :class="['w-2 h-2 rounded-full', priority.color]"></span>
+                <span>{{ priority.label }}</span>
+              </div>
+              <CheckCircle2 v-if="priorityFilter === priority.value" class="w-4 h-4 text-indigo-400" />
+            </div>
+          </DropdownItem>
+          
+          <template v-if="hasActiveFilters">
+            <div class="border-t border-[#2a2a2a] my-2"></div>
+            <DropdownItem @click="clearFilters" class="text-red-400">
+              <X class="w-4 h-4" />
+              Clear filters
+            </DropdownItem>
+          </template>
+        </div>
+      </Dropdown>
+      
       <button class="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors">
         <LayoutGrid class="w-4 h-4" />
         Display
+      </button>
+    </div>
+
+    <!-- Active filter pills -->
+    <div v-if="hasActiveFilters" class="flex items-center gap-2 px-4 py-2 border-b border-[#1f1f1f]">
+      <button
+        v-if="statusFilter"
+        @click="statusFilter = null"
+        class="flex items-center gap-1.5 px-2 py-1 bg-[#1a1a1a] hover:bg-[#252525] rounded text-[12px] text-gray-300 transition-colors"
+      >
+        Status: {{ statusFilterOptions.find(s => s.value === statusFilter)?.label }}
+        <X class="w-3 h-3" />
+      </button>
+      <button
+        v-if="priorityFilter !== null"
+        @click="priorityFilter = null"
+        class="flex items-center gap-1.5 px-2 py-1 bg-[#1a1a1a] hover:bg-[#252525] rounded text-[12px] text-gray-300 transition-colors"
+      >
+        Priority: {{ priorityFilterOptions.find(p => p.value === priorityFilter)?.label }}
+        <X class="w-3 h-3" />
+      </button>
+      <button
+        @click="clearFilters"
+        class="text-[12px] text-gray-500 hover:text-white transition-colors"
+      >
+        Clear all
       </button>
     </div>
 

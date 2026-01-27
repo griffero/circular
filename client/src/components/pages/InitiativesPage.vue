@@ -21,8 +21,11 @@ import {
   TrendingDown,
   AlertTriangle,
   ChevronsUp,
-  ChevronsDown
+  ChevronsDown,
+  X
 } from 'lucide-vue-next'
+import Dropdown from '@/components/ui/Dropdown.vue'
+import DropdownItem from '@/components/ui/DropdownItem.vue'
 
 const router = useRouter()
 const emojiStore = useEmojiStore()
@@ -69,6 +72,43 @@ const loading = ref(true)
 const activeFilter = ref<'active' | 'planned' | 'completed'>('active')
 const expandedGroups = ref<Set<string>>(new Set())
 
+// Additional filters
+const healthFilter = ref<string | null>(null)
+const ownerFilter = ref<string | null>(null)
+
+// Health options
+const healthOptions = [
+  { value: 'onTrack', label: 'On Track', color: 'text-green-500' },
+  { value: 'atRisk', label: 'At Risk', color: 'text-yellow-500' },
+  { value: 'offTrack', label: 'Off Track', color: 'text-red-500' },
+]
+
+// Get unique owners from initiatives
+const uniqueOwners = computed(() => {
+  const owners = new Map<string, User>()
+  initiatives.value.forEach(init => {
+    if (init.owner) {
+      owners.set(init.owner.id, init.owner)
+    }
+  })
+  return Array.from(owners.values())
+})
+
+// Check if additional filters are active
+const hasAdditionalFilters = computed(() => healthFilter.value !== null || ownerFilter.value !== null)
+const additionalFiltersCount = computed(() => {
+  let count = 0
+  if (healthFilter.value) count++
+  if (ownerFilter.value) count++
+  return count
+})
+
+// Clear additional filters
+function clearAdditionalFilters() {
+  healthFilter.value = null
+  ownerFilter.value = null
+}
+
 // Fetch initiatives
 async function fetchInitiatives() {
   loading.value = true
@@ -95,6 +135,7 @@ async function fetchInitiatives() {
 const filteredInitiatives = computed(() => {
   let result = initiatives.value
   
+  // Tab filter
   if (activeFilter.value === 'active') {
     // Active = started or planned (not completed, not canceled)
     result = result.filter(i => i.status === 'started' || i.status === 'planned' || i.status === 'backlog')
@@ -102,6 +143,16 @@ const filteredInitiatives = computed(() => {
     result = result.filter(i => i.status === 'planned' || i.status === 'backlog')
   } else if (activeFilter.value === 'completed') {
     result = result.filter(i => i.status === 'completed')
+  }
+  
+  // Health filter
+  if (healthFilter.value) {
+    result = result.filter(i => i.health === healthFilter.value)
+  }
+  
+  // Owner filter
+  if (ownerFilter.value) {
+    result = result.filter(i => i.owner?.id === ownerFilter.value)
   }
   
   return result
@@ -267,10 +318,85 @@ onMounted(() => {
     
     <!-- Secondary toolbar -->
     <div class="flex items-center justify-between px-4 py-1.5 border-b border-[#1f1f1f]">
-      <button class="flex items-center gap-1.5 px-2 py-1 text-[13px] text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors">
-        <Filter class="w-3.5 h-3.5" />
-        Filter
-      </button>
+      <div class="flex items-center gap-2">
+        <!-- Filter dropdown -->
+        <Dropdown align="left">
+          <template #trigger>
+            <button 
+              :class="[
+                'flex items-center gap-1.5 px-2 py-1 text-[13px] rounded transition-colors',
+                hasAdditionalFilters
+                  ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30'
+                  : 'text-gray-400 hover:text-white hover:bg-[#1a1a1a]'
+              ]"
+            >
+              <Filter class="w-3.5 h-3.5" />
+              Filter
+              <span v-if="hasAdditionalFilters" class="text-[11px] bg-indigo-500/30 px-1.5 rounded">
+                {{ additionalFiltersCount }}
+              </span>
+            </button>
+          </template>
+          
+          <div class="p-2 min-w-[180px]">
+            <div class="text-[11px] font-medium text-gray-500 uppercase tracking-wider px-2 mb-1">Health</div>
+            <DropdownItem 
+              v-for="health in healthOptions" 
+              :key="health.value"
+              @click="healthFilter = healthFilter === health.value ? null : health.value"
+            >
+              <div class="flex items-center justify-between w-full">
+                <span :class="health.color">{{ health.label }}</span>
+                <CheckCircle2 v-if="healthFilter === health.value" class="w-4 h-4 text-indigo-400" />
+              </div>
+            </DropdownItem>
+            
+            <template v-if="uniqueOwners.length > 0">
+              <div class="border-t border-[#2a2a2a] my-2"></div>
+              <div class="text-[11px] font-medium text-gray-500 uppercase tracking-wider px-2 mb-1">Owner</div>
+              <DropdownItem 
+                v-for="owner in uniqueOwners" 
+                :key="owner.id"
+                @click="ownerFilter = ownerFilter === owner.id ? null : owner.id"
+              >
+                <div class="flex items-center justify-between w-full">
+                  <div class="flex items-center gap-2">
+                    <Avatar :src="owner.avatarUrl" :name="owner.name" size="xs" />
+                    <span>{{ owner.name }}</span>
+                  </div>
+                  <CheckCircle2 v-if="ownerFilter === owner.id" class="w-4 h-4 text-indigo-400" />
+                </div>
+              </DropdownItem>
+            </template>
+            
+            <template v-if="hasAdditionalFilters">
+              <div class="border-t border-[#2a2a2a] my-2"></div>
+              <DropdownItem @click="clearAdditionalFilters" class="text-red-400">
+                <X class="w-4 h-4" />
+                Clear filters
+              </DropdownItem>
+            </template>
+          </div>
+        </Dropdown>
+        
+        <!-- Active filter pills -->
+        <button
+          v-if="healthFilter"
+          @click="healthFilter = null"
+          class="flex items-center gap-1.5 px-2 py-0.5 bg-[#1a1a1a] hover:bg-[#252525] rounded text-[12px] text-gray-300 transition-colors"
+        >
+          Health: {{ healthOptions.find(h => h.value === healthFilter)?.label }}
+          <X class="w-3 h-3" />
+        </button>
+        <button
+          v-if="ownerFilter"
+          @click="ownerFilter = null"
+          class="flex items-center gap-1.5 px-2 py-0.5 bg-[#1a1a1a] hover:bg-[#252525] rounded text-[12px] text-gray-300 transition-colors"
+        >
+          Owner: {{ uniqueOwners.find(o => o.id === ownerFilter)?.name }}
+          <X class="w-3 h-3" />
+        </button>
+      </div>
       
       <button class="flex items-center gap-1.5 px-2 py-1 text-[13px] text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors">
         <Settings2 class="w-3.5 h-3.5" />
