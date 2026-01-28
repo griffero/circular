@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { cn } from '@/utils/cn'
 
 interface Props {
@@ -15,13 +15,21 @@ const props = withDefaults(defineProps<Props>(), {
 
 const open = ref(false)
 const dropdownRef = ref<HTMLElement | null>(null)
+const triggerRef = ref<HTMLElement | null>(null)
+const menuStyle = ref<Record<string, string>>({})
 
 const menuClass = computed(() => {
-  const positionClass = props.align === 'right' 
-    ? 'right-0 mt-1' 
-    : props.align === 'left-side'
-    ? 'right-full top-0 mr-2'
-    : 'left-0 mt-1'
+  if (props.align === 'left-side') {
+    return cn(
+      'fixed z-[9999] rounded-lg shadow-xl',
+      'bg-[#1a1a1a] border border-[#2a2a2a]',
+      'py-1',
+      props.width,
+      props.class
+    )
+  }
+  
+  const positionClass = props.align === 'right' ? 'right-0 mt-1' : 'left-0 mt-1'
   
   return cn(
     'absolute z-50 rounded-lg shadow-xl',
@@ -33,14 +41,29 @@ const menuClass = computed(() => {
   )
 })
 
+function updateMenuPosition() {
+  if (props.align === 'left-side' && triggerRef.value) {
+    const rect = triggerRef.value.getBoundingClientRect()
+    // Position to the left of the trigger
+    menuStyle.value = {
+      top: `${rect.top}px`,
+      right: `${window.innerWidth - rect.left + 8}px`
+    }
+  }
+}
+
 function handleClickOutside(event: MouseEvent) {
   if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
     open.value = false
   }
 }
 
-function toggle() {
+async function toggle() {
   open.value = !open.value
+  if (open.value && props.align === 'left-side') {
+    await nextTick()
+    updateMenuPosition()
+  }
 }
 
 function close() {
@@ -60,7 +83,7 @@ defineExpose({ open, toggle, close })
 
 <template>
   <div ref="dropdownRef" class="relative inline-block">
-    <div @click="toggle">
+    <div ref="triggerRef" @click="toggle">
       <slot name="trigger" />
     </div>
 
@@ -72,7 +95,7 @@ defineExpose({ open, toggle, close })
       leave-from-class="transform scale-100 opacity-100"
       leave-to-class="transform scale-95 opacity-0"
     >
-      <div v-if="open" :class="menuClass">
+      <div v-if="open" :class="menuClass" :style="props.align === 'left-side' ? menuStyle : {}">
         <slot :close="close" />
       </div>
     </Transition>
