@@ -432,29 +432,27 @@ onUnmounted(() => {
               <Settings2 class="w-4 h-4" />
             </button>
           </template>
-          <template #content>
-            <div class="py-1 min-w-[160px]">
-              <div class="px-3 py-1.5 text-[11px] text-gray-500 uppercase tracking-wider">Show columns</div>
-              <DropdownItem @click="showHealth = !showHealth">
-                <div class="flex items-center justify-between w-full">
-                  <span>Health</span>
-                  <Check v-if="showHealth" class="w-4 h-4 text-indigo-400" />
-                </div>
-              </DropdownItem>
-              <DropdownItem @click="showLead = !showLead">
-                <div class="flex items-center justify-between w-full">
-                  <span>Lead</span>
-                  <Check v-if="showLead" class="w-4 h-4 text-indigo-400" />
-                </div>
-              </DropdownItem>
-              <DropdownItem @click="showDates = !showDates">
-                <div class="flex items-center justify-between w-full">
-                  <span>Dates on bars</span>
-                  <Check v-if="showDates" class="w-4 h-4 text-indigo-400" />
-                </div>
-              </DropdownItem>
-            </div>
-          </template>
+          <div class="py-1 min-w-[160px]">
+            <div class="px-3 py-1.5 text-[11px] text-gray-500 uppercase tracking-wider">Show columns</div>
+            <DropdownItem @click="showHealth = !showHealth">
+              <div class="flex items-center justify-between w-full">
+                <span>Health</span>
+                <Check v-if="showHealth" class="w-4 h-4 text-indigo-400" />
+              </div>
+            </DropdownItem>
+            <DropdownItem @click="showLead = !showLead">
+              <div class="flex items-center justify-between w-full">
+                <span>Lead</span>
+                <Check v-if="showLead" class="w-4 h-4 text-indigo-400" />
+              </div>
+            </DropdownItem>
+            <DropdownItem @click="showDates = !showDates">
+              <div class="flex items-center justify-between w-full">
+                <span>Dates on bars</span>
+                <Check v-if="showDates" class="w-4 h-4 text-indigo-400" />
+              </div>
+            </DropdownItem>
+          </div>
         </Dropdown>
       </div>
       
@@ -493,75 +491,73 @@ onUnmounted(() => {
               Filter
             </button>
           </template>
-          <template #content>
-            <div class="py-1 min-w-[180px]">
-              <div class="px-3 py-1.5 text-[11px] text-gray-500 uppercase tracking-wider">Status</div>
-              <DropdownItem @click="stateFilter = stateFilter === 'started' ? null : 'started'">
-                <div class="flex items-center justify-between w-full">
-                  <div class="flex items-center gap-2">
-                    <div class="w-2 h-2 rounded-full bg-yellow-500"></div>
-                    <span>Started</span>
-                  </div>
-                  <Check v-if="stateFilter === 'started'" class="w-4 h-4 text-indigo-400" />
+          <div class="py-1 min-w-[180px]">
+            <div class="px-3 py-1.5 text-[11px] text-gray-500 uppercase tracking-wider">Status</div>
+            <DropdownItem @click="stateFilter = stateFilter === 'started' ? null : 'started'">
+              <div class="flex items-center justify-between w-full">
+                <div class="flex items-center gap-2">
+                  <div class="w-2 h-2 rounded-full bg-yellow-500"></div>
+                  <span>Started</span>
                 </div>
-              </DropdownItem>
-              <DropdownItem @click="stateFilter = stateFilter === 'planned' ? null : 'planned'">
-                <div class="flex items-center justify-between w-full">
-                  <div class="flex items-center gap-2">
-                    <div class="w-2 h-2 rounded-full bg-blue-500"></div>
-                    <span>Planned</span>
-                  </div>
-                  <Check v-if="stateFilter === 'planned'" class="w-4 h-4 text-indigo-400" />
+                <Check v-if="stateFilter === 'started'" class="w-4 h-4 text-indigo-400" />
+              </div>
+            </DropdownItem>
+            <DropdownItem @click="stateFilter = stateFilter === 'planned' ? null : 'planned'">
+              <div class="flex items-center justify-between w-full">
+                <div class="flex items-center gap-2">
+                  <div class="w-2 h-2 rounded-full bg-blue-500"></div>
+                  <span>Planned</span>
                 </div>
-              </DropdownItem>
-              <DropdownItem @click="stateFilter = stateFilter === 'completed' ? null : 'completed'">
-                <div class="flex items-center justify-between w-full">
-                  <div class="flex items-center gap-2">
-                    <div class="w-2 h-2 rounded-full bg-green-500"></div>
-                    <span>Completed</span>
-                  </div>
-                  <Check v-if="stateFilter === 'completed'" class="w-4 h-4 text-indigo-400" />
+                <Check v-if="stateFilter === 'planned'" class="w-4 h-4 text-indigo-400" />
+              </div>
+            </DropdownItem>
+            <DropdownItem @click="stateFilter = stateFilter === 'completed' ? null : 'completed'">
+              <div class="flex items-center justify-between w-full">
+                <div class="flex items-center gap-2">
+                  <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                  <span>Completed</span>
                 </div>
-              </DropdownItem>
-              
+                <Check v-if="stateFilter === 'completed'" class="w-4 h-4 text-indigo-400" />
+              </div>
+            </DropdownItem>
+            
+            <div class="border-t border-[#2a2a2a] my-1"></div>
+            <div class="px-3 py-1.5 text-[11px] text-gray-500 uppercase tracking-wider">Health</div>
+            <DropdownItem @click="healthFilter = healthFilter === 'onTrack' ? null : 'onTrack'">
+              <div class="flex items-center justify-between w-full">
+                <div class="flex items-center gap-2">
+                  <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                  <span>On track</span>
+                </div>
+                <Check v-if="healthFilter === 'onTrack'" class="w-4 h-4 text-indigo-400" />
+              </div>
+            </DropdownItem>
+            <DropdownItem @click="healthFilter = healthFilter === 'atRisk' ? null : 'atRisk'">
+              <div class="flex items-center justify-between w-full">
+                <div class="flex items-center gap-2">
+                  <div class="w-2 h-2 rounded-full bg-yellow-500"></div>
+                  <span>At risk</span>
+                </div>
+                <Check v-if="healthFilter === 'atRisk'" class="w-4 h-4 text-indigo-400" />
+              </div>
+            </DropdownItem>
+            <DropdownItem @click="healthFilter = healthFilter === 'offTrack' ? null : 'offTrack'">
+              <div class="flex items-center justify-between w-full">
+                <div class="flex items-center gap-2">
+                  <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                  <span>Off track</span>
+                </div>
+                <Check v-if="healthFilter === 'offTrack'" class="w-4 h-4 text-indigo-400" />
+              </div>
+            </DropdownItem>
+            
+            <template v-if="hasActiveFilters">
               <div class="border-t border-[#2a2a2a] my-1"></div>
-              <div class="px-3 py-1.5 text-[11px] text-gray-500 uppercase tracking-wider">Health</div>
-              <DropdownItem @click="healthFilter = healthFilter === 'onTrack' ? null : 'onTrack'">
-                <div class="flex items-center justify-between w-full">
-                  <div class="flex items-center gap-2">
-                    <div class="w-2 h-2 rounded-full bg-green-500"></div>
-                    <span>On track</span>
-                  </div>
-                  <Check v-if="healthFilter === 'onTrack'" class="w-4 h-4 text-indigo-400" />
-                </div>
+              <DropdownItem @click="clearFilters" class="text-red-400">
+                Clear filters
               </DropdownItem>
-              <DropdownItem @click="healthFilter = healthFilter === 'atRisk' ? null : 'atRisk'">
-                <div class="flex items-center justify-between w-full">
-                  <div class="flex items-center gap-2">
-                    <div class="w-2 h-2 rounded-full bg-yellow-500"></div>
-                    <span>At risk</span>
-                  </div>
-                  <Check v-if="healthFilter === 'atRisk'" class="w-4 h-4 text-indigo-400" />
-                </div>
-              </DropdownItem>
-              <DropdownItem @click="healthFilter = healthFilter === 'offTrack' ? null : 'offTrack'">
-                <div class="flex items-center justify-between w-full">
-                  <div class="flex items-center gap-2">
-                    <div class="w-2 h-2 rounded-full bg-red-500"></div>
-                    <span>Off track</span>
-                  </div>
-                  <Check v-if="healthFilter === 'offTrack'" class="w-4 h-4 text-indigo-400" />
-                </div>
-              </DropdownItem>
-              
-              <template v-if="hasActiveFilters">
-                <div class="border-t border-[#2a2a2a] my-1"></div>
-                <DropdownItem @click="clearFilters" class="text-red-400">
-                  Clear filters
-                </DropdownItem>
-              </template>
-            </div>
-          </template>
+            </template>
+          </div>
         </Dropdown>
         
         <!-- Active filter badges -->
@@ -620,29 +616,27 @@ onUnmounted(() => {
               Display
             </button>
           </template>
-          <template #content>
-            <div class="py-1 min-w-[160px]">
-              <div class="px-3 py-1.5 text-[11px] text-gray-500 uppercase tracking-wider">Options</div>
-              <DropdownItem @click="showHealth = !showHealth">
-                <div class="flex items-center justify-between w-full">
-                  <span>Show health</span>
-                  <Check v-if="showHealth" class="w-4 h-4 text-indigo-400" />
-                </div>
-              </DropdownItem>
-              <DropdownItem @click="showLead = !showLead">
-                <div class="flex items-center justify-between w-full">
-                  <span>Show lead</span>
-                  <Check v-if="showLead" class="w-4 h-4 text-indigo-400" />
-                </div>
-              </DropdownItem>
-              <DropdownItem @click="showDates = !showDates">
-                <div class="flex items-center justify-between w-full">
-                  <span>Show dates</span>
-                  <Check v-if="showDates" class="w-4 h-4 text-indigo-400" />
-                </div>
-              </DropdownItem>
-            </div>
-          </template>
+          <div class="py-1 min-w-[160px]">
+            <div class="px-3 py-1.5 text-[11px] text-gray-500 uppercase tracking-wider">Options</div>
+            <DropdownItem @click="showHealth = !showHealth">
+              <div class="flex items-center justify-between w-full">
+                <span>Show health</span>
+                <Check v-if="showHealth" class="w-4 h-4 text-indigo-400" />
+              </div>
+            </DropdownItem>
+            <DropdownItem @click="showLead = !showLead">
+              <div class="flex items-center justify-between w-full">
+                <span>Show lead</span>
+                <Check v-if="showLead" class="w-4 h-4 text-indigo-400" />
+              </div>
+            </DropdownItem>
+            <DropdownItem @click="showDates = !showDates">
+              <div class="flex items-center justify-between w-full">
+                <span>Show dates</span>
+                <Check v-if="showDates" class="w-4 h-4 text-indigo-400" />
+              </div>
+            </DropdownItem>
+          </div>
         </Dropdown>
       </div>
     </div>

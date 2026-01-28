@@ -403,13 +403,6 @@ onMounted(() => {
         </button>
       </div>
       
-      <button 
-        title="Display options (coming soon)"
-        class="flex items-center gap-1.5 px-2 py-1 text-[13px] text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors opacity-60 cursor-not-allowed"
-      >
-        <Settings2 class="w-3.5 h-3.5" />
-        Display
-      </button>
     </div>
     
     <!-- Content -->

@@ -312,20 +312,6 @@ function formatTimeAgo(dateStr: string): string {
                     <span v-if="update.commentsCount > 0">{{ update.commentsCount }} comment{{ update.commentsCount !== 1 ? 's' : '' }}</span>
                     <span v-else>Comments</span>
                   </button>
-                  <button 
-                    title="Add reaction (coming soon)"
-                    class="flex items-center gap-1.5 hover:text-white transition-colors opacity-60 cursor-not-allowed"
-                  >
-                    <Smile class="w-3.5 h-3.5" />
-                  </button>
-                </div>
-                
-                <!-- Expanded comments -->
-                <div 
-                  v-if="expandedComments.has(update.id) && update.commentsCount > 0"
-                  class="mt-4 pt-4 border-t border-[#1f1f1f]"
-                >
-                  <p class="text-xs text-gray-500">Comments will be displayed here when loaded...</p>
                 </div>
               </div>
             </div>
@@ -409,20 +395,6 @@ function formatTimeAgo(dateStr: string): string {
                     <span v-if="update.commentsCount > 0">{{ update.commentsCount }} comment{{ update.commentsCount !== 1 ? 's' : '' }}</span>
                     <span v-else>Comments</span>
                   </button>
-                  <button 
-                    title="Add reaction (coming soon)"
-                    class="flex items-center gap-1.5 hover:text-white transition-colors opacity-60 cursor-not-allowed"
-                  >
-                    <Smile class="w-3.5 h-3.5" />
-                  </button>
-                </div>
-                
-                <!-- Expanded comments -->
-                <div 
-                  v-if="expandedComments.has(update.id) && update.commentsCount > 0"
-                  class="mt-4 pt-4 border-t border-[#1f1f1f]"
-                >
-                  <p class="text-xs text-gray-500">Comments will be displayed here when loaded...</p>
                 </div>
               </div>
             </div>
@@ -506,20 +478,6 @@ function formatTimeAgo(dateStr: string): string {
                     <span v-if="update.commentsCount > 0">{{ update.commentsCount }} comment{{ update.commentsCount !== 1 ? 's' : '' }}</span>
                     <span v-else>Comments</span>
                   </button>
-                  <button 
-                    title="Add reaction (coming soon)"
-                    class="flex items-center gap-1.5 hover:text-white transition-colors opacity-60 cursor-not-allowed"
-                  >
-                    <Smile class="w-3.5 h-3.5" />
-                  </button>
-                </div>
-                
-                <!-- Expanded comments -->
-                <div 
-                  v-if="expandedComments.has(update.id) && update.commentsCount > 0"
-                  class="mt-4 pt-4 border-t border-[#1f1f1f]"
-                >
-                  <p class="text-xs text-gray-500">Comments will be displayed here when loaded...</p>
                 </div>
               </div>
             </div>

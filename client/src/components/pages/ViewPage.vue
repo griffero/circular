@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUiStore } from '@/stores/ui'
-import { Eye, Plus, Filter, Inbox, Settings2 } from 'lucide-vue-next'
+import { Eye, Plus, Inbox } from 'lucide-vue-next'
 
 const route = useRoute()
 const router = useRouter()
@@ -25,11 +25,6 @@ const view = ref<{
 
 const issues = ref<unknown[]>([])
 const loading = ref(false)
-const showFilterEditor = ref(false)
-
-function openFilterEditor() {
-  showFilterEditor.value = true
-}
 
 function addIssue() {
   uiStore.openCreateIssueModal()
@@ -54,13 +49,6 @@ function addIssue() {
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <button 
-          @click="openFilterEditor"
-          class="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors"
-        >
-          <Filter class="h-4 w-4" />
-          Edit filters
-        </button>
         <button 
           @click="addIssue"
           class="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded transition-colors"
@@ -88,11 +76,11 @@ function addIssue() {
           Try adjusting your filters or create new issues that match this view's criteria.
         </p>
         <button 
-          @click="openFilterEditor"
-          class="flex items-center gap-1.5 px-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors"
+          @click="addIssue"
+          class="flex items-center gap-1.5 px-4 py-2 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded transition-colors"
         >
-          <Filter class="h-4 w-4" />
-          Edit filters
+          <Plus class="h-4 w-4" />
+          Create issue
         </button>
       </div>
 
