@@ -9,6 +9,8 @@ import Dropdown from '@/components/ui/Dropdown.vue'
 import DropdownItem from '@/components/ui/DropdownItem.vue'
 import Avatar from '@/components/ui/Avatar.vue'
 import EmojiText from '@/components/ui/EmojiText.vue'
+import EmojiIcon from '@/components/ui/EmojiIcon.vue'
+import { useEmojiStore } from '@/stores/emoji'
 import {
   ArrowLeft,
   Circle,
@@ -25,7 +27,10 @@ import {
   AlertCircle,
   SignalHigh,
   SignalMedium,
-  SignalLow
+  SignalLow,
+  Search,
+  Check,
+  CircleDashed
 } from 'lucide-vue-next'
 
 const route = useRoute()
@@ -33,6 +38,7 @@ const router = useRouter()
 const authStore = useAuthStore()
 const issuesStore = useIssuesStore()
 const appStore = useAppStore()
+const emojiStore = useEmojiStore()
 
 const user = computed(() => authStore.user)
 const issueId = computed(() => route.params.issueId as string)
@@ -47,6 +53,22 @@ const projects = computed(() => appStore.projects)
 // Local state for date picker
 const showDatePicker = ref(false)
 const selectedDate = ref<string | null>(null)
+
+// Project search
+const projectSearch = ref('')
+const filteredProjects = computed(() => {
+  if (!projectSearch.value) return projects.value
+  const search = projectSearch.value.toLowerCase()
+  return projects.value.filter(p => p.name.toLowerCase().includes(search))
+})
+
+// Check if icon is emoji
+function hasEmoji(icon?: string | null): boolean {
+  if (!icon) return false
+  if (emojiStore.getEmojiUrl(icon)) return true
+  const stripped = icon.replace(/^:|:$/g, '')
+  return /^[\p{Emoji}\u200d]+$/u.test(stripped) && stripped.length <= 8
+}
 
 const priorities = [
   { value: 0, label: 'No priority', icon: Minus, color: 'text-gray-400' },
@@ -368,16 +390,23 @@ function formatDate(dateString?: string | null) {
         <!-- Project -->
         <div>
           <label class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 block">Project</label>
-          <Dropdown align="left" :full-width="true">
+          <Dropdown align="left" :full-width="true" width="w-80">
             <template #trigger>
               <button class="w-full flex items-center justify-between gap-2 px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded hover:bg-[#222] text-sm transition-colors">
                 <div class="flex items-center gap-2">
                   <template v-if="issue.project">
+                    <EmojiIcon 
+                      v-if="hasEmoji(issue.project.icon)"
+                      :name="issue.project.icon" 
+                      :fallback="issue.project.name?.charAt(0) || 'P'" 
+                      size="sm"
+                    />
                     <div 
+                      v-else
                       class="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold text-white"
                       :style="{ backgroundColor: issue.project.color || '#6366f1' }"
                     >
-                      {{ (issue.project.icon || issue.project.name?.charAt(0) || 'P').toUpperCase() }}
+                      {{ issue.project.name?.charAt(0)?.toUpperCase() || 'P' }}
                     </div>
                     <span class="text-white">{{ issue.project.name }}</span>
                   </template>
@@ -389,29 +418,69 @@ function formatDate(dateString?: string | null) {
                 <ChevronDown class="h-4 w-4 text-gray-500" />
               </button>
             </template>
-            <div class="py-1 min-w-[200px] max-h-[300px] overflow-auto">
-              <DropdownItem @click="updateProject(null)">
-                <div class="flex items-center gap-2">
-                  <FolderKanban class="h-4 w-4 text-gray-400" />
-                  <span class="text-gray-400">No project</span>
-                </div>
-              </DropdownItem>
-              <div class="border-t border-[#2a2a2a] my-1"></div>
-              <DropdownItem 
-                v-for="p in projects" 
-                :key="p.id"
-                @click="updateProject(p.id)"
-              >
-                <div class="flex items-center gap-2">
-                  <div 
-                    class="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold text-white"
-                    :style="{ backgroundColor: p.color || '#6366f1' }"
-                  >
-                    {{ (p.icon || p.name?.charAt(0) || 'P').toUpperCase() }}
+            <div class="min-w-[280px]">
+              <!-- Search input -->
+              <div class="p-2 border-b border-[#2a2a2a]">
+                <div class="flex items-center gap-2 px-2 py-1.5 bg-[#0d0d0d] rounded border border-[#333]">
+                  <input 
+                    v-model="projectSearch"
+                    type="text"
+                    placeholder="Move to project..."
+                    class="flex-1 bg-transparent text-sm text-white placeholder-gray-500 outline-none"
+                    @click.stop
+                  />
+                  <div class="flex items-center gap-1 text-[10px] text-gray-500">
+                    <span class="px-1 py-0.5 bg-[#2a2a2a] rounded">⇧</span>
+                    <span class="px-1 py-0.5 bg-[#2a2a2a] rounded">P</span>
                   </div>
-                  <span>{{ p.name }}</span>
                 </div>
-              </DropdownItem>
+              </div>
+              
+              <!-- Project list -->
+              <div class="max-h-[350px] overflow-auto py-1">
+                <!-- No project option -->
+                <button 
+                  @click="updateProject(null); projectSearch = ''"
+                  class="w-full flex items-center justify-between px-3 py-2 hover:bg-[#1f1f1f] transition-colors"
+                >
+                  <div class="flex items-center gap-3">
+                    <CircleDashed class="w-5 h-5 text-gray-500" />
+                    <span class="text-[13px] text-gray-300">No project</span>
+                  </div>
+                  <Check v-if="!issue.project" class="w-4 h-4 text-white" />
+                </button>
+                
+                <!-- Projects -->
+                <button 
+                  v-for="p in filteredProjects" 
+                  :key="p.id"
+                  @click="updateProject(p.id); projectSearch = ''"
+                  class="w-full flex items-center justify-between px-3 py-2 hover:bg-[#1f1f1f] transition-colors"
+                >
+                  <div class="flex items-center gap-3">
+                    <EmojiIcon 
+                      v-if="hasEmoji(p.icon)"
+                      :name="p.icon" 
+                      :fallback="p.name?.charAt(0) || 'P'" 
+                      size="sm"
+                    />
+                    <div 
+                      v-else
+                      class="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold text-white"
+                      :style="{ backgroundColor: p.color || '#6366f1' }"
+                    >
+                      {{ p.name?.charAt(0)?.toUpperCase() || 'P' }}
+                    </div>
+                    <span class="text-[13px] text-gray-200">{{ p.name }}</span>
+                  </div>
+                  <Check v-if="issue.project?.id === p.id" class="w-4 h-4 text-white" />
+                </button>
+                
+                <!-- Empty state -->
+                <div v-if="filteredProjects.length === 0 && projectSearch" class="px-3 py-4 text-center text-sm text-gray-500">
+                  No projects found
+                </div>
+              </div>
             </div>
           </Dropdown>
         </div>
