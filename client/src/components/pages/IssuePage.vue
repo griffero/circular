@@ -390,7 +390,7 @@ function formatDate(dateString?: string | null) {
         <!-- Project -->
         <div>
           <label class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 block">Project</label>
-          <Dropdown align="left" :full-width="true" width="w-80">
+          <Dropdown align="left-side" width="w-80">
             <template #trigger>
               <button class="w-full flex items-center justify-between gap-2 px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded hover:bg-[#222] text-sm transition-colors">
                 <div class="flex items-center gap-2">

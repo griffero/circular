@@ -3,7 +3,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { cn } from '@/utils/cn'
 
 interface Props {
-  align?: 'left' | 'right'
+  align?: 'left' | 'right' | 'left-side'
   width?: string
   class?: string
 }
@@ -16,16 +16,22 @@ const props = withDefaults(defineProps<Props>(), {
 const open = ref(false)
 const dropdownRef = ref<HTMLElement | null>(null)
 
-const menuClass = computed(() =>
-  cn(
-    'absolute z-50 mt-1 rounded-lg shadow-xl',
+const menuClass = computed(() => {
+  const positionClass = props.align === 'right' 
+    ? 'right-0 mt-1' 
+    : props.align === 'left-side'
+    ? 'right-full top-0 mr-2'
+    : 'left-0 mt-1'
+  
+  return cn(
+    'absolute z-50 rounded-lg shadow-xl',
     'bg-[#1a1a1a] border border-[#2a2a2a]',
     'py-1',
     props.width,
-    props.align === 'right' ? 'right-0' : 'left-0',
+    positionClass,
     props.class
   )
-)
+})
 
 function handleClickOutside(event: MouseEvent) {
   if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
