@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAppStore } from '@/stores/app'
-import { useIssuesStore } from '@/stores/issues'
 import { useUiStore } from '@/stores/ui'
+import { api } from '@/api/client'
 import { cn } from '@/utils/cn'
 import Avatar from '@/components/ui/Avatar.vue'
 import type { Issue, WorkflowState, WorkflowStateType } from '@/types'
@@ -28,7 +28,6 @@ import {
 const route = useRoute()
 const router = useRouter()
 const appStore = useAppStore()
-const issuesStore = useIssuesStore()
 const uiStore = useUiStore()
 
 const teams = computed(() => appStore.teams)
@@ -37,11 +36,13 @@ const currentTeam = computed(() => {
   return teams.value.find(t => t.key === teamKey)
 })
 
-const loading = computed(() => issuesStore.loading)
+const loading = ref(false)
+const boardIssues = ref<Issue[]>([])
+const boardWorkflowStates = ref<WorkflowState[]>([])
 
 // Dynamic workflow states ordered by position
 const columns = computed(() => {
-  return [...issuesStore.workflowStates].sort((a, b) => a.position - b.position)
+  return [...boardWorkflowStates.value].sort((a, b) => a.position - b.position)
 })
 
 // Group issues by workflow state ID
@@ -54,7 +55,7 @@ const issuesByColumn = computed(() => {
   }
   
   // Group issues by workflowStateId
-  const teamIssues = issuesStore.issues.filter(i => i.teamId === currentTeam.value?.id)
+  const teamIssues = boardIssues.value.filter(i => i.teamId === currentTeam.value?.id)
   for (const issue of teamIssues) {
     if (issue.workflowStateId && grouped[issue.workflowStateId]) {
       grouped[issue.workflowStateId].push(issue)
@@ -64,14 +65,30 @@ const issuesByColumn = computed(() => {
   return grouped
 })
 
+async function fetchBoardData(teamId: string) {
+  loading.value = true
+  try {
+    const [workflowData, issuesData] = await Promise.all([
+      api.get<{ workflow_states: WorkflowState[] }>(`/api/v1/teams/${teamId}/workflow_states`),
+      api.get<{ issues: Issue[] }>(`/api/v1/issues?team_id=${teamId}`),
+    ])
+    boardWorkflowStates.value = workflowData.workflow_states
+    boardIssues.value = issuesData.issues
+  } catch (err) {
+    console.error('Failed to fetch board data:', err)
+    boardWorkflowStates.value = []
+    boardIssues.value = []
+  } finally {
+    loading.value = false
+  }
+}
+
 // Fetch workflow states and issues when team changes
 watch(
   () => currentTeam.value?.id,
   async (teamId) => {
     if (teamId) {
-      // Fetch workflow states first, then issues
-      await issuesStore.fetchWorkflowStates(teamId)
-      await issuesStore.fetchIssues({ teamId })
+      await fetchBoardData(teamId)
     }
   },
   { immediate: true }

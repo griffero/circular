@@ -18,6 +18,19 @@
     --linear-accent-hover: #6973d8;
   }
 
+  .dark {
+    --linear-bg: #0f1115;
+    --linear-sidebar: #12151c;
+    --linear-elevated: #171b23;
+    --linear-surface: #1d212b;
+    --linear-border: #2a2f3b;
+    --linear-border-subtle: #232834;
+    --linear-text: #e8ebf2;
+    --linear-muted: #98a0b3;
+    --linear-accent: #5e6ad2;
+    --linear-accent-hover: #6b76df;
+  }
+
   * {
     @apply border-gray-200 dark:border-gray-700;
   }
@@ -29,7 +42,7 @@
 
   body {
     background: var(--linear-bg);
-    @apply text-gray-900 dark:text-gray-100;
+    color: var(--linear-text);
     @apply transition-colors duration-150;
   }
 

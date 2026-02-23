@@ -31,22 +31,53 @@ export const useEmojiStore = defineStore('emoji', () => {
     }
   }
 
+  const SYSTEM_ICON_ALIASES: Record<string, string> = {
+    shield: '🛡️',
+    codeblock: '💻',
+    mobilephone: '📱',
+    pointer: '🖱️',
+    lock: '🔒',
+    robot_face: '🤖',
+    robotface: '🤖',
+    gcp: '☁️',
+    vibe_coding: '🤖',
+    'vibe-coding': '🤖',
+    spongebob_fire: '🔥',
+    'spongebob-fire': '🔥',
+    pepe_monster: '👾',
+    'pepe-monster': '👾',
+    tank: '🪖',
+  }
+
+  function normalizeEmojiKey(value: string): string {
+    return value.trim().replace(/^:|:$/g, '')
+  }
+
+  function normalizeForUnicodeLookup(value: string): string[] {
+    const base = normalizeEmojiKey(value)
+    const lower = base.toLowerCase()
+    const snake = lower.replace(/[\s-]+/g, '_')
+    const compact = lower.replace(/[\s_-]+/g, '')
+    return Array.from(new Set([base, lower, snake, compact]))
+  }
+
   // Get the URL for a specific emoji by name
   // Accepts formats: "emoji-name" or ":emoji-name:"
   function getEmojiUrl(name: string | null | undefined): string | null {
     if (!name) return null
 
-    // Strip colons if present
-    const cleanName = name.replace(/^:|:$/g, '')
-
-    return emojis.value[cleanName] || null
+    const candidates = normalizeForUnicodeLookup(name)
+    for (const candidate of candidates) {
+      const url = emojis.value[candidate]
+      if (url) return url
+    }
+    return null
   }
 
   // Check if a given string is a custom Slack emoji
   function isCustomEmoji(name: string | null | undefined): boolean {
     if (!name) return false
-    const cleanName = name.replace(/^:|:$/g, '')
-    return cleanName in emojis.value
+    return !!getEmojiUrl(name)
   }
 
   // Resolve a value to a unicode emoji if possible.
@@ -54,15 +85,23 @@ export const useEmojiStore = defineStore('emoji', () => {
   function getUnicodeEmoji(value: string | null | undefined): string | null {
     if (!value) return null
 
-    const cleanValue = value.replace(/^:|:$/g, '')
+    const cleanValue = normalizeEmojiKey(value)
     if (!cleanValue) return null
 
-    if (/^[\p{Emoji}\u200d]+$/u.test(cleanValue) && cleanValue.length <= 8) {
+    if (/^[\p{Extended_Pictographic}\p{Emoji}\u200d\ufe0f]+$/u.test(cleanValue) && cleanValue.length <= 10) {
       return cleanValue
     }
 
-    const unicode = emojiDictionary.getUnicode(cleanValue)
-    return unicode || null
+    const candidates = normalizeForUnicodeLookup(cleanValue)
+    for (const candidate of candidates) {
+      if (SYSTEM_ICON_ALIASES[candidate]) {
+        return SYSTEM_ICON_ALIASES[candidate]
+      }
+      const unicode = emojiDictionary.getUnicode(candidate)
+      if (unicode) return unicode
+    }
+
+    return null
   }
 
   function isRenderableEmoji(value: string | null | undefined): boolean {

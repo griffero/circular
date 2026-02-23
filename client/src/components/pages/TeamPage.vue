@@ -57,9 +57,9 @@ function hasEmoji(icon?: string | null): boolean {
 </script>
 
 <template>
-  <div v-if="currentTeam" class="flex flex-col h-full bg-[#0d0d0d]">
+  <div v-if="currentTeam" class="flex flex-col h-full bg-[var(--linear-bg)]">
     <!-- Team header with tabs -->
-    <div class="flex items-center justify-between px-4 py-2 border-b border-[#1f1f1f]">
+    <div class="flex items-center justify-between px-4 py-2 border-b border-[var(--linear-border)]">
       <div class="flex items-center gap-3">
         <div class="flex items-center gap-2">
           <div 
@@ -72,7 +72,7 @@ function hasEmoji(icon?: string | null): boolean {
               size="sm"
             />
           </div>
-          <span class="text-sm font-medium text-white">{{ currentTeam.name }}</span>
+          <span class="text-sm font-medium text-[var(--linear-text)]">{{ currentTeam.name }}</span>
         </div>
 
         <nav class="flex items-center gap-1 ml-2">
@@ -83,8 +83,8 @@ function hasEmoji(icon?: string | null): boolean {
             :class="[
               'px-3 py-1.5 text-sm rounded-md transition-colors',
               route.name === tab.routeName
-                ? 'bg-[#1a1a1a] text-white'
-                : 'text-gray-400 hover:text-white hover:bg-[#1a1a1a]'
+                ? 'bg-[var(--linear-elevated)] text-[var(--linear-text)]'
+                : 'text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-surface)]'
             ]"
           >
             {{ tab.name }}
@@ -93,7 +93,7 @@ function hasEmoji(icon?: string | null): boolean {
         
         <button 
           @click="router.push('/settings/teams')"
-          class="p-1.5 rounded hover:bg-[#1a1a1a] ml-1 text-gray-500 hover:text-white transition-colors"
+          class="p-1.5 rounded hover:bg-[var(--linear-surface)] ml-1 text-[var(--linear-muted)] hover:text-[var(--linear-text)] transition-colors"
           title="Team settings"
         >
           <Settings class="w-4 h-4" />
@@ -103,7 +103,7 @@ function hasEmoji(icon?: string | null): boolean {
       <div class="flex items-center gap-2">
         <button 
           @click="uiStore.toggleFilters()"
-          class="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors"
+          class="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-surface)] rounded transition-colors"
         >
           <Filter class="h-4 w-4" />
           Filter
@@ -117,7 +117,7 @@ function hasEmoji(icon?: string | null): boolean {
         </button>
         <Dropdown align="right">
           <template #trigger>
-            <button class="p-1.5 hover:bg-[#1a1a1a] rounded text-gray-500 hover:text-white transition-colors">
+            <button class="p-1.5 hover:bg-[var(--linear-surface)] rounded text-[var(--linear-muted)] hover:text-[var(--linear-text)] transition-colors">
               <MoreHorizontal class="h-4 w-4" />
             </button>
           </template>
@@ -145,12 +145,12 @@ function hasEmoji(icon?: string | null): boolean {
     </div>
   </div>
 
-  <div v-else class="flex items-center justify-center h-full bg-[#0d0d0d]">
+  <div v-else class="flex items-center justify-center h-full bg-[var(--linear-bg)]">
     <div class="text-center">
-      <p class="text-gray-500">Team not found</p>
+      <p class="text-[var(--linear-muted)]">Team not found</p>
       <button 
         @click="router.push('/')"
-        class="mt-4 px-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors"
+        class="mt-4 px-4 py-2 text-sm text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-surface)] rounded transition-colors"
       >
         Go back home
       </button>
