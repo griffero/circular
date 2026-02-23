@@ -6,14 +6,14 @@
 
 @layer base {
   :root {
-    --linear-bg: #0f1013;
-    --linear-sidebar: #0c0d10;
-    --linear-elevated: #15171c;
-    --linear-surface: #171922;
-    --linear-border: #272b35;
-    --linear-border-subtle: #1f232c;
-    --linear-text: #f3f4f8;
-    --linear-muted: #9aa0ae;
+    --linear-bg: #f7f8fb;
+    --linear-sidebar: #f3f4f8;
+    --linear-elevated: #ffffff;
+    --linear-surface: #f7f8fb;
+    --linear-border: #e3e6ee;
+    --linear-border-subtle: #eceff5;
+    --linear-text: #171a21;
+    --linear-muted: #6b7280;
     --linear-accent: #5e6ad2;
     --linear-accent-hover: #6973d8;
   }
@@ -28,7 +28,7 @@
   }
 
   body {
-    background: radial-gradient(circle at 0% 0%, #171924 0%, var(--linear-bg) 55%);
+    background: var(--linear-bg);
     @apply text-gray-900 dark:text-gray-100;
     @apply transition-colors duration-150;
   }

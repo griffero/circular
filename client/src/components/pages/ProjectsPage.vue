@@ -54,7 +54,7 @@ function closeDetailPanel() {
 </script>
 
 <template>
-  <div class="h-full flex bg-[#0d0d0d]">
+  <div data-testid="projects-ready" class="h-full flex bg-[var(--linear-bg)]">
     <!-- Main content -->
     <div class="flex-1 flex flex-col min-w-0">
       <!-- Content based on view mode -->
@@ -69,16 +69,16 @@ function closeDetailPanel() {
         <div v-else-if="viewMode === 'list'" class="h-full overflow-auto">
           <!-- Empty state -->
           <div v-if="filteredProjects.length === 0" class="flex-1 flex flex-col items-center justify-center py-20">
-            <div class="w-16 h-16 rounded-full bg-[#1a1a1a] flex items-center justify-center mb-4">
-              <FolderKanban class="w-8 h-8 text-gray-500" />
+            <div class="w-16 h-16 rounded-full bg-[var(--linear-elevated)] flex items-center justify-center mb-4">
+              <FolderKanban class="w-8 h-8 text-[var(--linear-muted)]" />
             </div>
-            <h2 class="text-lg font-medium text-white mb-2">No projects yet</h2>
-            <p class="text-sm text-gray-500 text-center max-w-sm mb-4">
+            <h2 class="text-lg font-medium text-[var(--linear-text)] mb-2">No projects yet</h2>
+            <p class="text-sm text-[var(--linear-muted)] text-center max-w-sm mb-4">
               Projects help you organize issues around a specific goal or feature.
             </p>
             <button 
               @click="uiStore.openCreateProjectModal()"
-              class="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-lg transition-colors"
+              class="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-[var(--linear-text)] text-sm rounded-lg transition-colors"
             >
               <Plus class="w-4 h-4" />
               Create project
@@ -91,7 +91,7 @@ function closeDetailPanel() {
               v-for="project in filteredProjects"
               :key="project.id"
               @click="selectProject(project)"
-              class="flex items-center gap-3 p-3 bg-[#1a1a1a] hover:bg-[#222] rounded-lg transition-colors cursor-pointer"
+              class="flex items-center gap-3 p-3 bg-[var(--linear-elevated)] hover:bg-[var(--linear-surface)] rounded-lg transition-colors cursor-pointer"
               :class="{ 'ring-1 ring-indigo-500/50': selectedProjectId === project.id }"
             >
               <div 
@@ -105,19 +105,19 @@ function closeDetailPanel() {
                 />
               </div>
               <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-white truncate">{{ project.name }}</p>
-                <p v-if="project.description" class="text-xs text-gray-500 truncate">{{ project.description }}</p>
+                <p class="text-sm font-medium text-[var(--linear-text)] truncate">{{ project.name }}</p>
+                <p v-if="project.description" class="text-xs text-[var(--linear-muted)] truncate">{{ project.description }}</p>
               </div>
               
               <!-- Progress -->
               <div v-if="project.progress" class="flex items-center gap-2">
-                <div class="w-20 h-1.5 bg-[#333] rounded-full overflow-hidden">
+                <div class="w-20 h-1.5 bg-[var(--linear-border)] rounded-full overflow-hidden">
                   <div 
                     class="h-full bg-indigo-500 rounded-full"
                     :style="{ width: `${project.progress}%` }"
                   ></div>
                 </div>
-                <span class="text-xs text-gray-500">{{ Math.round(project.progress || 0) }}%</span>
+                <span class="text-xs text-[var(--linear-muted)]">{{ Math.round(project.progress || 0) }}%</span>
               </div>
               
               <!-- Status badge -->
@@ -127,7 +127,7 @@ function closeDetailPanel() {
                   'bg-green-500/20 text-green-400': project.state === 'started',
                   'bg-blue-500/20 text-blue-400': project.state === 'planned',
                   'bg-yellow-500/20 text-yellow-400': project.state === 'paused',
-                  'bg-gray-500/20 text-gray-400': !project.state || project.state === 'backlog',
+                  'bg-gray-500/20 text-[var(--linear-muted)]': !project.state || project.state === 'backlog',
                   'bg-emerald-500/20 text-emerald-400': project.state === 'completed',
                   'bg-red-500/20 text-red-400': project.state === 'canceled'
                 }"
@@ -156,9 +156,9 @@ function closeDetailPanel() {
             <div 
               v-for="state in ['backlog', 'planned', 'started', 'paused', 'completed']" 
               :key="state"
-              class="w-72 flex-shrink-0 flex flex-col bg-[#111] rounded-lg"
+              class="w-72 flex-shrink-0 flex flex-col bg-[var(--linear-surface)] rounded-lg"
             >
-              <div class="flex items-center gap-2 px-3 py-2 border-b border-[#222]">
+              <div class="flex items-center gap-2 px-3 py-2 border-b border-[var(--linear-border-subtle)]">
                 <span 
                   class="w-2 h-2 rounded-full"
                   :class="{
@@ -169,8 +169,8 @@ function closeDetailPanel() {
                     'bg-emerald-500': state === 'completed'
                   }"
                 ></span>
-                <span class="text-sm font-medium text-white capitalize">{{ state }}</span>
-                <span class="text-xs text-gray-500">
+                <span class="text-sm font-medium text-[var(--linear-text)] capitalize">{{ state }}</span>
+                <span class="text-xs text-[var(--linear-muted)]">
                   {{ filteredProjects.filter(p => (p.state || 'backlog') === state).length }}
                 </span>
               </div>
@@ -180,7 +180,7 @@ function closeDetailPanel() {
                   v-for="project in filteredProjects.filter(p => (p.state || 'backlog') === state)"
                   :key="project.id"
                   @click="selectProject(project)"
-                  class="block p-3 bg-[#1a1a1a] hover:bg-[#222] rounded-lg transition-colors cursor-pointer"
+                  class="block p-3 bg-[var(--linear-elevated)] hover:bg-[var(--linear-surface)] rounded-lg transition-colors cursor-pointer"
                   :class="{ 'ring-1 ring-indigo-500/50': selectedProjectId === project.id }"
                 >
                   <div class="flex items-center gap-2 mb-2">
@@ -194,22 +194,22 @@ function closeDetailPanel() {
                         size="sm"
                       />
                     </div>
-                    <span class="text-sm font-medium text-white truncate">{{ project.name }}</span>
+                    <span class="text-sm font-medium text-[var(--linear-text)] truncate">{{ project.name }}</span>
                   </div>
                   
-                  <p v-if="project.description" class="text-xs text-gray-500 line-clamp-2 mb-2">
+                  <p v-if="project.description" class="text-xs text-[var(--linear-muted)] line-clamp-2 mb-2">
                     {{ project.description }}
                   </p>
                   
                   <!-- Progress bar -->
                   <div v-if="project.progress" class="flex items-center gap-2">
-                    <div class="flex-1 h-1 bg-[#333] rounded-full overflow-hidden">
+                    <div class="flex-1 h-1 bg-[var(--linear-border)] rounded-full overflow-hidden">
                       <div 
                         class="h-full bg-indigo-500 rounded-full"
                         :style="{ width: `${project.progress}%` }"
                       ></div>
                     </div>
-                    <span class="text-xs text-gray-500">{{ Math.round(project.progress || 0) }}%</span>
+                    <span class="text-xs text-[var(--linear-muted)]">{{ Math.round(project.progress || 0) }}%</span>
                   </div>
                 </div>
               </div>

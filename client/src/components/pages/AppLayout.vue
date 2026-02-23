@@ -30,13 +30,17 @@ const showTopbar = computed(() => !pagesWithOwnHeader.includes(route.name as str
 
 onMounted(async () => {
   try {
-    // Load app data (auth is already handled by router guard)
+    // Load critical app data first so the shell can render quickly.
+    // Project updates are heavy with production data, so fetch them in background.
     await Promise.all([
       appStore.fetchTeams(),
       appStore.fetchProjects(),
-      appStore.fetchProjectUpdates(),
-      emojiStore.fetchEmojis()
+      emojiStore.fetchEmojis(),
     ])
+
+    appStore.fetchProjectUpdates().catch((err) => {
+      console.error('Failed to load project updates:', err)
+    })
   } catch (err) {
     console.error('Failed to load app data:', err)
   } finally {
@@ -46,13 +50,23 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div v-if="loading" class="h-screen bg-[var(--linear-bg)] flex items-center justify-center">
+  <div
+    v-if="loading"
+    data-testid="app-shell-loading"
+    class="h-screen bg-[var(--linear-bg)] flex items-center justify-center"
+  >
     <div class="animate-spin rounded-full h-8 w-8 border-2 border-[var(--linear-accent)] border-t-transparent"></div>
   </div>
 
-  <div v-else class="h-screen bg-[var(--linear-bg)] flex overflow-hidden">
+  <div
+    v-else
+    data-testid="app-shell-ready"
+    class="h-screen bg-[var(--linear-bg)] flex overflow-hidden"
+  >
     <!-- Sidebar -->
-    <Sidebar />
+    <div class="hidden md:block h-full">
+      <Sidebar />
+    </div>
 
     <!-- Main content -->
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">

@@ -27,8 +27,8 @@ const workflowStates = computed(() => issuesStore.workflowStates)
 
 // Status options for filter
 const statusOptions = [
-  { value: 'backlog', label: 'Backlog', icon: Circle, color: 'text-gray-400' },
-  { value: 'unstarted', label: 'Todo', icon: Circle, color: 'text-gray-400' },
+  { value: 'backlog', label: 'Backlog', icon: Circle, color: 'text-[var(--linear-muted)]' },
+  { value: 'unstarted', label: 'Todo', icon: Circle, color: 'text-[var(--linear-muted)]' },
   { value: 'started', label: 'In Progress', icon: Clock, color: 'text-yellow-500' },
   { value: 'completed', label: 'Done', icon: CheckCircle2, color: 'text-green-500' },
   { value: 'canceled', label: 'Canceled', icon: X, color: 'text-red-500' },
@@ -111,17 +111,17 @@ watch(activeTab, () => {
 </script>
 
 <template>
-  <div class="h-full flex flex-col bg-[#0d0d0d]">
+  <div data-testid="my-issues-ready" class="h-full flex flex-col bg-[var(--linear-bg)]">
     <!-- Header -->
-    <div class="flex items-center justify-between px-4 py-2 border-b border-[#1f1f1f]">
+    <div class="flex items-center justify-between px-4 py-2 border-b border-[var(--linear-border-subtle)]">
       <div class="flex items-center gap-1">
         <button 
           @click="activeTab = 'assigned'"
           :class="[
             'px-3 py-1.5 text-sm rounded-md transition-colors',
             activeTab === 'assigned' 
-              ? 'bg-[#1a1a1a] text-white' 
-              : 'text-gray-400 hover:text-white hover:bg-[#1a1a1a]'
+              ? 'bg-[var(--linear-elevated)] text-[var(--linear-text)]' 
+              : 'text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-elevated)]'
           ]"
         >
           Assigned to me
@@ -131,8 +131,8 @@ watch(activeTab, () => {
           :class="[
             'px-3 py-1.5 text-sm rounded-md transition-colors',
             activeTab === 'created' 
-              ? 'bg-[#1a1a1a] text-white' 
-              : 'text-gray-400 hover:text-white hover:bg-[#1a1a1a]'
+              ? 'bg-[var(--linear-elevated)] text-[var(--linear-text)]' 
+              : 'text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-elevated)]'
           ]"
         >
           Created by me
@@ -142,8 +142,8 @@ watch(activeTab, () => {
           :class="[
             'px-3 py-1.5 text-sm rounded-md transition-colors',
             activeTab === 'subscribed' 
-              ? 'bg-[#1a1a1a] text-white' 
-              : 'text-gray-400 hover:text-white hover:bg-[#1a1a1a]'
+              ? 'bg-[var(--linear-elevated)] text-[var(--linear-text)]' 
+              : 'text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-elevated)]'
           ]"
         >
           Subscribed
@@ -152,14 +152,14 @@ watch(activeTab, () => {
       
       <div class="flex items-center gap-2">
         <!-- View mode toggle -->
-        <div class="flex items-center gap-0.5 p-0.5 bg-[#1a1a1a] rounded-md">
+        <div class="flex items-center gap-0.5 p-0.5 bg-[var(--linear-elevated)] rounded-md">
           <button
             @click="viewMode = 'list'"
             :class="[
               'p-1.5 rounded',
               viewMode === 'list'
-                ? 'bg-[#2a2a2a] text-white'
-                : 'text-gray-400 hover:text-white'
+                ? 'bg-[var(--linear-surface)] text-[var(--linear-text)]'
+                : 'text-[var(--linear-muted)] hover:text-[var(--linear-text)]'
             ]"
           >
             <LayoutList class="h-4 w-4" />
@@ -169,8 +169,8 @@ watch(activeTab, () => {
             :class="[
               'p-1.5 rounded',
               viewMode === 'board'
-                ? 'bg-[#2a2a2a] text-white'
-                : 'text-gray-400 hover:text-white'
+                ? 'bg-[var(--linear-surface)] text-[var(--linear-text)]'
+                : 'text-[var(--linear-muted)] hover:text-[var(--linear-text)]'
             ]"
           >
             <Columns3 class="h-4 w-4" />
@@ -185,7 +185,7 @@ watch(activeTab, () => {
                 'flex items-center gap-1.5 px-3 py-1.5 text-sm rounded transition-colors',
                 hasActiveFilters
                   ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30'
-                  : 'text-gray-400 hover:text-white hover:bg-[#1a1a1a]'
+                  : 'text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-elevated)]'
               ]"
             >
               <Filter class="h-4 w-4" />
@@ -197,7 +197,7 @@ watch(activeTab, () => {
           </template>
           
           <div class="p-2 min-w-[200px]">
-            <div class="text-[11px] font-medium text-gray-500 uppercase tracking-wider px-2 mb-1">Status</div>
+            <div class="text-[11px] font-medium text-[var(--linear-muted)] uppercase tracking-wider px-2 mb-1">Status</div>
             <DropdownItem 
               v-for="status in statusOptions" 
               :key="status.value"
@@ -212,9 +212,9 @@ watch(activeTab, () => {
               </div>
             </DropdownItem>
             
-            <div class="border-t border-[#2a2a2a] my-2"></div>
+            <div class="border-t border-[var(--linear-border-subtle)] my-2"></div>
             
-            <div class="text-[11px] font-medium text-gray-500 uppercase tracking-wider px-2 mb-1">Priority</div>
+            <div class="text-[11px] font-medium text-[var(--linear-muted)] uppercase tracking-wider px-2 mb-1">Priority</div>
             <DropdownItem 
               v-for="priority in priorityOptions" 
               :key="priority.value"
@@ -230,7 +230,7 @@ watch(activeTab, () => {
             </DropdownItem>
             
             <template v-if="hasActiveFilters">
-              <div class="border-t border-[#2a2a2a] my-2"></div>
+              <div class="border-t border-[var(--linear-border-subtle)] my-2"></div>
               <DropdownItem @click="clearFilters" class="text-red-400">
                 <X class="w-4 h-4" />
                 Clear filters
@@ -242,11 +242,11 @@ watch(activeTab, () => {
     </div>
 
     <!-- Active filter pills -->
-    <div v-if="hasActiveFilters" class="flex items-center gap-2 px-4 py-2 border-b border-[#1f1f1f]">
+    <div v-if="hasActiveFilters" class="flex items-center gap-2 px-4 py-2 border-b border-[var(--linear-border-subtle)]">
       <button
         v-if="statusFilter"
         @click="statusFilter = null"
-        class="flex items-center gap-1.5 px-2 py-1 bg-[#1a1a1a] hover:bg-[#252525] rounded text-[12px] text-gray-300 transition-colors"
+        class="flex items-center gap-1.5 px-2 py-1 bg-[var(--linear-elevated)] hover:bg-[var(--linear-surface)] rounded text-[12px] text-[var(--linear-text)] transition-colors"
       >
         Status: {{ statusOptions.find(s => s.value === statusFilter)?.label }}
         <X class="w-3 h-3" />
@@ -254,14 +254,14 @@ watch(activeTab, () => {
       <button
         v-if="priorityFilter !== null"
         @click="priorityFilter = null"
-        class="flex items-center gap-1.5 px-2 py-1 bg-[#1a1a1a] hover:bg-[#252525] rounded text-[12px] text-gray-300 transition-colors"
+        class="flex items-center gap-1.5 px-2 py-1 bg-[var(--linear-elevated)] hover:bg-[var(--linear-surface)] rounded text-[12px] text-[var(--linear-text)] transition-colors"
       >
         Priority: {{ priorityOptions.find(p => p.value === priorityFilter)?.label }}
         <X class="w-3 h-3" />
       </button>
       <button
         @click="clearFilters"
-        class="text-[12px] text-gray-500 hover:text-white transition-colors"
+        class="text-[12px] text-[var(--linear-muted)] hover:text-[var(--linear-text)] transition-colors"
       >
         Clear all
       </button>
@@ -274,13 +274,13 @@ watch(activeTab, () => {
       </div>
 
       <div v-else-if="!hasIssues" class="flex flex-col items-center justify-center py-16">
-        <div class="w-16 h-16 rounded-full bg-[#1a1a1a] flex items-center justify-center mb-4">
-          <User class="h-8 w-8 text-gray-500" />
+        <div class="w-16 h-16 rounded-full bg-[var(--linear-elevated)] flex items-center justify-center mb-4">
+          <User class="h-8 w-8 text-[var(--linear-muted)]" />
         </div>
-        <h3 class="text-lg font-medium text-white mb-1">
+        <h3 class="text-lg font-medium text-[var(--linear-text)] mb-1">
           {{ hasActiveFilters ? 'No matching issues' : 'No issues yet' }}
         </h3>
-        <p class="text-sm text-gray-500 text-center max-w-sm">
+        <p class="text-sm text-[var(--linear-muted)] text-center max-w-sm">
           {{ hasActiveFilters 
             ? 'Try adjusting your filters to see more results.' 
             : activeTab === 'assigned' 
@@ -299,7 +299,7 @@ watch(activeTab, () => {
         </button>
       </div>
 
-      <div v-else class="divide-y divide-[#1f1f1f]">
+      <div v-else class="divide-y divide-[var(--linear-border-subtle)]">
         <IssueListItem
           v-for="issue in filteredIssues"
           :key="issue.id"

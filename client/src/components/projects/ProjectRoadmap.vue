@@ -278,7 +278,7 @@ function getStateIconColor(state?: string) {
     case 'canceled': return 'text-red-500'
     case 'started': return 'text-yellow-500'
     case 'planned': return 'text-blue-400'
-    default: return 'text-gray-600'
+    default: return 'text-[var(--linear-muted)]'
   }
 }
 
@@ -381,9 +381,9 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="h-full flex flex-col bg-[#0d0d0d]">
+  <div class="h-full flex flex-col bg-[var(--linear-bg)]">
     <!-- Header bar -->
-    <div class="flex items-center justify-between px-4 py-2 border-b border-[#1f1f1f]">
+    <div class="flex items-center justify-between px-4 py-2 border-b border-[var(--linear-border)]">
       <div class="flex items-center gap-1">
         <!-- Filter tabs -->
         <button 
@@ -391,8 +391,8 @@ onUnmounted(() => {
           :class="[
             'flex items-center gap-1.5 px-2.5 py-1 text-[13px] rounded-md transition-colors',
             activeFilter === 'all' 
-              ? 'bg-[#2a2a2a] text-white' 
-              : 'text-gray-400 hover:text-white hover:bg-[#1a1a1a]'
+              ? 'bg-[var(--linear-surface)] text-white' 
+              : 'text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-surface)]'
           ]"
         >
           <FolderKanban class="w-4 h-4" />
@@ -403,8 +403,8 @@ onUnmounted(() => {
           :class="[
             'flex items-center gap-1.5 px-2.5 py-1 text-[13px] rounded-md transition-colors',
             activeFilter === 'current' 
-              ? 'bg-[#2a2a2a] text-white' 
-              : 'text-gray-400 hover:text-white hover:bg-[#1a1a1a]'
+              ? 'bg-[var(--linear-surface)] text-white' 
+              : 'text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-surface)]'
           ]"
         >
           <Circle class="w-4 h-4" />
@@ -415,8 +415,8 @@ onUnmounted(() => {
           :class="[
             'flex items-center gap-1.5 px-2.5 py-1 text-[13px] rounded-md transition-colors',
             activeFilter === 'mine' 
-              ? 'bg-[#2a2a2a] text-white' 
-              : 'text-gray-400 hover:text-white hover:bg-[#1a1a1a]'
+              ? 'bg-[var(--linear-surface)] text-white' 
+              : 'text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-surface)]'
           ]"
         >
           <User class="w-4 h-4" />
@@ -425,12 +425,12 @@ onUnmounted(() => {
         <!-- Display options dropdown -->
         <Dropdown placement="bottom-start">
           <template #trigger>
-            <button class="p-1.5 text-gray-500 hover:text-white hover:bg-[#1a1a1a] rounded-md transition-colors">
+            <button class="p-1.5 text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-surface)] rounded-md transition-colors">
               <Settings2 class="w-4 h-4" />
             </button>
           </template>
           <div class="py-1 min-w-[160px]">
-            <div class="px-3 py-1.5 text-[11px] text-gray-500 uppercase tracking-wider">Show columns</div>
+            <div class="px-3 py-1.5 text-[11px] text-[var(--linear-muted)] uppercase tracking-wider">Show columns</div>
             <DropdownItem @click="showHealth = !showHealth">
               <div class="flex items-center justify-between w-full">
                 <span>Health</span>
@@ -457,7 +457,7 @@ onUnmounted(() => {
         <button 
           @click="navigator.clipboard.writeText(window.location.href)"
           title="Copy link"
-          class="p-1.5 text-gray-500 hover:text-white hover:bg-[#1a1a1a] rounded-md transition-colors"
+          class="p-1.5 text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-surface)] rounded-md transition-colors"
         >
           <Link2 class="w-4 h-4" />
         </button>
@@ -472,7 +472,7 @@ onUnmounted(() => {
     </div>
     
     <!-- Secondary toolbar -->
-    <div class="flex items-center justify-between px-4 py-1.5 border-b border-[#1f1f1f]">
+    <div class="flex items-center justify-between px-4 py-1.5 border-b border-[var(--linear-border)]">
       <div class="flex items-center gap-2">
         <Dropdown placement="bottom-start">
           <template #trigger>
@@ -481,7 +481,7 @@ onUnmounted(() => {
                 'flex items-center gap-1.5 px-2 py-1 text-[13px] rounded transition-colors',
                 hasActiveFilters 
                   ? 'bg-indigo-600/20 text-indigo-400' 
-                  : 'text-gray-400 hover:text-white hover:bg-[#1a1a1a]'
+                  : 'text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-surface)]'
               ]"
             >
               <Filter class="w-3.5 h-3.5" />
@@ -489,7 +489,7 @@ onUnmounted(() => {
             </button>
           </template>
           <div class="py-1 min-w-[180px]">
-            <div class="px-3 py-1.5 text-[11px] text-gray-500 uppercase tracking-wider">Status</div>
+            <div class="px-3 py-1.5 text-[11px] text-[var(--linear-muted)] uppercase tracking-wider">Status</div>
             <DropdownItem @click="stateFilter = stateFilter === 'started' ? null : 'started'">
               <div class="flex items-center justify-between w-full">
                 <div class="flex items-center gap-2">
@@ -518,8 +518,8 @@ onUnmounted(() => {
               </div>
             </DropdownItem>
             
-            <div class="border-t border-[#2a2a2a] my-1"></div>
-            <div class="px-3 py-1.5 text-[11px] text-gray-500 uppercase tracking-wider">Health</div>
+            <div class="border-t border-[var(--linear-border)] my-1"></div>
+            <div class="px-3 py-1.5 text-[11px] text-[var(--linear-muted)] uppercase tracking-wider">Health</div>
             <DropdownItem @click="healthFilter = healthFilter === 'onTrack' ? null : 'onTrack'">
               <div class="flex items-center justify-between w-full">
                 <div class="flex items-center gap-2">
@@ -549,7 +549,7 @@ onUnmounted(() => {
             </DropdownItem>
             
             <template v-if="hasActiveFilters">
-              <div class="border-t border-[#2a2a2a] my-1"></div>
+              <div class="border-t border-[var(--linear-border)] my-1"></div>
               <DropdownItem @click="clearFilters" class="text-red-400">
                 Clear filters
               </DropdownItem>
@@ -558,30 +558,30 @@ onUnmounted(() => {
         </Dropdown>
         
         <!-- Active filter badges -->
-        <div v-if="stateFilter" class="flex items-center gap-1 px-2 py-0.5 bg-[#1f1f1f] rounded text-[12px] text-gray-300">
+        <div v-if="stateFilter" class="flex items-center gap-1 px-2 py-0.5 bg-[var(--linear-elevated)] rounded text-[12px] text-[var(--linear-text)]">
           Status: {{ stateFilter }}
-          <button @click="stateFilter = null" class="ml-1 text-gray-500 hover:text-white">&times;</button>
+          <button @click="stateFilter = null" class="ml-1 text-[var(--linear-muted)] hover:text-[var(--linear-text)]">&times;</button>
         </div>
-        <div v-if="healthFilter" class="flex items-center gap-1 px-2 py-0.5 bg-[#1f1f1f] rounded text-[12px] text-gray-300">
+        <div v-if="healthFilter" class="flex items-center gap-1 px-2 py-0.5 bg-[var(--linear-elevated)] rounded text-[12px] text-[var(--linear-text)]">
           Health: {{ healthFilter }}
-          <button @click="healthFilter = null" class="ml-1 text-gray-500 hover:text-white">&times;</button>
+          <button @click="healthFilter = null" class="ml-1 text-[var(--linear-muted)] hover:text-[var(--linear-text)]">&times;</button>
         </div>
       </div>
       
       <div class="flex items-center gap-2">
         <button 
           @click="scrollToToday"
-          class="px-2.5 py-1 text-[13px] text-gray-300 bg-[#1f1f1f] hover:bg-[#2a2a2a] rounded transition-colors"
+          class="px-2.5 py-1 text-[13px] text-[var(--linear-text)] bg-[var(--linear-elevated)] hover:bg-[var(--linear-surface)] rounded transition-colors"
         >
           Today
         </button>
         
-        <div class="flex items-center bg-[#1f1f1f] rounded">
+        <div class="flex items-center bg-[var(--linear-elevated)] rounded">
           <button 
             @click="timeScale = 'year'"
             :class="[
               'px-2.5 py-1 text-[13px] rounded-l transition-colors',
-              timeScale === 'year' ? 'bg-[#2a2a2a] text-white' : 'text-gray-400 hover:text-white'
+              timeScale === 'year' ? 'bg-[var(--linear-surface)] text-white' : 'text-[var(--linear-muted)] hover:text-[var(--linear-text)]'
             ]"
           >
             Year
@@ -590,7 +590,7 @@ onUnmounted(() => {
             @click="timeScale = 'quarter'"
             :class="[
               'px-2.5 py-1 text-[13px] transition-colors',
-              timeScale === 'quarter' ? 'bg-[#2a2a2a] text-white' : 'text-gray-400 hover:text-white'
+              timeScale === 'quarter' ? 'bg-[var(--linear-surface)] text-white' : 'text-[var(--linear-muted)] hover:text-[var(--linear-text)]'
             ]"
           >
             Quarter
@@ -599,7 +599,7 @@ onUnmounted(() => {
             @click="timeScale = 'month'"
             :class="[
               'px-2.5 py-1 text-[13px] rounded-r transition-colors',
-              timeScale === 'month' ? 'bg-[#2a2a2a] text-white' : 'text-gray-400 hover:text-white'
+              timeScale === 'month' ? 'bg-[var(--linear-surface)] text-white' : 'text-[var(--linear-muted)] hover:text-[var(--linear-text)]'
             ]"
           >
             Month
@@ -608,13 +608,13 @@ onUnmounted(() => {
         
         <Dropdown placement="bottom-end">
           <template #trigger>
-            <button class="flex items-center gap-1.5 px-2 py-1 text-[13px] text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors">
+            <button class="flex items-center gap-1.5 px-2 py-1 text-[13px] text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-surface)] rounded transition-colors">
               <Settings2 class="w-3.5 h-3.5" />
               Display
             </button>
           </template>
           <div class="py-1 min-w-[160px]">
-            <div class="px-3 py-1.5 text-[11px] text-gray-500 uppercase tracking-wider">Options</div>
+            <div class="px-3 py-1.5 text-[11px] text-[var(--linear-muted)] uppercase tracking-wider">Options</div>
             <DropdownItem @click="showHealth = !showHealth">
               <div class="flex items-center justify-between w-full">
                 <span>Show health</span>
@@ -641,10 +641,10 @@ onUnmounted(() => {
     <!-- Main content -->
     <div class="flex-1 flex overflow-hidden">
       <!-- Project list sidebar -->
-      <div class="w-[280px] flex-shrink-0 border-r border-[#1f1f1f] flex flex-col">
+      <div class="w-[280px] flex-shrink-0 border-r border-[var(--linear-border)] flex flex-col">
         <!-- List header -->
-        <div class="h-[52px] border-b border-[#1f1f1f] flex items-end px-3 pb-2">
-          <span class="text-[11px] text-gray-500 uppercase tracking-wider font-medium">Project</span>
+        <div class="h-[52px] border-b border-[var(--linear-border)] flex items-end px-3 pb-2">
+          <span class="text-[11px] text-[var(--linear-muted)] uppercase tracking-wider font-medium">Project</span>
         </div>
         
         <!-- Projects list -->
@@ -657,7 +657,7 @@ onUnmounted(() => {
             v-for="project in filteredProjects" 
             :key="project.id"
             @click="goToProject(project)"
-            class="h-[44px] flex items-center px-3 hover:bg-[#151515] cursor-pointer border-b border-[#151515] group"
+            class="h-[44px] flex items-center px-3 hover:bg-[var(--linear-surface)] cursor-pointer border-b border-[var(--linear-border-subtle)] group"
           >
             <!-- Project icon - fixed width -->
             <div 
@@ -673,7 +673,7 @@ onUnmounted(() => {
             
             <!-- Project name - flexible with min width for truncation -->
             <div class="flex-1 min-w-0 ml-2 mr-3">
-              <span class="text-[13px] text-gray-200 truncate block">
+              <span class="text-[13px] text-[var(--linear-text)] truncate block">
                 {{ project.name }}
               </span>
             </div>
@@ -694,7 +694,7 @@ onUnmounted(() => {
                 class="w-2 h-2 rounded-full"
                 :class="getHealthColor(project.health)"
               />
-              <span v-else class="text-gray-600 text-[10px]">---</span>
+              <span v-else class="text-[var(--linear-muted)] text-[10px]">---</span>
             </div>
             
             <!-- Lead avatar - fixed width -->
@@ -707,13 +707,13 @@ onUnmounted(() => {
                 :showName="false"
                 avatarSize="sm"
               />
-              <div v-else class="w-6 h-6 rounded-full bg-[#2a2a2a]" />
+              <div v-else class="w-6 h-6 rounded-full bg-[var(--linear-surface)]" />
             </div>
           </div>
           
           <!-- Empty state -->
           <div v-if="filteredProjects.length === 0" class="py-8 text-center">
-            <p class="text-[13px] text-gray-500">No projects found</p>
+            <p class="text-[13px] text-[var(--linear-muted)]">No projects found</p>
           </div>
         </div>
       </div>
@@ -721,17 +721,17 @@ onUnmounted(() => {
       <!-- Timeline area -->
       <div ref="timelineArea" class="flex-1 flex flex-col overflow-hidden">
         <!-- Timeline header -->
-        <div class="flex-shrink-0 border-b border-[#1f1f1f]">
+        <div class="flex-shrink-0 border-b border-[var(--linear-border)]">
           <!-- Year row -->
           <div 
-            class="h-[26px] flex border-b border-[#1f1f1f] overflow-hidden"
+            class="h-[26px] flex border-b border-[var(--linear-border)] overflow-hidden"
             ref="timelineHeader"
           >
             <div :style="{ width: `${timelineWidth}px` }" class="flex">
               <div 
                 v-for="yearGroup in yearGroups" 
                 :key="yearGroup.year"
-                class="flex items-center justify-center text-[11px] text-gray-500 font-medium border-l border-[#2a2a2a] first:border-l-0"
+                class="flex items-center justify-center text-[11px] text-[var(--linear-muted)] font-medium border-l border-[var(--linear-border)] first:border-l-0"
                 :style="{ width: `${yearGroup.count * colWidth}px` }"
               >
                 {{ yearGroup.year }}
@@ -746,11 +746,11 @@ onUnmounted(() => {
                 v-for="(col, idx) in timelineColumns" 
                 :key="idx"
                 class="flex flex-col items-center justify-center text-[10px] border-l flex-shrink-0"
-                :class="col.isYearStart ? 'border-[#2a2a2a]' : 'border-[#1a1a1a]'"
+                :class="col.isYearStart ? 'border-[var(--linear-border)]' : 'border-[var(--linear-border-subtle)]'"
                 :style="{ width: `${colWidth}px` }"
               >
-                <span class="text-gray-500">{{ col.label }}</span>
-                <span v-if="timeScale === 'year'" class="text-gray-600 text-[9px]">{{ col.date.getDate() }}</span>
+                <span class="text-[var(--linear-muted)]">{{ col.label }}</span>
+                <span v-if="timeScale === 'year'" class="text-[var(--linear-muted)] text-[9px]">{{ col.date.getDate() }}</span>
               </div>
             </div>
           </div>
@@ -772,7 +772,7 @@ onUnmounted(() => {
                 v-for="(col, idx) in timelineColumns" 
                 :key="idx"
                 class="h-full border-l flex-shrink-0"
-                :class="col.isYearStart ? 'border-[#2a2a2a]' : 'border-[#151515]'"
+                :class="col.isYearStart ? 'border-[var(--linear-border)]' : 'border-[var(--linear-border-subtle)]'"
                 :style="{ width: `${colWidth}px` }"
               />
             </div>
@@ -804,7 +804,7 @@ onUnmounted(() => {
                   @click="goToProject(project)"
                 >
                   <!-- Project name above bar -->
-                  <span class="text-[11px] text-gray-400 truncate mb-0.5 group-hover:text-white transition-colors">
+                  <span class="text-[11px] text-[var(--linear-muted)] truncate mb-0.5 group-hover:text-[var(--linear-text)] transition-colors">
                     {{ project.name }}
                   </span>
                   <!-- Bar -->
@@ -818,7 +818,7 @@ onUnmounted(() => {
               <!-- No dates placeholder -->
               <div 
                 v-else 
-                class="absolute top-1/2 -translate-y-1/2 left-4 text-[11px] text-gray-600 italic"
+                class="absolute top-1/2 -translate-y-1/2 left-4 text-[11px] text-[var(--linear-muted)] italic"
               >
                 No dates
               </div>
@@ -829,20 +829,20 @@ onUnmounted(() => {
     </div>
     
     <!-- Bottom zoom controls -->
-    <div class="flex items-center justify-between px-4 py-1.5 border-t border-[#1f1f1f]">
+    <div class="flex items-center justify-between px-4 py-1.5 border-t border-[var(--linear-border)]">
       <div class="flex items-center gap-2">
         <button 
           @click="zoomOut"
           :disabled="colWidth <= MIN_COL_WIDTH"
-          class="p-1 text-gray-500 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed rounded"
+          class="p-1 text-[var(--linear-muted)] hover:text-[var(--linear-text)] disabled:opacity-30 disabled:cursor-not-allowed rounded"
         >
           <ZoomOut class="w-4 h-4" />
         </button>
-        <span class="text-[11px] text-gray-500 w-10 text-center">{{ zoomPercent }}%</span>
+        <span class="text-[11px] text-[var(--linear-muted)] w-10 text-center">{{ zoomPercent }}%</span>
         <button 
           @click="zoomIn"
           :disabled="colWidth >= MAX_COL_WIDTH"
-          class="p-1 text-gray-500 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed rounded"
+          class="p-1 text-[var(--linear-muted)] hover:text-[var(--linear-text)] disabled:opacity-30 disabled:cursor-not-allowed rounded"
         >
           <ZoomIn class="w-4 h-4" />
         </button>
@@ -851,14 +851,14 @@ onUnmounted(() => {
       <div class="flex items-center gap-1">
         <button 
           @click="navigateTimeline('prev')"
-          class="p-1 text-gray-500 hover:text-white rounded"
+          class="p-1 text-[var(--linear-muted)] hover:text-[var(--linear-text)] rounded"
         >
           <ChevronLeft class="w-4 h-4" />
         </button>
-        <span class="text-[11px] text-gray-500 px-2">{{ currentDateLabel }}</span>
+        <span class="text-[11px] text-[var(--linear-muted)] px-2">{{ currentDateLabel }}</span>
         <button 
           @click="navigateTimeline('next')"
-          class="p-1 text-gray-500 hover:text-white rounded"
+          class="p-1 text-[var(--linear-muted)] hover:text-[var(--linear-text)] rounded"
         >
           <ChevronRight class="w-4 h-4" />
         </button>
