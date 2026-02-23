@@ -5,6 +5,19 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --linear-bg: #0f1013;
+    --linear-sidebar: #0c0d10;
+    --linear-elevated: #15171c;
+    --linear-surface: #171922;
+    --linear-border: #272b35;
+    --linear-border-subtle: #1f232c;
+    --linear-text: #f3f4f8;
+    --linear-muted: #9aa0ae;
+    --linear-accent: #5e6ad2;
+    --linear-accent-hover: #6973d8;
+  }
+
   * {
     @apply border-gray-200 dark:border-gray-700;
   }
@@ -15,7 +28,8 @@
   }
 
   body {
-    @apply bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100;
+    background: radial-gradient(circle at 0% 0%, #171924 0%, var(--linear-bg) 55%);
+    @apply text-gray-900 dark:text-gray-100;
     @apply transition-colors duration-150;
   }
 
@@ -135,5 +149,20 @@
 
   .selected {
     @apply bg-primary-50 dark:bg-primary-950/30;
+  }
+
+  .linear-panel {
+    background-color: var(--linear-elevated);
+    border: 1px solid var(--linear-border);
+    border-radius: 10px;
+  }
+
+  .linear-button-primary {
+    background-color: var(--linear-accent);
+    color: var(--linear-text);
+  }
+
+  .linear-button-primary:hover {
+    background-color: var(--linear-accent-hover);
   }
 }

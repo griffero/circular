@@ -58,7 +58,7 @@ const tabs = computed(() => {
 </script>
 
 <template>
-  <header class="h-11 flex items-center justify-between px-4 border-b border-[#1f1f1f] bg-[#0d0d0d]">
+  <header class="h-11 flex items-center justify-between px-4 border-b border-[var(--linear-border-subtle)] bg-[var(--linear-bg)]">
     <!-- Left: Team icon + tabs OR page title -->
     <div class="flex items-center gap-3">
       <!-- Team header with icon -->
@@ -82,8 +82,8 @@ const tabs = computed(() => {
             :class="cn(
               'px-3 py-1.5 text-[13px] rounded transition-colors',
               tab.active
-                ? 'bg-[#1a1a1a] text-white'
-                : 'text-gray-500 hover:text-gray-300 hover:bg-[#1a1a1a]'
+                ? 'bg-[var(--linear-elevated)] text-[var(--linear-text)]'
+                : 'text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-elevated)]'
             )"
           >
             {{ tab.name }}
@@ -91,14 +91,14 @@ const tabs = computed(() => {
         </nav>
         
         <!-- Settings icon for team -->
-        <button class="p-1.5 rounded hover:bg-[#1a1a1a] ml-1">
-          <Settings class="w-4 h-4 text-gray-500" />
+        <button class="p-1.5 rounded hover:bg-[var(--linear-elevated)] ml-1">
+          <Settings class="w-4 h-4 text-[var(--linear-muted)]" />
         </button>
       </template>
 
       <!-- Non-team page title -->
       <template v-else>
-        <span class="text-[13px] font-medium text-white">{{ pageTitle }}</span>
+        <span class="text-[13px] font-medium text-[var(--linear-text)]">{{ pageTitle }}</span>
       </template>
     </div>
 
@@ -110,8 +110,8 @@ const tabs = computed(() => {
         :class="cn(
           'flex items-center gap-1.5 px-2.5 py-1.5 rounded text-[13px] transition-colors',
           uiStore.filtersOpen
-            ? 'bg-[#1a1a1a] text-white'
-            : 'text-gray-400 hover:bg-[#1a1a1a] hover:text-white'
+            ? 'bg-[var(--linear-elevated)] text-[var(--linear-text)]'
+            : 'text-[var(--linear-muted)] hover:bg-[var(--linear-elevated)] hover:text-[var(--linear-text)]'
         )"
       >
         <Filter class="w-4 h-4" />
@@ -121,24 +121,24 @@ const tabs = computed(() => {
       <!-- Display toggle (only on team pages) -->
       <button 
         v-if="isTeamPage"
-        class="flex items-center gap-1.5 px-2.5 py-1.5 rounded text-[13px] text-gray-400 hover:bg-[#1a1a1a] hover:text-white transition-colors"
+        class="flex items-center gap-1.5 px-2.5 py-1.5 rounded text-[13px] text-[var(--linear-muted)] hover:bg-[var(--linear-elevated)] hover:text-[var(--linear-text)] transition-colors"
       >
         <Rows3 class="w-4 h-4" />
         <span>Display</span>
       </button>
 
       <!-- Notifications -->
-      <button class="p-1.5 rounded hover:bg-[#1a1a1a] relative ml-1">
-        <Bell class="w-4 h-4 text-gray-500" />
+      <button class="p-1.5 rounded hover:bg-[var(--linear-elevated)] relative ml-1">
+        <Bell class="w-4 h-4 text-[var(--linear-muted)]" />
       </button>
 
       <!-- Board view toggle -->
       <button 
         v-if="isTeamPage"
-        class="p-1.5 rounded hover:bg-[#1a1a1a] ml-1"
+        class="p-1.5 rounded hover:bg-[var(--linear-elevated)] ml-1"
         @click="router.push(`/team/${currentTeam?.key}/board`)"
       >
-        <LayoutGrid class="w-4 h-4 text-gray-500" />
+        <LayoutGrid class="w-4 h-4 text-[var(--linear-muted)]" />
       </button>
     </div>
   </header>

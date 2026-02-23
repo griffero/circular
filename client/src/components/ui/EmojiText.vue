@@ -44,10 +44,11 @@ const parsedParts = computed((): TextPart[] => {
         url: emojiUrl
       })
     } else {
-      // Not in our synced emojis - keep as text
+      // Fall back to standard unicode emoji if this is a known shortcode.
+      const unicode = emojiStore.getUnicodeEmoji(emojiName)
       parts.push({
         type: 'text',
-        content: match[0]
+        content: unicode || match[0]
       })
     }
     

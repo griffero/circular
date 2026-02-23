@@ -64,13 +64,13 @@ const colors = [
 </script>
 
 <template>
-  <div class="p-6 max-w-4xl">
+  <div class="p-6 max-w-4xl bg-[var(--linear-bg)] min-h-full">
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-1">
+        <h1 class="text-xl font-semibold text-[var(--linear-text)] mb-1">
           Teams
         </h1>
-        <p class="text-sm text-gray-500">
+        <p class="text-sm text-[var(--linear-muted)]">
           Manage teams and their configuration
         </p>
       </div>
@@ -82,24 +82,24 @@ const colors = [
 
     <!-- Teams list -->
     <div v-if="loading" class="text-center py-12">
-      <div class="animate-spin rounded-full h-8 w-8 border-2 border-primary-600 border-t-transparent mx-auto"></div>
+      <div class="animate-spin rounded-full h-8 w-8 border-2 border-[var(--linear-accent)] border-t-transparent mx-auto"></div>
     </div>
 
     <div v-else-if="teams.length === 0" class="text-center py-12">
-      <Users class="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-      <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No teams yet</h3>
-      <p class="text-gray-500 mb-4">Create your first team to start organizing work</p>
+      <Users class="h-12 w-12 text-[var(--linear-muted)] mx-auto mb-4" />
+      <h3 class="text-lg font-medium text-[var(--linear-text)] mb-2">No teams yet</h3>
+      <p class="text-[var(--linear-muted)] mb-4">Create your first team to start organizing work</p>
       <Button v-if="isAdmin" @click="showCreateModal = true">
         <Plus class="h-4 w-4" />
         Create team
       </Button>
     </div>
 
-    <div v-else class="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 divide-y divide-gray-200 dark:divide-gray-800">
+    <div v-else class="linear-panel divide-y divide-[var(--linear-border-subtle)]">
       <div
         v-for="team in teams"
         :key="team.id"
-        class="flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+        class="flex items-center justify-between px-4 py-3 hover:bg-[var(--linear-surface)]"
       >
         <div class="flex items-center gap-3">
           <div 
@@ -109,15 +109,15 @@ const colors = [
             {{ team.key.substring(0, 2) }}
           </div>
           <div>
-            <h3 class="font-medium text-gray-900 dark:text-gray-100">{{ team.name }}</h3>
-            <p class="text-sm text-gray-500">{{ team.key }}</p>
+            <h3 class="font-medium text-[var(--linear-text)]">{{ team.name }}</h3>
+            <p class="text-sm text-[var(--linear-muted)]">{{ team.key }}</p>
           </div>
         </div>
         <div v-if="isAdmin" class="flex items-center gap-2">
-          <button class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md">
+          <button class="p-2 text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-surface)] rounded-md">
             <Pencil class="h-4 w-4" />
           </button>
-          <button class="p-2 text-gray-400 hover:text-red-600 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md">
+          <button class="p-2 text-[var(--linear-muted)] hover:text-red-400 hover:bg-[var(--linear-surface)] rounded-md">
             <Trash2 class="h-4 w-4" />
           </button>
         </div>
@@ -127,12 +127,12 @@ const colors = [
     <!-- Create team modal -->
     <Modal :open="showCreateModal" @close="showCreateModal = false" title="Create team">
       <form @submit.prevent="handleCreate" class="space-y-4">
-        <div v-if="createError" class="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-600 dark:text-red-400">
+        <div v-if="createError" class="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-sm text-red-300">
           {{ createError }}
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label class="block text-sm font-medium text-[var(--linear-text)] mb-1">
             Team name
           </label>
           <Input
@@ -144,7 +144,7 @@ const colors = [
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label class="block text-sm font-medium text-[var(--linear-text)] mb-1">
             Team identifier
           </label>
           <Input
@@ -154,13 +154,13 @@ const colors = [
             maxlength="5"
             required
           />
-          <p class="mt-1 text-xs text-gray-500">
+          <p class="mt-1 text-xs text-[var(--linear-muted)]">
             This will be used as a prefix for issue identifiers (e.g., ENG-123)
           </p>
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label class="block text-sm font-medium text-[var(--linear-text)] mb-2">
             Color
           </label>
           <div class="flex flex-wrap gap-2">
@@ -171,7 +171,7 @@ const colors = [
               @click="newTeamColor = color"
               :class="[
                 'w-8 h-8 rounded-lg border-2 transition-transform',
-                newTeamColor === color ? 'border-gray-900 dark:border-white scale-110' : 'border-transparent hover:scale-105'
+                newTeamColor === color ? 'border-white scale-110' : 'border-transparent hover:scale-105'
               ]"
               :style="{ backgroundColor: color }"
             />

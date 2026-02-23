@@ -24,11 +24,11 @@ const buttonClass = computed(() => {
   const base = 'inline-flex items-center justify-center font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 rounded-md'
   
   const variants = {
-    primary: 'bg-primary-600 text-white hover:bg-primary-700 focus-visible:ring-primary-500',
-    secondary: 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700 focus-visible:ring-gray-500',
-    ghost: 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:ring-gray-500',
+    primary: 'linear-button-primary focus-visible:ring-[var(--linear-accent)]',
+    secondary: 'bg-[var(--linear-elevated)] text-[var(--linear-text)] border border-[var(--linear-border)] hover:bg-[var(--linear-surface)] focus-visible:ring-[var(--linear-accent)]',
+    ghost: 'text-[var(--linear-muted)] hover:bg-[var(--linear-elevated)] hover:text-[var(--linear-text)] focus-visible:ring-[var(--linear-accent)]',
     danger: 'bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500',
-    link: 'text-primary-600 dark:text-primary-400 hover:underline'
+    link: 'text-[var(--linear-accent)] hover:underline'
   }
   
   const sizes = {

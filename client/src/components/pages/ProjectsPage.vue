@@ -39,12 +39,7 @@ const filteredProjects = computed(() => {
 
 // Check if a project has a valid emoji (custom slack emoji or unicode)
 function hasEmoji(icon?: string | null): boolean {
-  if (!icon) return false
-  // Check if it's a custom slack emoji
-  if (emojiStore.getEmojiUrl(icon)) return true
-  // Check if it looks like a unicode emoji
-  const stripped = icon.replace(/^:|:$/g, '')
-  return /^[\p{Emoji}\u200d]+$/u.test(stripped) && stripped.length <= 8
+  return emojiStore.isRenderableEmoji(icon)
 }
 
 // Select a project to show in detail panel

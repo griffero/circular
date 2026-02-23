@@ -54,13 +54,13 @@ async function handleCreate() {
 </script>
 
 <template>
-  <div class="p-6 max-w-4xl">
+  <div class="p-6 max-w-4xl bg-[var(--linear-bg)] min-h-full">
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-1">
+        <h1 class="text-xl font-semibold text-[var(--linear-text)] mb-1">
           Labels
         </h1>
-        <p class="text-sm text-gray-500">
+        <p class="text-sm text-[var(--linear-muted)]">
           Manage labels used to categorize issues
         </p>
       </div>
@@ -72,20 +72,20 @@ async function handleCreate() {
 
     <!-- Labels list -->
     <div v-if="labels.length === 0" class="text-center py-12">
-      <Tags class="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-      <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No labels yet</h3>
-      <p class="text-gray-500 mb-4">Create labels to categorize and organize your issues</p>
+      <Tags class="h-12 w-12 text-[var(--linear-muted)] mx-auto mb-4" />
+      <h3 class="text-lg font-medium text-[var(--linear-text)] mb-2">No labels yet</h3>
+      <p class="text-[var(--linear-muted)] mb-4">Create labels to categorize and organize your issues</p>
       <Button v-if="isAdmin" @click="showCreateModal = true">
         <Plus class="h-4 w-4" />
         Create label
       </Button>
     </div>
 
-    <div v-else class="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 divide-y divide-gray-200 dark:divide-gray-800">
+    <div v-else class="linear-panel divide-y divide-[var(--linear-border-subtle)]">
       <div
         v-for="label in labels"
         :key="label.id"
-        class="flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+        class="flex items-center justify-between px-4 py-3 hover:bg-[var(--linear-surface)]"
       >
         <div class="flex items-center gap-3">
           <div 
@@ -93,15 +93,15 @@ async function handleCreate() {
             :style="{ backgroundColor: label.color }"
           />
           <div>
-            <h3 class="font-medium text-gray-900 dark:text-gray-100">{{ label.name }}</h3>
-            <p v-if="label.description" class="text-sm text-gray-500">{{ label.description }}</p>
+            <h3 class="font-medium text-[var(--linear-text)]">{{ label.name }}</h3>
+            <p v-if="label.description" class="text-sm text-[var(--linear-muted)]">{{ label.description }}</p>
           </div>
         </div>
         <div v-if="isAdmin" class="flex items-center gap-2">
-          <button class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md">
+          <button class="p-2 text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-surface)] rounded-md">
             <Pencil class="h-4 w-4" />
           </button>
-          <button class="p-2 text-gray-400 hover:text-red-600 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md">
+          <button class="p-2 text-[var(--linear-muted)] hover:text-red-400 hover:bg-[var(--linear-surface)] rounded-md">
             <Trash2 class="h-4 w-4" />
           </button>
         </div>
@@ -112,7 +112,7 @@ async function handleCreate() {
     <Modal :open="showCreateModal" @close="showCreateModal = false" title="Create label">
       <form @submit.prevent="handleCreate" class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label class="block text-sm font-medium text-[var(--linear-text)] mb-1">
             Label name
           </label>
           <Input
@@ -124,7 +124,7 @@ async function handleCreate() {
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label class="block text-sm font-medium text-[var(--linear-text)] mb-1">
             Description (optional)
           </label>
           <Input
@@ -135,7 +135,7 @@ async function handleCreate() {
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label class="block text-sm font-medium text-[var(--linear-text)] mb-2">
             Color
           </label>
           <div class="flex flex-wrap gap-2">
@@ -146,7 +146,7 @@ async function handleCreate() {
               @click="newLabelColor = color"
               :class="[
                 'w-8 h-8 rounded-full border-2 transition-transform',
-                newLabelColor === color ? 'border-gray-900 dark:border-white scale-110' : 'border-transparent hover:scale-105'
+                newLabelColor === color ? 'border-white scale-110' : 'border-transparent hover:scale-105'
               ]"
               :style="{ backgroundColor: color }"
             />

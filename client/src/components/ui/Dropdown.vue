@@ -22,7 +22,7 @@ const menuClass = computed(() => {
   if (props.align === 'left-side') {
     return cn(
       'fixed z-[9999] rounded-lg shadow-xl',
-      'bg-[#1a1a1a] border border-[#2a2a2a]',
+      'bg-[var(--linear-elevated)] border border-[var(--linear-border)]',
       'py-1',
       props.width,
       props.class
@@ -33,7 +33,7 @@ const menuClass = computed(() => {
   
   return cn(
     'absolute z-50 rounded-lg shadow-xl',
-    'bg-[#1a1a1a] border border-[#2a2a2a]',
+    'bg-[var(--linear-elevated)] border border-[var(--linear-border)]',
     'py-1',
     props.width,
     positionClass,

@@ -25,7 +25,7 @@ const itemClass = computed(() =>
       : 'cursor-pointer',
     props.danger
       ? 'text-red-400 hover:bg-red-500/10'
-      : 'text-gray-300 hover:bg-[#2a2a2a]',
+      : 'text-[var(--linear-text)] hover:bg-[var(--linear-surface)]',
     props.class
   )
 )

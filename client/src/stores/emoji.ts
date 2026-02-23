@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { api } from '@/api/client'
+import emojiDictionary from 'emoji-dictionary'
 
 export const useEmojiStore = defineStore('emoji', () => {
   // Map of emoji name to URL
@@ -48,6 +49,26 @@ export const useEmojiStore = defineStore('emoji', () => {
     return cleanName in emojis.value
   }
 
+  // Resolve a value to a unicode emoji if possible.
+  // Supports native unicode input and shortcodes like ":rocket:" / "rocket".
+  function getUnicodeEmoji(value: string | null | undefined): string | null {
+    if (!value) return null
+
+    const cleanValue = value.replace(/^:|:$/g, '')
+    if (!cleanValue) return null
+
+    if (/^[\p{Emoji}\u200d]+$/u.test(cleanValue) && cleanValue.length <= 8) {
+      return cleanValue
+    }
+
+    const unicode = emojiDictionary.getUnicode(cleanValue)
+    return unicode || null
+  }
+
+  function isRenderableEmoji(value: string | null | undefined): boolean {
+    return !!getEmojiUrl(value) || !!getUnicodeEmoji(value)
+  }
+
   // Check if a string looks like an emoji name (has colons or is a known emoji)
   function isEmojiFormat(value: string | null | undefined): boolean {
     if (!value) return false
@@ -74,6 +95,8 @@ export const useEmojiStore = defineStore('emoji', () => {
     // Actions
     fetchEmojis,
     getEmojiUrl,
+    getUnicodeEmoji,
+    isRenderableEmoji,
     isCustomEmoji,
     isEmojiFormat,
     reset,

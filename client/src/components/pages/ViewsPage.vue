@@ -190,10 +190,7 @@ function formatDate(dateString: string) {
 
 // Check if has emoji
 function hasEmoji(icon?: string | null): boolean {
-  if (!icon) return false
-  if (emojiStore.getEmojiUrl(icon)) return true
-  const stripped = icon.replace(/^:|:$/g, '')
-  return /^[\p{Emoji}\u200d]+$/u.test(stripped) && stripped.length <= 8
+  return emojiStore.isRenderableEmoji(icon)
 }
 
 // Close dropdown when clicking outside

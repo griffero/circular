@@ -19,15 +19,15 @@ const cycles = computed(() => [])
 </script>
 
 <template>
-  <div class="p-4">
+  <div class="p-4 h-full bg-[var(--linear-bg)]">
     <div v-if="cycles.length === 0" class="flex flex-col items-center justify-center py-16">
-      <div class="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
-        <Clock class="h-8 w-8 text-gray-400" />
+      <div class="w-16 h-16 rounded-full bg-[var(--linear-elevated)] border border-[var(--linear-border)] flex items-center justify-center mb-4">
+        <Clock class="h-8 w-8 text-[var(--linear-muted)]" />
       </div>
-      <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-1">
+      <h3 class="text-lg font-medium text-[var(--linear-text)] mb-1">
         No cycles yet
       </h3>
-      <p class="text-sm text-gray-500 text-center max-w-sm mb-4">
+      <p class="text-sm text-[var(--linear-muted)] text-center max-w-sm mb-4">
         Cycles help you organize work into time-boxed sprints.
         Create a cycle to start planning.
       </p>

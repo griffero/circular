@@ -39,15 +39,7 @@ const isCustomEmoji = computed(() => {
   return !!emojiUrl.value
 })
 
-// Check if the name looks like a standard unicode emoji
-const isUnicodeEmoji = computed(() => {
-  if (!props.name) return false
-  // Simple check: if it's a single character or emoji sequence
-  // Unicode emojis are typically 1-2 characters (or more with modifiers)
-  const stripped = props.name.replace(/^:|:$/g, '')
-  // Check if it contains only emoji characters (not alphanumeric)
-  return /^[\p{Emoji}\u200d]+$/u.test(stripped) && stripped.length <= 8
-})
+const unicodeEmoji = computed(() => emojiStore.getUnicodeEmoji(props.name))
 
 // Computed class for the container
 const containerClass = computed(() => 
@@ -75,8 +67,8 @@ const displayFallback = computed(() => {
       loading="lazy"
     />
     <!-- Unicode emoji -->
-    <span v-else-if="isUnicodeEmoji" class="leading-none">
-      {{ name?.replace(/^:|:$/g, '') }}
+    <span v-else-if="unicodeEmoji" class="leading-none">
+      {{ unicodeEmoji }}
     </span>
     <!-- Fallback (first letter) -->
     <span 

@@ -105,12 +105,12 @@ const priorityConfig: Record<number, { icon: typeof Circle; color: string; label
 </script>
 
 <template>
-  <div class="h-full overflow-x-auto bg-gray-950">
+  <div class="h-full overflow-x-auto bg-[var(--linear-bg)]">
     <div v-if="loading && columns.length === 0" class="flex items-center justify-center py-16 h-full">
-      <div class="animate-spin rounded-full h-8 w-8 border-2 border-primary-600 border-t-transparent"></div>
+      <div class="animate-spin rounded-full h-8 w-8 border-2 border-[var(--linear-accent)] border-t-transparent"></div>
     </div>
 
-    <div v-else-if="columns.length === 0" class="flex items-center justify-center py-16 h-full text-gray-500">
+    <div v-else-if="columns.length === 0" class="flex items-center justify-center py-16 h-full text-[var(--linear-muted)]">
       No workflow states found for this team
     </div>
 
@@ -121,27 +121,27 @@ const priorityConfig: Record<number, { icon: typeof Circle; color: string; label
         class="w-[280px] flex-shrink-0 flex flex-col group"
       >
         <!-- Column header -->
-        <div class="flex items-center justify-between px-3 py-2 sticky top-0 bg-gray-950 z-10">
+        <div class="flex items-center justify-between px-3 py-2 sticky top-0 bg-[var(--linear-bg)] z-10">
           <div class="flex items-center gap-2">
             <component 
               :is="getStateIcon(column)" 
               class="h-4 w-4 flex-shrink-0" 
               :style="{ color: column.color }"
             />
-            <span class="font-medium text-sm text-gray-200">{{ column.name }}</span>
-            <span class="text-xs text-gray-500">
+            <span class="font-medium text-sm text-[var(--linear-text)]">{{ column.name }}</span>
+            <span class="text-xs text-[var(--linear-muted)]">
               {{ issuesByColumn[column.id]?.length || 0 }}
             </span>
           </div>
           <div class="flex items-center">
-            <button class="p-1 hover:bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-              <MoreHorizontal class="h-4 w-4 text-gray-500" />
+            <button class="p-1 hover:bg-[var(--linear-surface)] rounded opacity-0 group-hover:opacity-100 transition-opacity">
+              <MoreHorizontal class="h-4 w-4 text-[var(--linear-muted)]" />
             </button>
             <button 
-              class="p-1 hover:bg-gray-800 rounded"
+              class="p-1 hover:bg-[var(--linear-surface)] rounded"
               @click="uiStore.openCreateIssueModal()"
             >
-              <Plus class="h-4 w-4 text-gray-500" />
+              <Plus class="h-4 w-4 text-[var(--linear-muted)]" />
             </button>
           </div>
         </div>
@@ -154,14 +154,14 @@ const priorityConfig: Record<number, { icon: typeof Circle; color: string; label
             :key="issue.id"
             @click="handleIssueClick(issue)"
             :class="cn(
-              'px-3 py-2.5 bg-gray-900 rounded border border-gray-800/80',
-              'hover:border-gray-700 hover:bg-gray-850',
+              'px-3 py-2.5 bg-[var(--linear-elevated)] rounded border border-[var(--linear-border)]',
+              'hover:border-[#343a46] hover:bg-[var(--linear-surface)]',
               'cursor-pointer transition-colors'
             )"
           >
             <!-- Issue header: identifier + priority -->
             <div class="flex items-center justify-between mb-1">
-              <span class="text-xs font-mono text-gray-500">{{ issue.identifier }}</span>
+              <span class="text-xs font-mono text-[var(--linear-muted)]">{{ issue.identifier }}</span>
               <component 
                 v-if="issue.priority > 0"
                 :is="priorityConfig[issue.priority]?.icon || Minus" 
@@ -170,7 +170,7 @@ const priorityConfig: Record<number, { icon: typeof Circle; color: string; label
             </div>
 
             <!-- Title -->
-            <p class="text-sm text-gray-200 line-clamp-2 leading-snug mb-2">
+            <p class="text-sm text-[var(--linear-text)] line-clamp-2 leading-snug mb-2">
               {{ issue.title }}
             </p>
 
@@ -192,7 +192,7 @@ const priorityConfig: Record<number, { icon: typeof Circle; color: string; label
                   </div>
                   <span 
                     v-if="issue.labels.length > 2" 
-                    class="text-[11px] text-gray-500"
+                    class="text-[11px] text-[var(--linear-muted)]"
                   >
                     +{{ issue.labels.length - 2 }}
                   </span>

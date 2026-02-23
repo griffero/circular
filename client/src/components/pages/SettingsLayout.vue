@@ -72,14 +72,14 @@ function goBack() {
 </script>
 
 <template>
-  <div class="h-screen bg-[#0d0d0d] flex overflow-hidden">
+  <div class="h-screen bg-[var(--linear-bg)] flex overflow-hidden">
     <!-- Settings Sidebar -->
-    <aside class="w-[240px] h-full flex flex-col bg-[#0d0d0d] border-r border-[#1f1f1f]">
+    <aside class="w-[240px] h-full flex flex-col bg-[var(--linear-sidebar)] border-r border-[var(--linear-border-subtle)]">
       <!-- Back to app -->
       <div class="px-3 py-3">
         <button
           @click="goBack"
-          class="flex items-center gap-2 px-2 py-1.5 text-[13px] text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors w-full"
+          class="flex items-center gap-2 px-2 py-1.5 text-[13px] text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-elevated)] rounded transition-colors w-full"
         >
           <ChevronLeft class="w-4 h-4" />
           Back to app
@@ -89,7 +89,7 @@ function goBack() {
       <!-- Navigation -->
       <nav class="flex-1 overflow-y-auto px-3 pb-4">
         <div v-for="section in filteredSections" :key="section.title" class="mb-6">
-          <h3 class="px-2 mb-2 text-[11px] font-medium text-gray-500 uppercase tracking-wider">
+          <h3 class="px-2 mb-2 text-[11px] font-medium text-[var(--linear-muted)] uppercase tracking-wider">
             {{ section.title }}
           </h3>
           <div class="space-y-0.5">
@@ -100,8 +100,8 @@ function goBack() {
               :class="cn(
                 'flex items-center gap-2.5 px-2 py-1.5 rounded text-[13px] transition-colors',
                 isActive(item.routeName)
-                  ? 'bg-[#1a1a1a] text-white'
-                  : 'text-gray-400 hover:bg-[#1a1a1a] hover:text-white'
+                  ? 'bg-[var(--linear-elevated)] text-[var(--linear-text)]'
+                  : 'text-[var(--linear-muted)] hover:bg-[var(--linear-elevated)] hover:text-[var(--linear-text)]'
               )"
             >
               <component :is="item.icon" class="w-4 h-4" />
@@ -112,7 +112,7 @@ function goBack() {
       </nav>
 
       <!-- User info at bottom -->
-      <div class="px-3 py-3 border-t border-[#1f1f1f]">
+      <div class="px-3 py-3 border-t border-[var(--linear-border-subtle)]">
         <div class="flex items-center gap-2 px-2">
           <div class="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center">
             <span class="text-xs font-medium text-white">
@@ -120,8 +120,8 @@ function goBack() {
             </span>
           </div>
           <div class="flex-1 min-w-0">
-            <p class="text-[13px] text-white truncate">{{ user?.name }}</p>
-            <p class="text-[11px] text-gray-500 truncate">{{ user?.email }}</p>
+            <p class="text-[13px] text-[var(--linear-text)] truncate">{{ user?.name }}</p>
+            <p class="text-[11px] text-[var(--linear-muted)] truncate">{{ user?.email }}</p>
           </div>
         </div>
       </div>
