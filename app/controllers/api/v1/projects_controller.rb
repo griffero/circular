@@ -8,13 +8,22 @@ module Api
       before_action :require_admin!, only: %i[create update destroy]
 
       def index
-        projects = Project.includes(:lead, :members).ordered
+        projects = Project.includes(:lead, :members, :teams).ordered
+
+        # Filter by team if provided
+        if params[:team_id].present?
+          team_project_ids = ProjectTeam.where(team_id: params[:team_id]).select(:project_id)
+          projects = projects.where(id: team_project_ids)
+        elsif params[:team_key].present?
+          team = Team.find_by(key: params[:team_key].to_s.upcase)
+          projects = team ? projects.where(id: team.projects.select(:id)) : projects.none
+        end
 
         # Filter by status if provided
         projects = projects.where(status: params[:status]) if params[:status].present?
 
         render json: {
-          projects: ProjectSerializer.render_as_hash(projects, view: :with_lead)
+          projects: ProjectSerializer.render_as_hash(projects, view: :with_lead_and_teams)
         }
       end
 

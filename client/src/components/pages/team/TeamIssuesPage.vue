@@ -1,21 +1,13 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { useAppStore } from '@/stores/app'
+import { useRouter } from 'vue-router'
 import { useUiStore } from '@/stores/ui'
 import IssueList from '@/components/issues/IssueList.vue'
 import type { Issue } from '@/types'
+import { useCurrentTeam } from '@/composables/useCurrentTeam'
 
-const route = useRoute()
 const router = useRouter()
-const appStore = useAppStore()
 const uiStore = useUiStore()
-
-const teams = computed(() => appStore.teams)
-const currentTeam = computed(() => {
-  const teamKey = route.params.teamKey as string
-  return teams.value.find(t => t.key === teamKey)
-})
+const { currentTeam } = useCurrentTeam()
 
 function handleIssueClick(issue: Issue) {
   router.push(`/issue/${issue.id}`)

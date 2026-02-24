@@ -17,7 +17,7 @@ import {
   GitPullRequest,
   MessageSquare
 } from 'lucide-vue-next'
-import type { Issue, IssueStatus, WorkflowStateType } from '@/types'
+import type { Issue, IssueStatus, WorkflowStateType, WorkflowState } from '@/types'
 
 const props = defineProps<{
   teamId?: string
@@ -58,7 +58,7 @@ function toggleSection(status: string) {
   }
 }
 
-// Status configuration matching Linear's style
+// Status configuration fallback (non-team routes)
 const statusConfig: Record<IssueStatus, { 
   label: string
   icon: typeof Circle
@@ -73,32 +73,71 @@ const statusConfig: Record<IssueStatus, {
   canceled: { label: 'Canceled', icon: XCircle, color: 'text-gray-400', bgColor: 'bg-gray-400' }
 }
 
-// Group issues by status
-const issuesByStatus = computed(() => {
-  const grouped: Record<IssueStatus, Issue[]> = {
-    in_review: [],
-    in_progress: [],
-    todo: [],
-    backlog: [],
-    done: [],
-    canceled: []
+const workflowStateIcon: Record<WorkflowStateType, typeof Circle> = {
+  triage: Circle,
+  backlog: Circle,
+  unstarted: Circle,
+  started: Clock,
+  completed: CheckCircle2,
+  canceled: XCircle,
+}
+
+const sectionMap = computed(() => {
+  const map = new Map<string, { key: string; label: string; icon: typeof Circle; color: string; issues: Issue[] }>()
+  const isTeamContext = !!props.teamId && issuesStore.workflowStates.length > 0
+
+  if (isTeamContext) {
+    const orderedStates = [...issuesStore.workflowStates].sort((a, b) => a.position - b.position)
+    for (const state of orderedStates) {
+      map.set(state.id, {
+        key: state.id,
+        label: state.name,
+        icon: workflowStateIcon[state.stateType] || Circle,
+        color: state.color ? '' : 'text-[var(--linear-muted)]',
+        issues: [],
+      })
+    }
+
+    for (const issue of issues.value) {
+      const key = issue.workflowStateId || '__fallback_backlog__'
+      if (!map.has(key)) {
+        map.set(key, {
+          key,
+          label: issue.workflowState?.name || statusConfig[getEffectiveStatus(issue)].label,
+          icon: issue.workflowState?.stateType ? (workflowStateIcon[issue.workflowState.stateType] || Circle) : statusConfig[getEffectiveStatus(issue)].icon,
+          color: issue.workflowState?.color ? '' : statusConfig[getEffectiveStatus(issue)].color,
+          issues: [],
+        })
+      }
+      map.get(key)!.issues.push(issue)
+    }
+    return Array.from(map.values()).filter((s) => s.issues.length > 0)
   }
-  
+
+  const order: IssueStatus[] = ['in_review', 'in_progress', 'todo', 'backlog', 'done']
+  for (const status of order) {
+    map.set(status, {
+      key: status,
+      label: statusConfig[status].label,
+      icon: statusConfig[status].icon,
+      color: statusConfig[status].color,
+      issues: [],
+    })
+  }
   for (const issue of issues.value) {
     const status = getEffectiveStatus(issue)
-    if (grouped[status]) {
-      grouped[status].push(issue)
+    if (map.has(status)) {
+      map.get(status)!.issues.push(issue)
     }
   }
-  
-  return grouped
+  return Array.from(map.values()).filter((s) => s.issues.length > 0)
 })
-
-// Status order for display
-const statusOrder: IssueStatus[] = ['in_review', 'in_progress', 'todo', 'backlog', 'done']
 
 // Fetch issues with current filters
 async function fetchIssues() {
+  if (props.teamId) {
+    await issuesStore.fetchWorkflowStates(props.teamId)
+  }
   await issuesStore.fetchIssues({
     ...filters.value,
     teamId: props.teamId,
@@ -201,26 +240,25 @@ function getEffectiveStatus(issue: Issue): IssueStatus {
 
     <!-- Issue list grouped by status -->
     <div v-else class="flex-1 overflow-auto">
-      <div v-for="status in statusOrder" :key="status">
-        <!-- Only show sections with issues -->
-        <div v-if="issuesByStatus[status].length > 0">
+      <div v-for="section in sectionMap" :key="section.key">
           <!-- Section header -->
           <div 
-            @click="toggleSection(status)"
+            @click="toggleSection(section.key)"
             class="group flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-[var(--linear-elevated)] sticky top-0 bg-[var(--linear-bg)] z-10 border-b border-[var(--linear-border)]"
           >
             <ChevronDown 
               :class="cn(
                 'w-3.5 h-3.5 text-[var(--linear-muted)] transition-transform',
-                collapsedSections.has(status) && '-rotate-90'
+                collapsedSections.has(section.key) && '-rotate-90'
               )" 
             />
             <component 
-              :is="statusConfig[status].icon" 
-              :class="cn('w-4 h-4', statusConfig[status].color)" 
+              :is="section.icon" 
+              :class="cn('w-4 h-4', section.color)" 
+              :style="section.color ? undefined : (issuesStore.workflowStates.find((s: WorkflowState) => s.id === section.key)?.color ? { color: issuesStore.workflowStates.find((s: WorkflowState) => s.id === section.key)?.color } : undefined)"
             />
-            <span class="text-[13px] font-medium text-[var(--linear-text)]">{{ statusConfig[status].label }}</span>
-            <span class="text-xs text-[var(--linear-muted)] ml-1">{{ issuesByStatus[status].length }}</span>
+            <span class="text-[13px] font-medium text-[var(--linear-text)]">{{ section.label }}</span>
+            <span class="text-xs text-[var(--linear-muted)] ml-1">{{ section.issues.length }}</span>
             
             <!-- Add button -->
             <button 
@@ -232,9 +270,9 @@ function getEffectiveStatus(issue: Issue): IssueStatus {
           </div>
 
           <!-- Issues in this section -->
-          <div v-if="!collapsedSections.has(status)">
+          <div v-if="!collapsedSections.has(section.key)">
             <div
-              v-for="issue in issuesByStatus[status]"
+              v-for="issue in section.issues"
               :key="issue.id"
               @click="handleIssueClick(issue)"
               class="flex items-center gap-3 px-4 py-2 hover:bg-[var(--linear-elevated)] cursor-pointer border-b border-[var(--linear-border-subtle)] group"
@@ -252,8 +290,8 @@ function getEffectiveStatus(issue: Issue): IssueStatus {
 
               <!-- Status icon -->
               <component 
-                :is="statusConfig[issue.status].icon" 
-                :class="cn('w-4 h-4 flex-shrink-0', statusConfig[issue.status].color)" 
+                :is="statusConfig[getEffectiveStatus(issue)].icon" 
+                :class="cn('w-4 h-4 flex-shrink-0', statusConfig[getEffectiveStatus(issue)].color)" 
               />
 
               <!-- Issue identifier -->
@@ -271,9 +309,15 @@ function getEffectiveStatus(issue: Issue): IssueStatus {
                 <div
                   v-for="label in issue.labels.slice(0, 2)"
                   :key="label.id"
-                  class="w-2 h-2 rounded-full flex-shrink-0"
-                  :style="{ backgroundColor: label.color }"
-                />
+                  class="px-1.5 py-0.5 text-xs rounded border border-[var(--linear-border)] text-[var(--linear-muted)]"
+                >
+                  {{ label.name }}
+                </div>
+              </div>
+
+              <!-- Project -->
+              <div v-if="issue.project?.name" class="max-w-[220px] truncate text-xs text-[var(--linear-muted)] border border-[var(--linear-border)] rounded-full px-2 py-0.5">
+                {{ issue.project.name }}
               </div>
 
               <!-- PR indicator -->
@@ -303,7 +347,6 @@ function getEffectiveStatus(issue: Issue): IssueStatus {
               <div v-else class="w-5 h-5 rounded-full border border-dashed border-gray-600 flex-shrink-0" />
             </div>
           </div>
-        </div>
       </div>
     </div>
   </div>

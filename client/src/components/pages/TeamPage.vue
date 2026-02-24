@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useAppStore } from '@/stores/app'
 import { useUiStore } from '@/stores/ui'
 import { useEmojiStore } from '@/stores/emoji'
+import { useCurrentTeam } from '@/composables/useCurrentTeam'
 import EmojiIcon from '@/components/ui/EmojiIcon.vue'
 import Dropdown from '@/components/ui/Dropdown.vue'
 import DropdownItem from '@/components/ui/DropdownItem.vue'
@@ -26,12 +27,9 @@ const router = useRouter()
 const appStore = useAppStore()
 const uiStore = useUiStore()
 const emojiStore = useEmojiStore()
+const { currentTeam } = useCurrentTeam()
 
-const teams = computed(() => appStore.teams)
-const currentTeam = computed(() => {
-  const teamKey = route.params.teamKey as string
-  return teams.value.find(t => t.key === teamKey)
-})
+const teamsLoaded = computed(() => appStore.teams.length > 0 || !appStore.loading)
 
 interface Tab {
   name: string
@@ -44,11 +42,21 @@ const tabs = computed<Tab[]>(() => {
   const base = `/team/${currentTeam.value.key}`
   return [
     { name: 'All Issues', to: `${base}/issues`, routeName: 'team-issues' },
-    { name: 'Active', to: `${base}/triage`, routeName: 'team-triage' },
+    { name: 'Active', to: `${base}/active`, routeName: 'team-active' },
     { name: 'Backlog', to: `${base}/backlog`, routeName: 'team-backlog' },
     { name: 'Cycles', to: `${base}/cycles/current`, routeName: 'team-cycles-current' },
   ]
 })
+
+const issueShellRouteNames = new Set([
+  'team-triage',
+  'team-issues',
+  'team-active',
+  'team-backlog',
+  'team-board',
+])
+
+const showIssueShellHeader = computed(() => issueShellRouteNames.has(String(route.name || '')))
 
 // Check if has emoji
 function hasEmoji(icon?: string | null): boolean {
@@ -59,6 +67,9 @@ function isTabActive(routeName: string) {
   if (routeName === 'team-cycles-current') {
     return route.name === 'team-cycles-current' || route.name === 'team-cycles-upcoming'
   }
+  if (routeName === 'team-active') {
+    return route.name === 'team-active' || route.name === 'team-triage'
+  }
   return route.name === routeName
 }
 </script>
@@ -66,7 +77,7 @@ function isTabActive(routeName: string) {
 <template>
   <div v-if="currentTeam" class="flex flex-col h-full bg-[var(--linear-bg)]">
     <!-- Team header with tabs -->
-    <div class="flex items-center justify-between px-4 py-2 border-b border-[var(--linear-border)]">
+    <div v-if="showIssueShellHeader" class="flex items-center justify-between px-4 py-2 border-b border-[var(--linear-border)]">
       <div class="flex items-center gap-3">
         <div class="flex items-center gap-2">
           <div 
@@ -152,7 +163,7 @@ function isTabActive(routeName: string) {
     </div>
   </div>
 
-  <div v-else class="flex items-center justify-center h-full bg-[var(--linear-bg)]">
+  <div v-else-if="teamsLoaded" class="flex items-center justify-center h-full bg-[var(--linear-bg)]">
     <div class="text-center">
       <p class="text-[var(--linear-muted)]">Team not found</p>
       <button 
@@ -162,5 +173,9 @@ function isTabActive(routeName: string) {
         Go back home
       </button>
     </div>
+  </div>
+
+  <div v-else class="flex items-center justify-center h-full bg-[var(--linear-bg)]">
+    <div class="animate-spin rounded-full h-8 w-8 border-2 border-[var(--linear-accent)] border-t-transparent"></div>
   </div>
 </template>

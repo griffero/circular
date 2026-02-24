@@ -4,6 +4,10 @@ import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
+  const proxyTarget = env.VITE_PROXY_TARGET || 'http://localhost:3000'
+  const cableTarget = proxyTarget.startsWith('https://')
+    ? proxyTarget.replace('https://', 'wss://')
+    : proxyTarget.replace('http://', 'ws://')
   
   return {
     plugins: [vue()],
@@ -19,15 +23,15 @@ export default defineConfig(({ mode }) => {
       port: 5173,
       proxy: {
         '/api': {
-          target: 'http://localhost:3000',
+          target: proxyTarget,
           changeOrigin: true
         },
         '/graphql': {
-          target: 'http://localhost:3000',
+          target: proxyTarget,
           changeOrigin: true
         },
         '/cable': {
-          target: 'ws://localhost:3000',
+          target: cableTarget,
           ws: true
         }
       }

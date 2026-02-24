@@ -1,23 +1,15 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue'
-import { useRoute } from 'vue-router'
-import { useAppStore } from '@/stores/app'
 import { useIssuesStore } from '@/stores/issues'
 import { useUiStore } from '@/stores/ui'
 import IssueListItem from '@/components/issues/IssueListItem.vue'
 import Button from '@/components/ui/Button.vue'
 import { Archive, Plus } from 'lucide-vue-next'
+import { useCurrentTeam } from '@/composables/useCurrentTeam'
 
-const route = useRoute()
-const appStore = useAppStore()
 const issuesStore = useIssuesStore()
 const uiStore = useUiStore()
-
-const teams = computed(() => appStore.teams)
-const currentTeam = computed(() => {
-  const teamKey = route.params.teamKey as string
-  return teams.value.find(t => t.key === teamKey)
-})
+const { currentTeam } = useCurrentTeam()
 
 const loading = computed(() => issuesStore.loading)
 const backlogIssues = computed(() => 

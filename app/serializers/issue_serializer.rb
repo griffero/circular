@@ -78,6 +78,7 @@ class IssueSerializer < Blueprinter::Base
   view :list do
     include_view :with_creator
     include_view :with_assignee
+    include_view :with_project
     include_view :with_labels
     include_view :with_workflow_state
   end

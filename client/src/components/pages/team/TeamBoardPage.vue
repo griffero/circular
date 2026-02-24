@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { useAppStore } from '@/stores/app'
+import { useRouter } from 'vue-router'
 import { useUiStore } from '@/stores/ui'
 import { api } from '@/api/client'
 import { cn } from '@/utils/cn'
 import Avatar from '@/components/ui/Avatar.vue'
 import type { Issue, WorkflowState, WorkflowStateType } from '@/types'
+import { useCurrentTeam } from '@/composables/useCurrentTeam'
 import { 
   Plus, 
   Circle,
@@ -25,16 +25,9 @@ import {
   SignalLow
 } from 'lucide-vue-next'
 
-const route = useRoute()
 const router = useRouter()
-const appStore = useAppStore()
 const uiStore = useUiStore()
-
-const teams = computed(() => appStore.teams)
-const currentTeam = computed(() => {
-  const teamKey = route.params.teamKey as string
-  return teams.value.find(t => t.key === teamKey)
-})
+const { currentTeam } = useCurrentTeam()
 
 const loading = ref(false)
 const boardIssues = ref<Issue[]>([])

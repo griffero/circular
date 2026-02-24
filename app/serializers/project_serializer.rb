@@ -22,6 +22,11 @@ class ProjectSerializer < Blueprinter::Base
     association :lead, blueprint: UserSerializer
   end
 
+  view :with_lead_and_teams do
+    include_view :with_lead
+    association :teams, blueprint: TeamSerializer
+  end
+
   view :with_members do
     association :members, blueprint: UserSerializer
   end

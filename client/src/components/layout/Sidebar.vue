@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useUiStore } from '@/stores/ui'
@@ -107,10 +107,23 @@ onMounted(async () => {
   if (route.params.teamKey) {
     const team = teams.value.find(t => t.key === route.params.teamKey)
     if (team) {
-      expandedTeams.value.add(team.id)
+      expandedTeams.value = new Set([team.id])
     }
   }
 })
+
+watch(
+  () => route.params.teamKey,
+  (teamKey) => {
+    if (!teamKey) return
+    const team = teams.value.find((t) => String(t.key || '').toLowerCase() === String(teamKey).toLowerCase())
+    if (!team) return
+    // Keep sidebar synchronized with current team route: expand active team only.
+    expandedTeams.value = new Set([team.id])
+    fetchTriageCount(team.id)
+  },
+  { immediate: true }
+)
 
 function handleLogout() {
   authStore.logout()
@@ -118,11 +131,11 @@ function handleLogout() {
 }
 
 function isTeamActive(teamKey: string) {
-  return route.params.teamKey === teamKey
+  return String(route.params.teamKey || '').toLowerCase() === String(teamKey || '').toLowerCase()
 }
 
 function isTeamSubPageActive(teamKey: string, page: string) {
-  return route.params.teamKey === teamKey && route.name === `team-${page}`
+  return isTeamActive(teamKey) && route.name === `team-${page}`
 }
 
 // Workspace name from user email domain or default

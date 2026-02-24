@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { cn } from '@/utils/cn'
 import Avatar from '@/components/ui/Avatar.vue'
-import type { Issue, IssueStatus, IssuePriority } from '@/types'
+import type { Issue, IssueStatus, IssuePriority, WorkflowStateType } from '@/types'
 import {
   Circle,
   CheckCircle2,
@@ -44,14 +44,29 @@ const priorityConfig: Record<IssuePriority, { icon: typeof Minus; color: string;
   4: { icon: ArrowDown, color: 'text-blue-500', label: 'Low' },
 }
 
-const statusIcon = computed(() => statusConfig[props.issue.status]?.icon || Circle)
-const statusColor = computed(() => statusConfig[props.issue.status]?.color || 'text-gray-400')
+function getEffectiveStatus(issue: Issue): IssueStatus {
+  if (issue.workflowState?.stateType) {
+    const map: Record<WorkflowStateType, IssueStatus> = {
+      triage: 'backlog',
+      backlog: 'backlog',
+      unstarted: 'todo',
+      started: 'in_progress',
+      completed: 'done',
+      canceled: 'canceled'
+    }
+    return map[issue.workflowState.stateType] || issue.status || 'backlog'
+  }
+  return issue.status || 'backlog'
+}
+
+const statusIcon = computed(() => statusConfig[getEffectiveStatus(props.issue)]?.icon || Circle)
+const statusColor = computed(() => statusConfig[getEffectiveStatus(props.issue)]?.color || 'text-gray-400')
 const priorityIcon = computed(() => priorityConfig[props.issue.priority]?.icon || Minus)
 const priorityColor = computed(() => priorityConfig[props.issue.priority]?.color || 'text-gray-400')
 
 const isOverdue = computed(() => {
   if (!props.issue.dueDate) return false
-  return new Date(props.issue.dueDate) < new Date() && !['done', 'canceled'].includes(props.issue.status)
+  return new Date(props.issue.dueDate) < new Date() && !['done', 'canceled'].includes(getEffectiveStatus(props.issue))
 })
 
 function handleClick() {

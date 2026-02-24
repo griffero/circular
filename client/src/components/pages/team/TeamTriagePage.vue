@@ -1,21 +1,13 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { useAppStore } from '@/stores/app'
+import { useRouter } from 'vue-router'
 import { useIssuesStore } from '@/stores/issues'
 import IssueListItem from '@/components/issues/IssueListItem.vue'
-import { AlertTriangle } from 'lucide-vue-next'
+import { useCurrentTeam } from '@/composables/useCurrentTeam'
 
-const route = useRoute()
 const router = useRouter()
-const appStore = useAppStore()
 const issuesStore = useIssuesStore()
-
-const teams = computed(() => appStore.teams)
-const currentTeam = computed(() => {
-  const teamKey = route.params.teamKey as string
-  return teams.value.find(t => t.key === teamKey)
-})
+const { currentTeam } = useCurrentTeam()
 
 const loading = ref(false)
 
