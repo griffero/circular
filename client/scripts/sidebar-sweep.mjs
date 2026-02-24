@@ -66,13 +66,16 @@ async function prep(page, url, outPath, opts = {}) {
   await page.addStyleTag({ content: '*,*::before,*::after{animation:none!important;transition:none!important;}' }).catch(() => {})
   if (opts.circular) {
     await page.waitForSelector('[data-testid="app-shell-ready"]', { timeout: 30000 })
-    await page.waitForFunction(() => {
-      const spinners = document.querySelectorAll('.animate-spin')
-      return spinners.length === 0
-    }, { timeout: 20000 })
-    const hasSpinner = await page.evaluate(() => document.querySelectorAll('.animate-spin').length > 0)
-    if (hasSpinner) {
-      throw new Error('Circular view still loading (spinner visible)')
+    await page.waitForLoadState('networkidle', { timeout: 12000 }).catch(() => {})
+
+    // Require spinner-free stability window before capture.
+    const stableChecks = 8
+    for (let i = 0; i < stableChecks; i += 1) {
+      const hasSpinner = await page.evaluate(() => document.querySelectorAll('.animate-spin').length > 0)
+      if (hasSpinner) {
+        throw new Error('Circular view still loading (spinner visible)')
+      }
+      await page.waitForTimeout(200)
     }
   }
   if (opts.linearReadyText) {

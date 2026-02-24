@@ -25,6 +25,9 @@ module Api
         # Filter by workflow_state
         issues = issues.where(workflow_state_id: params[:workflow_state_id]) if params[:workflow_state_id].present?
 
+        # Filter by cycle
+        issues = issues.where(cycle_id: params[:cycle_id]) if params[:cycle_id].present?
+
         # Filter by priority
         issues = issues.by_priority(params[:priority]) if params[:priority].present?
 
