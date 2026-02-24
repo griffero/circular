@@ -70,7 +70,7 @@ async function fetchBoardData(teamId: string) {
   try {
     const [workflowData, issuesData] = await Promise.all([
       api.get<{ workflow_states: WorkflowState[] }>(`/api/v1/teams/${teamId}/workflow_states`),
-      api.get<{ issues: Issue[] }>(`/api/v1/issues?team_id=${teamId}`),
+      api.get<{ issues: Issue[] }>(`/api/v1/issues?team_id=${teamId}&per_page=500`),
     ])
     boardWorkflowStates.value = workflowData.workflow_states
     boardIssues.value = issuesData.issues

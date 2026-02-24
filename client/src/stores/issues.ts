@@ -15,6 +15,7 @@ export interface IssueFilters {
   q?: string
   sort?: 'created_at' | 'updated_at' | 'priority' | 'due_date'
   direction?: 'asc' | 'desc'
+  perPage?: number
 }
 
 // Optimistic update tracking
@@ -111,6 +112,7 @@ export const useIssuesStore = defineStore('issues', () => {
       if (filters.q) params.append('q', filters.q)
       if (filters.sort) params.append('sort', filters.sort)
       if (filters.direction) params.append('direction', filters.direction)
+      if (filters.perPage) params.append('per_page', String(filters.perPage))
 
       const url = `/api/v1/issues?${params.toString()}`
       const data = await api.get<{ issues: Issue[] }>(url)

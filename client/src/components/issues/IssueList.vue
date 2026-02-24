@@ -17,7 +17,7 @@ import {
   GitPullRequest,
   MessageSquare
 } from 'lucide-vue-next'
-import type { Issue, IssueStatus } from '@/types'
+import type { Issue, IssueStatus, WorkflowStateType } from '@/types'
 
 const props = defineProps<{
   teamId?: string
@@ -85,8 +85,9 @@ const issuesByStatus = computed(() => {
   }
   
   for (const issue of issues.value) {
-    if (grouped[issue.status]) {
-      grouped[issue.status].push(issue)
+    const status = getEffectiveStatus(issue)
+    if (grouped[status]) {
+      grouped[status].push(issue)
     }
   }
   
@@ -143,14 +144,29 @@ const priorityConfig: Record<number, { label: string; color: string }> = {
   3: { label: 'Medium', color: 'text-yellow-500' },
   4: { label: 'Low', color: 'text-blue-500' }
 }
+
+function getEffectiveStatus(issue: Issue): IssueStatus {
+  if (issue.workflowState?.stateType) {
+    const stateTypeToStatus: Record<WorkflowStateType, IssueStatus> = {
+      triage: 'backlog',
+      backlog: 'backlog',
+      unstarted: 'todo',
+      started: 'in_progress',
+      completed: 'done',
+      canceled: 'canceled',
+    }
+    return stateTypeToStatus[issue.workflowState.stateType] || issue.status || 'backlog'
+  }
+  return issue.status || 'backlog'
+}
 </script>
 
 <template>
-  <div class="h-full flex flex-col bg-[#0d0d0d]">
+  <div class="h-full flex flex-col bg-[var(--linear-bg)]">
     <!-- Filters panel -->
     <div 
       v-if="uiStore.filtersOpen" 
-      class="px-4 py-3 border-b border-[#1f1f1f] bg-[#0d0d0d]"
+      class="px-4 py-3 border-b border-[var(--linear-border)] bg-[var(--linear-bg)]"
     >
       <IssueFiltersComponent
         :filters="filters"
@@ -160,18 +176,18 @@ const priorityConfig: Record<number, { label: string; color: string }> = {
 
     <!-- Loading -->
     <div v-if="loading" class="flex items-center justify-center py-16 flex-1">
-      <div class="animate-spin rounded-full h-8 w-8 border-2 border-indigo-500 border-t-transparent"></div>
+      <div class="animate-spin rounded-full h-8 w-8 border-2 border-[var(--linear-accent)] border-t-transparent"></div>
     </div>
 
     <!-- Empty state -->
     <div v-else-if="issues.length === 0" class="flex flex-col items-center justify-center py-16 flex-1">
-      <div class="w-12 h-12 rounded-full bg-[#1a1a1a] flex items-center justify-center mb-4">
-        <Circle class="w-6 h-6 text-gray-500" />
+      <div class="w-12 h-12 rounded-full bg-[var(--linear-elevated)] border border-[var(--linear-border)] flex items-center justify-center mb-4">
+        <Circle class="w-6 h-6 text-[var(--linear-muted)]" />
       </div>
-      <h3 class="text-sm font-medium text-white mb-1">
+      <h3 class="text-sm font-medium text-[var(--linear-text)] mb-1">
         {{ emptyTitle || 'No issues found' }}
       </h3>
-      <p class="text-xs text-gray-500 text-center max-w-xs mb-4">
+      <p class="text-xs text-[var(--linear-muted)] text-center max-w-xs mb-4">
         {{ emptyDescription || 'Create a new issue to get started.' }}
       </p>
       <button 
@@ -191,11 +207,11 @@ const priorityConfig: Record<number, { label: string; color: string }> = {
           <!-- Section header -->
           <div 
             @click="toggleSection(status)"
-            class="flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-[#1a1a1a] sticky top-0 bg-[#0d0d0d] z-10 border-b border-[#1f1f1f]"
+            class="group flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-[var(--linear-elevated)] sticky top-0 bg-[var(--linear-bg)] z-10 border-b border-[var(--linear-border)]"
           >
             <ChevronDown 
               :class="cn(
-                'w-3.5 h-3.5 text-gray-500 transition-transform',
+                'w-3.5 h-3.5 text-[var(--linear-muted)] transition-transform',
                 collapsedSections.has(status) && '-rotate-90'
               )" 
             />
@@ -203,15 +219,15 @@ const priorityConfig: Record<number, { label: string; color: string }> = {
               :is="statusConfig[status].icon" 
               :class="cn('w-4 h-4', statusConfig[status].color)" 
             />
-            <span class="text-[13px] font-medium text-white">{{ statusConfig[status].label }}</span>
-            <span class="text-xs text-gray-500 ml-1">{{ issuesByStatus[status].length }}</span>
+            <span class="text-[13px] font-medium text-[var(--linear-text)]">{{ statusConfig[status].label }}</span>
+            <span class="text-xs text-[var(--linear-muted)] ml-1">{{ issuesByStatus[status].length }}</span>
             
             <!-- Add button -->
             <button 
-              class="ml-auto p-1 rounded hover:bg-[#2a2a2a] opacity-0 group-hover:opacity-100"
+              class="ml-auto p-1 rounded hover:bg-[var(--linear-surface)] opacity-0 group-hover:opacity-100"
               @click.stop="emit('createIssue')"
             >
-              <Plus class="w-3.5 h-3.5 text-gray-500" />
+              <Plus class="w-3.5 h-3.5 text-[var(--linear-muted)]" />
             </button>
           </div>
 
@@ -221,7 +237,7 @@ const priorityConfig: Record<number, { label: string; color: string }> = {
               v-for="issue in issuesByStatus[status]"
               :key="issue.id"
               @click="handleIssueClick(issue)"
-              class="flex items-center gap-3 px-4 py-2 hover:bg-[#1a1a1a] cursor-pointer border-b border-[#1f1f1f] group"
+              class="flex items-center gap-3 px-4 py-2 hover:bg-[var(--linear-elevated)] cursor-pointer border-b border-[var(--linear-border-subtle)] group"
             >
               <!-- Priority indicator -->
               <div class="w-4 flex justify-center">
@@ -246,7 +262,7 @@ const priorityConfig: Record<number, { label: string; color: string }> = {
               </span>
 
               <!-- Title -->
-              <span class="text-[13px] text-gray-300 flex-1 truncate">
+              <span class="text-[13px] text-[var(--linear-text)] flex-1 truncate">
                 {{ issue.title }}
               </span>
 
@@ -280,7 +296,7 @@ const priorityConfig: Record<number, { label: string; color: string }> = {
               <!-- Assignee -->
               <Avatar
                 v-if="issue.assignee"
-                :name="issue.assignee.name"
+                :name="issue.assignee.name || issue.assignee.displayName || issue.assignee.email"
                 size="xs"
                 class="flex-shrink-0"
               />

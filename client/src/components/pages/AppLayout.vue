@@ -20,7 +20,7 @@ const pagesWithOwnHeader = [
   'inbox', 
   'my-issues',
   'views',
-  'team', 'team-active', 'team-backlog', 'team-board', 'team-cycles',
+  'team', 'team-triage', 'team-issues', 'team-active', 'team-backlog', 'team-board', 'team-cycles', 'team-cycles-current', 'team-cycles-upcoming', 'team-projects', 'team-views',
   'project',
   'issue',
   'view',

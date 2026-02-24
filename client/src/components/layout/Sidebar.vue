@@ -17,7 +17,6 @@ import {
   Sun,
   LogOut,
   ChevronDown,
-  ChevronRight,
   Zap,
   User,
   Users,
@@ -27,8 +26,14 @@ import {
   LayoutGrid,
   MoreHorizontal,
   PenLine,
-  SlidersHorizontal
+  SlidersHorizontal,
+  CircleDotDashed,
+  Copy,
+  Clock3,
+  Package,
+  Layers
 } from 'lucide-vue-next'
+import { api } from '@/api/client'
 
 const route = useRoute()
 const router = useRouter()
@@ -39,7 +44,8 @@ const emojiStore = useEmojiStore()
 
 const user = computed(() => authStore.user)
 const teams = computed(() => appStore.teams)
-const projects = computed(() => appStore.projects)
+const triageCounts = ref<Record<string, number>>({})
+const loadingTriageCounts = ref<Set<string>>(new Set())
 
 // Check if a team has a valid emoji (custom slack emoji or unicode)
 function hasEmoji(icon?: string | null): boolean {
@@ -57,6 +63,36 @@ function toggleTeam(teamId: string) {
     expandedTeams.value.delete(teamId)
   } else {
     expandedTeams.value.add(teamId)
+    fetchTriageCount(teamId)
+  }
+}
+
+const sortedTeams = computed(() => {
+  const currentKey = route.params.teamKey as string | undefined
+  return [...teams.value].sort((a, b) => {
+    if (a.key === currentKey) return -1
+    if (b.key === currentKey) return 1
+    return a.name.localeCompare(b.name)
+  })
+})
+
+async function fetchTriageCount(teamId: string) {
+  if (triageCounts.value[teamId] !== undefined || loadingTriageCounts.value.has(teamId)) return
+  loadingTriageCounts.value.add(teamId)
+  try {
+    const data = await api.get<{ issues: Array<{ status?: string; workflowState?: { stateType?: string } }> }>(
+      `/api/v1/issues?team_id=${teamId}&per_page=500`
+    )
+    const triageLike = data.issues.filter((issue) => {
+      const type = issue.workflowState?.stateType
+      return type === 'triage' || type === 'backlog' || issue.status === 'backlog'
+    }).length
+    triageCounts.value = { ...triageCounts.value, [teamId]: triageLike }
+  } catch (err) {
+    console.error('Failed to fetch triage count:', err)
+    triageCounts.value = { ...triageCounts.value, [teamId]: 0 }
+  } finally {
+    loadingTriageCounts.value.delete(teamId)
   }
 }
 
@@ -204,7 +240,7 @@ const workspaceName = computed(() => {
       <!-- Workspace section -->
       <div class="mt-6">
         <div class="px-2 mb-1">
-          <span class="text-[11px] font-medium text-[var(--linear-muted)] uppercase tracking-wide">Workspace</span>
+          <span class="text-[11px] font-medium text-[var(--linear-muted)]">Workspace</span>
         </div>
         <div class="space-y-0.5">
           <router-link
@@ -283,7 +319,7 @@ const workspaceName = computed(() => {
       <!-- Your teams section -->
       <div class="mt-6">
         <div class="flex items-center justify-between px-2 mb-1">
-          <span class="text-[11px] font-medium text-[var(--linear-muted)] uppercase tracking-wide">Your teams</span>
+          <span class="text-[11px] font-medium text-[var(--linear-muted)]">Your teams</span>
           <button 
             @click="teamsCollapsed = !teamsCollapsed"
             class="p-0.5 rounded hover:bg-[var(--linear-elevated)]"
@@ -297,8 +333,8 @@ const workspaceName = computed(() => {
         </div>
         
         <div v-else-if="!teamsCollapsed" class="space-y-1">
-          <div 
-            v-for="team in teams" 
+          <div
+            v-for="team in sortedTeams"
             :key="team.id"
             :class="cn(
               'rounded-md transition-all',
@@ -337,42 +373,95 @@ const workspaceName = computed(() => {
             <!-- Team sub-items -->
             <div v-if="expandedTeams.has(team.id)" class="pb-1">
               <router-link
-                :to="`/team/${team.key}/active`"
+                :to="`/team/${team.key}/triage`"
                 :class="cn(
                   'flex items-center gap-2.5 ml-5 px-2 py-1 rounded text-[13px] transition-colors',
-                  isTeamSubPageActive(team.key, 'active')
+                  isTeamSubPageActive(team.key, 'triage')
                     ? 'bg-[var(--linear-elevated)] text-[var(--linear-text)]'
                     : 'text-[var(--linear-muted)] hover:bg-[var(--linear-elevated)] hover:text-[var(--linear-text)]'
                 )"
               >
-                <span class="w-1.5 h-1.5 rounded-full bg-yellow-500"></span>
-                <span>Active</span>
+                <CircleDotDashed class="w-4 h-4" />
+                <span class="flex-1">Triage</span>
+                <span class="text-[var(--linear-muted)] text-xs">
+                  {{ triageCounts[team.id] ?? 0 }}
+                </span>
               </router-link>
-              
+
               <router-link
-                :to="`/team/${team.key}/backlog`"
+                :to="`/team/${team.key}/issues`"
                 :class="cn(
                   'flex items-center gap-2.5 ml-5 px-2 py-1 rounded text-[13px] transition-colors',
-                  isTeamSubPageActive(team.key, 'backlog')
+                  isTeamSubPageActive(team.key, 'issues')
                     ? 'bg-[var(--linear-elevated)] text-[var(--linear-text)]'
                     : 'text-[var(--linear-muted)] hover:bg-[var(--linear-elevated)] hover:text-[var(--linear-text)]'
                 )"
               >
-                <span class="w-1.5 h-1.5 rounded-full bg-gray-500"></span>
-                <span>Backlog</span>
+                <Copy class="w-4 h-4" />
+                <span>Issues</span>
               </router-link>
-              
+
+              <div class="ml-5">
+                <router-link
+                  :to="`/team/${team.key}/cycles/current`"
+                  :class="cn(
+                    'flex items-center gap-2.5 px-2 py-1 rounded text-[13px] transition-colors',
+                    (isTeamSubPageActive(team.key, 'cycles-current') || isTeamSubPageActive(team.key, 'cycles-upcoming'))
+                      ? 'bg-[var(--linear-elevated)] text-[var(--linear-text)]'
+                      : 'text-[var(--linear-muted)] hover:bg-[var(--linear-elevated)] hover:text-[var(--linear-text)]'
+                  )"
+                >
+                  <Clock3 class="w-4 h-4" />
+                  <span>Cycles</span>
+                </router-link>
+                <router-link
+                  :to="`/team/${team.key}/cycles/current`"
+                  :class="cn(
+                    'flex items-center gap-2 ml-6 pl-2 pr-2 py-1 border-l border-[var(--linear-border)] text-[13px] transition-colors',
+                    isTeamSubPageActive(team.key, 'cycles-current')
+                      ? 'text-[var(--linear-text)]'
+                      : 'text-[var(--linear-muted)] hover:text-[var(--linear-text)]'
+                  )"
+                >
+                  <span>Current</span>
+                </router-link>
+                <router-link
+                  :to="`/team/${team.key}/cycles/upcoming`"
+                  :class="cn(
+                    'flex items-center gap-2 ml-6 pl-2 pr-2 py-1 border-l border-[var(--linear-border)] text-[13px] transition-colors',
+                    isTeamSubPageActive(team.key, 'cycles-upcoming')
+                      ? 'text-[var(--linear-text)]'
+                      : 'text-[var(--linear-muted)] hover:text-[var(--linear-text)]'
+                  )"
+                >
+                  <span>Upcoming</span>
+                </router-link>
+              </div>
+
               <router-link
-                :to="`/team/${team.key}/board`"
+                :to="`/team/${team.key}/projects`"
                 :class="cn(
                   'flex items-center gap-2.5 ml-5 px-2 py-1 rounded text-[13px] transition-colors',
-                  isTeamSubPageActive(team.key, 'board')
+                  isTeamSubPageActive(team.key, 'projects')
                     ? 'bg-[var(--linear-elevated)] text-[var(--linear-text)]'
                     : 'text-[var(--linear-muted)] hover:bg-[var(--linear-elevated)] hover:text-[var(--linear-text)]'
                 )"
               >
-                <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-                <span>Board</span>
+                <Package class="w-4 h-4" />
+                <span>Projects</span>
+              </router-link>
+
+              <router-link
+                :to="`/team/${team.key}/views`"
+                :class="cn(
+                  'flex items-center gap-2.5 ml-5 px-2 py-1 rounded text-[13px] transition-colors',
+                  isTeamSubPageActive(team.key, 'views')
+                    ? 'bg-[var(--linear-elevated)] text-[var(--linear-text)]'
+                    : 'text-[var(--linear-muted)] hover:bg-[var(--linear-elevated)] hover:text-[var(--linear-text)]'
+                )"
+              >
+                <Layers class="w-4 h-4" />
+                <span>Views</span>
               </router-link>
             </div>
           </div>

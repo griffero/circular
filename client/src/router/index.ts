@@ -90,8 +90,18 @@ const router = createRouter({
           path: 'team/:teamKey',
           name: 'team',
           component: () => import('@/components/pages/TeamPage.vue'),
-          redirect: to => `/team/${to.params.teamKey}/active`,
+          redirect: to => `/team/${to.params.teamKey}/triage`,
           children: [
+            {
+              path: 'triage',
+              name: 'team-triage',
+              component: () => import('@/components/pages/team/TeamTriagePage.vue'),
+            },
+            {
+              path: 'issues',
+              name: 'team-issues',
+              component: () => import('@/components/pages/team/TeamIssuesPage.vue'),
+            },
             {
               path: 'active',
               name: 'team-active',
@@ -111,6 +121,26 @@ const router = createRouter({
               path: 'cycles',
               name: 'team-cycles',
               component: () => import('@/components/pages/team/TeamCyclesPage.vue'),
+            },
+            {
+              path: 'cycles/current',
+              name: 'team-cycles-current',
+              component: () => import('@/components/pages/team/TeamCyclesPage.vue'),
+            },
+            {
+              path: 'cycles/upcoming',
+              name: 'team-cycles-upcoming',
+              component: () => import('@/components/pages/team/TeamCyclesPage.vue'),
+            },
+            {
+              path: 'projects',
+              name: 'team-projects',
+              component: () => import('@/components/pages/team/TeamProjectsPage.vue'),
+            },
+            {
+              path: 'views',
+              name: 'team-views',
+              component: () => import('@/components/pages/team/TeamViewsPage.vue'),
             },
           ],
         },

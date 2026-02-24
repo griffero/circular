@@ -43,16 +43,23 @@ const tabs = computed<Tab[]>(() => {
   if (!currentTeam.value) return []
   const base = `/team/${currentTeam.value.key}`
   return [
-    { name: 'All Issues', to: `${base}/board`, routeName: 'team-board' },
-    { name: 'Active', to: `${base}/active`, routeName: 'team-active' },
+    { name: 'All Issues', to: `${base}/issues`, routeName: 'team-issues' },
+    { name: 'Active', to: `${base}/triage`, routeName: 'team-triage' },
     { name: 'Backlog', to: `${base}/backlog`, routeName: 'team-backlog' },
-    { name: 'Cycles', to: `${base}/cycles`, routeName: 'team-cycles' },
+    { name: 'Cycles', to: `${base}/cycles/current`, routeName: 'team-cycles-current' },
   ]
 })
 
 // Check if has emoji
 function hasEmoji(icon?: string | null): boolean {
   return emojiStore.isRenderableEmoji(icon)
+}
+
+function isTabActive(routeName: string) {
+  if (routeName === 'team-cycles-current') {
+    return route.name === 'team-cycles-current' || route.name === 'team-cycles-upcoming'
+  }
+  return route.name === routeName
 }
 </script>
 
@@ -82,7 +89,7 @@ function hasEmoji(icon?: string | null): boolean {
             :to="tab.to"
             :class="[
               'px-3 py-1.5 text-sm rounded-md transition-colors',
-              route.name === tab.routeName
+              isTabActive(tab.routeName)
                 ? 'bg-[var(--linear-elevated)] text-[var(--linear-text)]'
                 : 'text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-surface)]'
             ]"
