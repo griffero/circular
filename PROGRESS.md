@@ -1,5 +1,34 @@
 # Circular -> Linear Parity Progress
 
+## Completed in this slice (2026-03-02, parity slice: issue list/detail)
+
+### 1) Issue list filter interaction parity + UX
+- Updated `client/src/components/issues/IssueList.vue` to make filter interactions fully live:
+  - Added deep `filters` watch to refetch issues whenever filters change.
+  - Added active-filter pills below the filter controls with per-filter remove actions.
+  - Added `Clear all` action for active filters.
+- Replaced hardcoded create CTA styling in list empty state with shared `Button` component for consistent action styling.
+
+### 2) View-level button parity in issue flows
+- Updated team issue-shell actions in `client/src/components/pages/TeamPage.vue`:
+  - Replaced raw `Filter` and `New issue` buttons with shared `Button` component variants.
+  - Filter button now reflects open/closed state consistently via button variant.
+
+### 3) Dark theme token consistency pass (issue-focused components)
+- Normalized mixed hardcoded dark/light classes to `--linear-*` tokens in:
+  - `client/src/components/pages/IssuePage.vue`
+  - `client/src/components/issues/IssuePanel.vue`
+  - `client/src/components/issues/IssueFilters.vue`
+  - `client/src/components/issues/CreateIssueModal.vue`
+- Removed remaining hardcoded dark container palettes in these issue list/detail flows to keep light/dark behavior consistent with shared theme tokens.
+
+### 4) Expanded issue user-flow/filter request specs
+- Extended `spec/requests/issues_spec.rb` with additional coverage for:
+  - Rich create payload flow (assignee, project, due date, labels, priority).
+  - Detail-flow updates (title, description, priority, assignee, project, due date, labels).
+  - Delete verification (`Issue.exists?` false after delete).
+  - Additional filter interactions: `my_issues=true` and free-text `q` filtering.
+
 ## Completed in this slice (2026-03-02)
 
 ### 1) Issue API ordering/filter parity improvements

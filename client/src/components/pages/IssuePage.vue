@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
 import { useIssuesStore } from '@/stores/issues'
 import { useAppStore } from '@/stores/app'
 import type { Issue, WorkflowState } from '@/types'
@@ -13,6 +12,9 @@ import EmojiIcon from '@/components/ui/EmojiIcon.vue'
 import { useEmojiStore } from '@/stores/emoji'
 import {
   ArrowLeft,
+  Copy,
+  Trash2,
+  MoreHorizontal,
   Circle,
   CheckCircle2,
   XCircle,
@@ -28,19 +30,16 @@ import {
   SignalHigh,
   SignalMedium,
   SignalLow,
-  Search,
   Check,
   CircleDashed
 } from 'lucide-vue-next'
 
 const route = useRoute()
 const router = useRouter()
-const authStore = useAuthStore()
 const issuesStore = useIssuesStore()
 const appStore = useAppStore()
 const emojiStore = useEmojiStore()
 
-const user = computed(() => authStore.user)
 const issueId = computed(() => route.params.issueId as string)
 
 const issue = computed(() => issuesStore.currentIssue)
@@ -50,12 +49,9 @@ const labels = computed(() => issuesStore.labels)
 const users = computed(() => appStore.users)
 const projects = computed(() => appStore.projects)
 
-// Local state for date picker
-const showDatePicker = ref(false)
-const selectedDate = ref<string | null>(null)
-
 // Project search
 const projectSearch = ref('')
+const deleting = ref(false)
 const filteredProjects = computed(() => {
   if (!projectSearch.value) return projects.value
   const search = projectSearch.value.toLowerCase()
@@ -68,7 +64,7 @@ function hasEmoji(icon?: string | null): boolean {
 }
 
 const priorities = [
-  { value: 0, label: 'No priority', icon: Minus, color: 'text-gray-400' },
+  { value: 0, label: 'No priority', icon: Minus, color: 'text-[var(--linear-muted)]' },
   { value: 1, label: 'Urgent', icon: AlertCircle, color: 'text-red-500' },
   { value: 2, label: 'High', icon: SignalHigh, color: 'text-orange-500' },
   { value: 3, label: 'Medium', icon: SignalMedium, color: 'text-yellow-500' },
@@ -76,9 +72,9 @@ const priorities = [
 ]
 
 const statusIcons: Record<string, { icon: any; color: string }> = {
-  triage: { icon: Circle, color: 'text-gray-400' },
-  backlog: { icon: Circle, color: 'text-gray-400' },
-  unstarted: { icon: Circle, color: 'text-gray-500' },
+  triage: { icon: Circle, color: 'text-[var(--linear-muted)]' },
+  backlog: { icon: Circle, color: 'text-[var(--linear-muted)]' },
+  unstarted: { icon: Circle, color: 'text-[var(--linear-muted)]' },
   started: { icon: Clock, color: 'text-yellow-500' },
   completed: { icon: CheckCircle2, color: 'text-green-500' },
   canceled: { icon: XCircle, color: 'text-red-400' },
@@ -116,7 +112,24 @@ async function updateProject(projectId: string | null) {
 async function updateDueDate(date: string | null) {
   if (!issue.value) return
   await issuesStore.updateIssue(issue.value.id, { dueDate: date })
-  showDatePicker.value = false
+}
+
+function copyIdentifier() {
+  if (!issue.value) return
+  navigator.clipboard.writeText(issue.value.identifier)
+}
+
+async function deleteIssue() {
+  if (!issue.value || deleting.value) return
+  if (!confirm('Are you sure you want to delete this issue?')) return
+
+  deleting.value = true
+  try {
+    await issuesStore.deleteIssue(issue.value.id)
+    router.push('/')
+  } finally {
+    deleting.value = false
+  }
 }
 
 async function toggleLabel(labelId: string) {
@@ -162,47 +175,71 @@ function formatDate(dateString?: string | null) {
 </script>
 
 <template>
-  <div class="h-full flex bg-[#0d0d0d]">
+  <div class="h-full flex bg-[var(--linear-bg)]">
     <!-- Main content -->
     <div class="flex-1 flex flex-col overflow-hidden">
       <!-- Header -->
-      <div class="flex items-center gap-3 px-4 py-2 border-b border-[#1f1f1f]">
-        <button 
-          @click="router.back()"
-          class="p-1.5 hover:bg-[#1a1a1a] rounded text-gray-500 hover:text-white transition-colors"
-        >
-          <ArrowLeft class="h-4 w-4" />
-        </button>
-        <span class="text-sm font-mono text-gray-500">{{ issue?.identifier }}</span>
+      <div class="flex items-center justify-between gap-3 px-4 py-2 border-b border-[var(--linear-border)]">
+        <div class="flex items-center gap-3">
+          <button
+            @click="router.back()"
+            class="p-1.5 hover:bg-[var(--linear-surface)] rounded text-[var(--linear-muted)] hover:text-[var(--linear-text)] transition-colors"
+          >
+            <ArrowLeft class="h-4 w-4" />
+          </button>
+          <span class="text-sm font-mono text-[var(--linear-muted)]">{{ issue?.identifier }}</span>
+        </div>
+        <div v-if="issue" class="flex items-center gap-1">
+          <button
+            @click="copyIdentifier"
+            class="p-1.5 rounded text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-surface)] transition-colors"
+            title="Copy identifier"
+          >
+            <Copy class="h-4 w-4" />
+          </button>
+          <Dropdown align="right" width="w-40">
+            <template #trigger>
+              <button class="p-1.5 rounded text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-surface)] transition-colors">
+                <MoreHorizontal class="h-4 w-4" />
+              </button>
+            </template>
+            <template #default="{ close }">
+              <DropdownItem danger @click="deleteIssue(); close()">
+                <Trash2 class="h-4 w-4" />
+                Delete issue
+              </DropdownItem>
+            </template>
+          </Dropdown>
+        </div>
       </div>
 
       <!-- Issue content -->
       <div v-if="loading" class="flex items-center justify-center py-16">
-        <div class="animate-spin rounded-full h-8 w-8 border-2 border-indigo-500 border-t-transparent"></div>
+        <div class="animate-spin rounded-full h-8 w-8 border-2 border-[var(--linear-accent)] border-t-transparent"></div>
       </div>
 
       <div v-else-if="issue" class="flex-1 overflow-auto p-6">
-        <h1 class="text-2xl font-semibold text-white mb-4">
+        <h1 class="text-2xl font-semibold text-[var(--linear-text)] mb-4">
           {{ issue.title }}
         </h1>
 
         <div
           v-if="issue.description"
-          class="prose prose-invert max-w-none mb-8 prose-p:my-3 prose-ul:my-3 prose-ol:my-3"
+          class="text-sm text-[var(--linear-text)] whitespace-pre-wrap mb-8"
         >
           <EmojiText :text="issue.description" />
         </div>
-        <div v-else class="text-sm text-gray-500 mb-8">
+        <div v-else class="text-sm text-[var(--linear-muted)] mb-8">
           No description
         </div>
 
         <!-- Comments section placeholder -->
-        <div class="border-t border-[#1f1f1f] pt-6">
-          <h2 class="text-sm font-medium text-white mb-4 flex items-center gap-2">
+        <div class="border-t border-[var(--linear-border)] pt-6">
+          <h2 class="text-sm font-medium text-[var(--linear-text)] mb-4 flex items-center gap-2">
             <MessageSquare class="h-4 w-4" />
             Activity
           </h2>
-          <div class="text-sm text-gray-500 text-center py-8">
+          <div class="text-sm text-[var(--linear-muted)] text-center py-8">
             No activity yet
           </div>
         </div>
@@ -210,10 +247,10 @@ function formatDate(dateString?: string | null) {
 
       <div v-else class="flex items-center justify-center h-full">
         <div class="text-center">
-          <p class="text-gray-500">Issue not found</p>
+          <p class="text-[var(--linear-muted)]">Issue not found</p>
           <button 
             @click="router.push('/')"
-            class="mt-4 px-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors"
+            class="mt-4 px-4 py-2 text-sm text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-surface)] rounded transition-colors"
           >
             Go back home
           </button>
@@ -222,14 +259,14 @@ function formatDate(dateString?: string | null) {
     </div>
 
     <!-- Sidebar -->
-    <div v-if="issue" class="w-72 border-l border-[#1f1f1f] bg-[#111] p-4 overflow-auto">
+    <div v-if="issue" class="w-72 border-l border-[var(--linear-border)] bg-[var(--linear-elevated)] p-4 overflow-auto">
       <div class="space-y-4">
         <!-- Status -->
         <div>
-          <label class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 block">Status</label>
+          <label class="text-xs font-medium text-[var(--linear-muted)] uppercase tracking-wider mb-2 block">Status</label>
           <Dropdown align="left" :full-width="true">
             <template #trigger>
-              <button class="w-full flex items-center justify-between gap-2 px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded hover:bg-[#222] text-sm text-white transition-colors">
+              <button class="w-full flex items-center justify-between gap-2 px-3 py-2 bg-[var(--linear-surface)] border border-[var(--linear-border)] rounded hover:bg-[var(--linear-surface)] text-sm text-[var(--linear-text)] transition-colors">
                 <div class="flex items-center gap-2">
                   <component 
                     :is="getStatusIcon(issue.workflowState?.stateType).icon" 
@@ -237,7 +274,7 @@ function formatDate(dateString?: string | null) {
                   />
                   {{ issue.workflowState?.name || 'Backlog' }}
                 </div>
-                <ChevronDown class="h-4 w-4 text-gray-500" />
+                <ChevronDown class="h-4 w-4 text-[var(--linear-muted)]" />
               </button>
             </template>
             <div class="py-1 min-w-[200px]">
@@ -260,10 +297,10 @@ function formatDate(dateString?: string | null) {
 
         <!-- Priority -->
         <div>
-          <label class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 block">Priority</label>
+          <label class="text-xs font-medium text-[var(--linear-muted)] uppercase tracking-wider mb-2 block">Priority</label>
           <Dropdown align="left" :full-width="true">
             <template #trigger>
-              <button class="w-full flex items-center justify-between gap-2 px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded hover:bg-[#222] text-sm text-white transition-colors">
+              <button class="w-full flex items-center justify-between gap-2 px-3 py-2 bg-[var(--linear-surface)] border border-[var(--linear-border)] rounded hover:bg-[var(--linear-surface)] text-sm text-[var(--linear-text)] transition-colors">
                 <div class="flex items-center gap-2">
                   <component 
                     :is="getPriority(issue.priority || 0).icon" 
@@ -271,7 +308,7 @@ function formatDate(dateString?: string | null) {
                   />
                   {{ getPriority(issue.priority || 0).label }}
                 </div>
-                <ChevronDown class="h-4 w-4 text-gray-500" />
+                <ChevronDown class="h-4 w-4 text-[var(--linear-muted)]" />
               </button>
             </template>
             <div class="py-1 min-w-[180px]">
@@ -291,31 +328,31 @@ function formatDate(dateString?: string | null) {
 
         <!-- Assignee -->
         <div>
-          <label class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 block">Assignee</label>
+          <label class="text-xs font-medium text-[var(--linear-muted)] uppercase tracking-wider mb-2 block">Assignee</label>
           <Dropdown align="left" :full-width="true">
             <template #trigger>
-              <button class="w-full flex items-center justify-between gap-2 px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded hover:bg-[#222] text-sm transition-colors">
+              <button class="w-full flex items-center justify-between gap-2 px-3 py-2 bg-[var(--linear-surface)] border border-[var(--linear-border)] rounded hover:bg-[var(--linear-surface)] text-sm transition-colors">
                 <div class="flex items-center gap-2">
                   <template v-if="issue.assignee">
                     <Avatar :src="issue.assignee.avatarUrl" :name="issue.assignee.name" size="xs" />
-                    <span class="text-white">{{ issue.assignee.displayName || issue.assignee.name }}</span>
+                    <span class="text-[var(--linear-text)]">{{ issue.assignee.displayName || issue.assignee.name }}</span>
                   </template>
                   <template v-else>
-                    <User class="h-4 w-4 text-gray-400" />
-                    <span class="text-gray-500">Unassigned</span>
+                    <User class="h-4 w-4 text-[var(--linear-muted)]" />
+                    <span class="text-[var(--linear-muted)]">Unassigned</span>
                   </template>
                 </div>
-                <ChevronDown class="h-4 w-4 text-gray-500" />
+                <ChevronDown class="h-4 w-4 text-[var(--linear-muted)]" />
               </button>
             </template>
             <div class="py-1 min-w-[200px] max-h-[300px] overflow-auto">
               <DropdownItem @click="updateAssignee(null)">
                 <div class="flex items-center gap-2">
-                  <User class="h-4 w-4 text-gray-400" />
-                  <span class="text-gray-400">Unassigned</span>
+                  <User class="h-4 w-4 text-[var(--linear-muted)]" />
+                  <span class="text-[var(--linear-muted)]">Unassigned</span>
                 </div>
               </DropdownItem>
-              <div class="border-t border-[#2a2a2a] my-1"></div>
+              <div class="border-t border-[var(--linear-border)] my-1"></div>
               <DropdownItem 
                 v-for="u in users" 
                 :key="u.id"
@@ -332,10 +369,10 @@ function formatDate(dateString?: string | null) {
 
         <!-- Labels -->
         <div>
-          <label class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 block">Labels</label>
+          <label class="text-xs font-medium text-[var(--linear-muted)] uppercase tracking-wider mb-2 block">Labels</label>
           <Dropdown align="left" :full-width="true">
             <template #trigger>
-              <button class="w-full flex items-center justify-between gap-2 px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded hover:bg-[#222] text-sm transition-colors">
+              <button class="w-full flex items-center justify-between gap-2 px-3 py-2 bg-[var(--linear-surface)] border border-[var(--linear-border)] rounded hover:bg-[var(--linear-surface)] text-sm transition-colors">
                 <div class="flex items-center gap-2 flex-wrap">
                   <template v-if="issue.labels && issue.labels.length > 0">
                     <span 
@@ -348,11 +385,11 @@ function formatDate(dateString?: string | null) {
                     </span>
                   </template>
                   <template v-else>
-                    <Tag class="h-4 w-4 text-gray-400" />
-                    <span class="text-gray-500">Add labels</span>
+                    <Tag class="h-4 w-4 text-[var(--linear-muted)]" />
+                    <span class="text-[var(--linear-muted)]">Add labels</span>
                   </template>
                 </div>
-                <ChevronDown class="h-4 w-4 text-gray-500 flex-shrink-0" />
+                <ChevronDown class="h-4 w-4 text-[var(--linear-muted)] flex-shrink-0" />
               </button>
             </template>
             <div class="py-1 min-w-[200px] max-h-[300px] overflow-auto">
@@ -377,7 +414,7 @@ function formatDate(dateString?: string | null) {
                   </div>
                 </DropdownItem>
               </template>
-              <div v-else class="px-3 py-2 text-sm text-gray-500">
+              <div v-else class="px-3 py-2 text-sm text-[var(--linear-muted)]">
                 No labels available
               </div>
             </div>
@@ -386,10 +423,10 @@ function formatDate(dateString?: string | null) {
 
         <!-- Project -->
         <div>
-          <label class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 block">Project</label>
+          <label class="text-xs font-medium text-[var(--linear-muted)] uppercase tracking-wider mb-2 block">Project</label>
           <Dropdown align="left-side" width="w-80">
             <template #trigger>
-              <button class="w-full flex items-center justify-between gap-2 px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded hover:bg-[#222] text-sm transition-colors">
+              <button class="w-full flex items-center justify-between gap-2 px-3 py-2 bg-[var(--linear-surface)] border border-[var(--linear-border)] rounded hover:bg-[var(--linear-surface)] text-sm transition-colors">
                 <div class="flex items-center gap-2">
                   <template v-if="issue.project">
                     <EmojiIcon 
@@ -400,35 +437,35 @@ function formatDate(dateString?: string | null) {
                     />
                     <div 
                       v-else
-                      class="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold text-white"
+                      class="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold text-[var(--linear-text)]"
                       :style="{ backgroundColor: issue.project.color || '#6366f1' }"
                     >
                       {{ issue.project.name?.charAt(0)?.toUpperCase() || 'P' }}
                     </div>
-                    <span class="text-white">{{ issue.project.name }}</span>
+                    <span class="text-[var(--linear-text)]">{{ issue.project.name }}</span>
                   </template>
                   <template v-else>
-                    <FolderKanban class="h-4 w-4 text-gray-400" />
-                    <span class="text-gray-500">Add to project</span>
+                    <FolderKanban class="h-4 w-4 text-[var(--linear-muted)]" />
+                    <span class="text-[var(--linear-muted)]">Add to project</span>
                   </template>
                 </div>
-                <ChevronDown class="h-4 w-4 text-gray-500" />
+                <ChevronDown class="h-4 w-4 text-[var(--linear-muted)]" />
               </button>
             </template>
             <div class="min-w-[280px]">
               <!-- Search input -->
-              <div class="p-2 border-b border-[#2a2a2a]">
-                <div class="flex items-center gap-2 px-2 py-1.5 bg-[#0d0d0d] rounded border border-[#333]">
+              <div class="p-2 border-b border-[var(--linear-border)]">
+                <div class="flex items-center gap-2 px-2 py-1.5 bg-[var(--linear-bg)] rounded border border-[var(--linear-border)]">
                   <input 
                     v-model="projectSearch"
                     type="text"
                     placeholder="Move to project..."
-                    class="flex-1 bg-transparent text-sm text-white placeholder-gray-500 outline-none"
+                    class="flex-1 bg-transparent text-sm text-[var(--linear-text)] placeholder:text-[var(--linear-muted)] outline-none"
                     @click.stop
                   />
-                  <div class="flex items-center gap-1 text-[10px] text-gray-500">
-                    <span class="px-1 py-0.5 bg-[#2a2a2a] rounded">⇧</span>
-                    <span class="px-1 py-0.5 bg-[#2a2a2a] rounded">P</span>
+                  <div class="flex items-center gap-1 text-[10px] text-[var(--linear-muted)]">
+                    <span class="px-1 py-0.5 bg-[var(--linear-surface)] border border-[var(--linear-border)] rounded">⇧</span>
+                    <span class="px-1 py-0.5 bg-[var(--linear-surface)] border border-[var(--linear-border)] rounded">P</span>
                   </div>
                 </div>
               </div>
@@ -438,13 +475,13 @@ function formatDate(dateString?: string | null) {
                 <!-- No project option -->
                 <button 
                   @click="updateProject(null); projectSearch = ''"
-                  class="w-full flex items-center justify-between px-3 py-2 hover:bg-[#1f1f1f] transition-colors"
+                  class="w-full flex items-center justify-between px-3 py-2 hover:bg-[var(--linear-surface)] transition-colors"
                 >
                   <div class="flex items-center gap-3">
-                    <CircleDashed class="w-5 h-5 text-gray-500" />
-                    <span class="text-[13px] text-gray-300">No project</span>
+                    <CircleDashed class="w-5 h-5 text-[var(--linear-muted)]" />
+                    <span class="text-[13px] text-[var(--linear-text)]">No project</span>
                   </div>
-                  <Check v-if="!issue.project" class="w-4 h-4 text-white" />
+                  <Check v-if="!issue.project" class="w-4 h-4 text-[var(--linear-text)]" />
                 </button>
                 
                 <!-- Projects -->
@@ -452,7 +489,7 @@ function formatDate(dateString?: string | null) {
                   v-for="p in filteredProjects" 
                   :key="p.id"
                   @click="updateProject(p.id); projectSearch = ''"
-                  class="w-full flex items-center justify-between px-3 py-2 hover:bg-[#1f1f1f] transition-colors"
+                  class="w-full flex items-center justify-between px-3 py-2 hover:bg-[var(--linear-surface)] transition-colors"
                 >
                   <div class="flex items-center gap-3">
                     <EmojiIcon 
@@ -463,18 +500,18 @@ function formatDate(dateString?: string | null) {
                     />
                     <div 
                       v-else
-                      class="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold text-white"
+                      class="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold text-[var(--linear-text)]"
                       :style="{ backgroundColor: p.color || '#6366f1' }"
                     >
                       {{ p.name?.charAt(0)?.toUpperCase() || 'P' }}
                     </div>
-                    <span class="text-[13px] text-gray-200">{{ p.name }}</span>
+                    <span class="text-[13px] text-[var(--linear-text)]">{{ p.name }}</span>
                   </div>
-                  <Check v-if="issue.project?.id === p.id" class="w-4 h-4 text-white" />
+                  <Check v-if="issue.project?.id === p.id" class="w-4 h-4 text-[var(--linear-text)]" />
                 </button>
                 
                 <!-- Empty state -->
-                <div v-if="filteredProjects.length === 0 && projectSearch" class="px-3 py-4 text-center text-sm text-gray-500">
+                <div v-if="filteredProjects.length === 0 && projectSearch" class="px-3 py-4 text-center text-sm text-[var(--linear-muted)]">
                   No projects found
                 </div>
               </div>
@@ -484,17 +521,17 @@ function formatDate(dateString?: string | null) {
 
         <!-- Due date -->
         <div>
-          <label class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 block">Due date</label>
+          <label class="text-xs font-medium text-[var(--linear-muted)] uppercase tracking-wider mb-2 block">Due date</label>
           <Dropdown align="left" :full-width="true">
             <template #trigger>
-              <button class="w-full flex items-center justify-between gap-2 px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded hover:bg-[#222] text-sm transition-colors">
+              <button class="w-full flex items-center justify-between gap-2 px-3 py-2 bg-[var(--linear-surface)] border border-[var(--linear-border)] rounded hover:bg-[var(--linear-surface)] text-sm transition-colors">
                 <div class="flex items-center gap-2">
-                  <Calendar class="h-4 w-4" :class="issue.dueDate ? 'text-indigo-400' : 'text-gray-400'" />
-                  <span :class="issue.dueDate ? 'text-white' : 'text-gray-500'">
+                  <Calendar class="h-4 w-4" :class="issue.dueDate ? 'text-indigo-400' : 'text-[var(--linear-muted)]'" />
+                  <span :class="issue.dueDate ? 'text-[var(--linear-text)]' : 'text-[var(--linear-muted)]'">
                     {{ formatDate(issue.dueDate) || 'Set due date' }}
                   </span>
                 </div>
-                <ChevronDown class="h-4 w-4 text-gray-500" />
+                <ChevronDown class="h-4 w-4 text-[var(--linear-muted)]" />
               </button>
             </template>
             <div class="p-3 min-w-[200px]">
@@ -502,12 +539,12 @@ function formatDate(dateString?: string | null) {
                 type="date" 
                 :value="issue.dueDate?.split('T')[0]"
                 @change="(e) => updateDueDate((e.target as HTMLInputElement).value)"
-                class="w-full px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded text-sm text-white focus:outline-none focus:border-indigo-500"
+                class="w-full px-3 py-2 bg-[var(--linear-surface)] border border-[var(--linear-border)] rounded text-sm text-[var(--linear-text)] focus:outline-none focus:border-indigo-500"
               />
               <button 
                 v-if="issue.dueDate"
                 @click="updateDueDate(null)"
-                class="w-full mt-2 px-3 py-1.5 text-sm text-red-400 hover:bg-[#1a1a1a] rounded transition-colors"
+                class="w-full mt-2 px-3 py-1.5 text-sm text-red-400 hover:bg-[var(--linear-surface)] rounded transition-colors"
               >
                 Remove due date
               </button>

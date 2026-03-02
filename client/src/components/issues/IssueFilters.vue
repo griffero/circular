@@ -100,6 +100,15 @@ function getPriorityLabel(priority?: IssuePriority) {
 function getSortLabel(sort?: string) {
   return sortOptions.find(s => s.value === sort)?.label || 'Created'
 }
+
+function triggerClass(active: boolean) {
+  return cn(
+    'flex items-center gap-1.5 px-2.5 py-1.5 rounded text-[13px] border transition-colors',
+    active
+      ? 'bg-[var(--linear-surface)] border-[var(--linear-border)] text-[var(--linear-text)]'
+      : 'border-transparent text-[var(--linear-muted)] hover:bg-[var(--linear-surface)] hover:text-[var(--linear-text)]'
+  )
+}
 </script>
 
 <template>
@@ -108,12 +117,7 @@ function getSortLabel(sort?: string) {
     <Dropdown align="left" width="w-48">
       <template #trigger>
         <button 
-          :class="cn(
-            'flex items-center gap-1.5 px-2.5 py-1.5 rounded text-[13px] transition-colors',
-            filters.status !== undefined
-              ? 'bg-[#2a2a2a] text-white'
-              : 'text-gray-400 hover:bg-[#1a1a1a] hover:text-white'
-          )"
+          :class="triggerClass(filters.status !== undefined)"
         >
           <Circle class="w-4 h-4" />
           {{ getStatusLabel(filters.status) }}
@@ -135,12 +139,7 @@ function getSortLabel(sort?: string) {
     <Dropdown align="left" width="w-48">
       <template #trigger>
         <button 
-          :class="cn(
-            'flex items-center gap-1.5 px-2.5 py-1.5 rounded text-[13px] transition-colors',
-            filters.priority !== undefined
-              ? 'bg-[#2a2a2a] text-white'
-              : 'text-gray-400 hover:bg-[#1a1a1a] hover:text-white'
-          )"
+          :class="triggerClass(filters.priority !== undefined)"
         >
           <ArrowUp class="w-4 h-4" />
           {{ getPriorityLabel(filters.priority) }}
@@ -162,12 +161,7 @@ function getSortLabel(sort?: string) {
     <Dropdown align="left" width="w-48">
       <template #trigger>
         <button 
-          :class="cn(
-            'flex items-center gap-1.5 px-2.5 py-1.5 rounded text-[13px] transition-colors',
-            filters.assigneeId !== undefined
-              ? 'bg-[#2a2a2a] text-white'
-              : 'text-gray-400 hover:bg-[#1a1a1a] hover:text-white'
-          )"
+          :class="triggerClass(filters.assigneeId !== undefined)"
         >
           <User class="w-4 h-4" />
           {{ filters.assigneeId === currentUser?.id ? 'Assigned to me' : filters.assigneeId === 'unassigned' ? 'Unassigned' : 'Assignee' }}
@@ -175,7 +169,7 @@ function getSortLabel(sort?: string) {
       </template>
       <template #default="{ close }">
         <DropdownItem @click="updateFilter('assigneeId', undefined); close()">
-          <User class="w-4 h-4 text-gray-400" />
+          <User class="w-4 h-4 text-[var(--linear-muted)]" />
           All
         </DropdownItem>
         <DropdownItem @click="updateFilter('assigneeId', currentUser?.id); close()">
@@ -183,7 +177,7 @@ function getSortLabel(sort?: string) {
           Assigned to me
         </DropdownItem>
         <DropdownItem @click="updateFilter('assigneeId', 'unassigned'); close()">
-          <User class="w-4 h-4 text-gray-400" />
+          <User class="w-4 h-4 text-[var(--linear-muted)]" />
           Unassigned
         </DropdownItem>
       </template>
@@ -193,7 +187,7 @@ function getSortLabel(sort?: string) {
     <button
       v-if="hasActiveFilters"
       @click="clearFilters"
-      class="flex items-center gap-1.5 px-2.5 py-1.5 rounded text-[13px] text-gray-400 hover:bg-[#1a1a1a] hover:text-white transition-colors"
+      class="flex items-center gap-1.5 px-2.5 py-1.5 rounded text-[13px] text-[var(--linear-muted)] hover:bg-[var(--linear-surface)] hover:text-[var(--linear-text)] transition-colors"
     >
       <X class="w-4 h-4" />
       Clear
@@ -204,7 +198,7 @@ function getSortLabel(sort?: string) {
     <!-- Sort -->
     <Dropdown align="right" width="w-40">
       <template #trigger>
-        <button class="flex items-center gap-1.5 px-2.5 py-1.5 rounded text-[13px] text-gray-400 hover:bg-[#1a1a1a] hover:text-white transition-colors">
+        <button class="flex items-center gap-1.5 px-2.5 py-1.5 rounded text-[13px] text-[var(--linear-muted)] hover:bg-[var(--linear-surface)] hover:text-[var(--linear-text)] transition-colors">
           <component :is="filters.direction === 'asc' ? SortAsc : SortDesc" class="w-4 h-4" />
           {{ getSortLabel(filters.sort) }}
         </button>
@@ -217,7 +211,7 @@ function getSortLabel(sort?: string) {
         >
           {{ option.label }}
         </DropdownItem>
-        <div class="border-t border-[#2a2a2a] my-1" />
+        <div class="border-t border-[var(--linear-border)] my-1" />
         <DropdownItem @click="toggleDirection(); close()">
           <component :is="filters.direction === 'asc' ? SortDesc : SortAsc" class="w-4 h-4" />
           {{ filters.direction === 'asc' ? 'Descending' : 'Ascending' }}

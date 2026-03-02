@@ -65,7 +65,7 @@ watch(() => props.open, (open) => {
 
 const statuses: { value: IssueStatus; label: string; icon: typeof Circle; color: string }[] = [
   { value: 'backlog', label: 'Backlog', icon: Circle, color: 'text-gray-400' },
-  { value: 'todo', label: 'Todo', icon: Circle, color: 'text-gray-500' },
+  { value: 'todo', label: 'Todo', icon: Circle, color: 'text-[var(--linear-muted)]' },
   { value: 'in_progress', label: 'In Progress', icon: Clock, color: 'text-yellow-500' },
   { value: 'in_review', label: 'In Review', icon: Clock, color: 'text-blue-500' },
   { value: 'done', label: 'Done', icon: CheckCircle2, color: 'text-green-500' },
@@ -113,7 +113,7 @@ async function handleSubmit() {
 <template>
   <Modal :open="open" @close="emit('close')" size="lg" title="Create issue">
     <form @submit.prevent="handleSubmit" class="space-y-4">
-      <div v-if="error" class="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-600 dark:text-red-400">
+      <div v-if="error" class="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-sm text-red-400">
         {{ error }}
       </div>
 
@@ -135,7 +135,7 @@ async function handleSubmit() {
           v-model="description"
           rows="3"
           placeholder="Add description..."
-          class="w-full px-3 py-2 text-sm rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+          class="w-full px-3 py-2 text-sm rounded-md border border-[var(--linear-border)] bg-[var(--linear-elevated)] text-[var(--linear-text)] placeholder:text-[var(--linear-muted)] focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
         />
       </div>
 
@@ -143,10 +143,10 @@ async function handleSubmit() {
       <div class="grid grid-cols-2 gap-3">
         <!-- Team selector -->
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Team</label>
+          <label class="block text-xs font-medium text-[var(--linear-muted)] mb-1">Team</label>
           <select
             v-model="selectedTeamId"
-            class="w-full px-3 py-2 text-sm rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+            class="w-full px-3 py-2 text-sm rounded-md border border-[var(--linear-border)] bg-[var(--linear-elevated)] text-[var(--linear-text)]"
           >
             <option v-for="team in teams" :key="team.id" :value="team.id">
               {{ team.key }} - {{ team.name }}
@@ -156,10 +156,10 @@ async function handleSubmit() {
 
         <!-- Status selector -->
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Status</label>
+          <label class="block text-xs font-medium text-[var(--linear-muted)] mb-1">Status</label>
           <select
             v-model="selectedStatus"
-            class="w-full px-3 py-2 text-sm rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+            class="w-full px-3 py-2 text-sm rounded-md border border-[var(--linear-border)] bg-[var(--linear-elevated)] text-[var(--linear-text)]"
           >
             <option v-for="status in statuses" :key="status.value" :value="status.value">
               {{ status.label }}
@@ -169,10 +169,10 @@ async function handleSubmit() {
 
         <!-- Priority selector -->
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Priority</label>
+          <label class="block text-xs font-medium text-[var(--linear-muted)] mb-1">Priority</label>
           <select
             v-model="selectedPriority"
-            class="w-full px-3 py-2 text-sm rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+            class="w-full px-3 py-2 text-sm rounded-md border border-[var(--linear-border)] bg-[var(--linear-elevated)] text-[var(--linear-text)]"
           >
             <option v-for="priority in priorities" :key="priority.value" :value="priority.value">
               {{ priority.label }}
@@ -182,10 +182,10 @@ async function handleSubmit() {
 
         <!-- Assignee selector -->
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Assignee</label>
+          <label class="block text-xs font-medium text-[var(--linear-muted)] mb-1">Assignee</label>
           <select
             v-model="selectedAssigneeId"
-            class="w-full px-3 py-2 text-sm rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+            class="w-full px-3 py-2 text-sm rounded-md border border-[var(--linear-border)] bg-[var(--linear-elevated)] text-[var(--linear-text)]"
           >
             <option :value="undefined">Unassigned</option>
             <option v-if="currentUser" :value="currentUser.id">{{ currentUser.name }} (me)</option>
@@ -194,10 +194,10 @@ async function handleSubmit() {
 
         <!-- Project selector -->
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Project</label>
+          <label class="block text-xs font-medium text-[var(--linear-muted)] mb-1">Project</label>
           <select
             v-model="selectedProjectId"
-            class="w-full px-3 py-2 text-sm rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+            class="w-full px-3 py-2 text-sm rounded-md border border-[var(--linear-border)] bg-[var(--linear-elevated)] text-[var(--linear-text)]"
           >
             <option :value="undefined">No project</option>
             <option v-for="project in projects" :key="project.id" :value="project.id">
@@ -208,7 +208,7 @@ async function handleSubmit() {
 
         <!-- Due date -->
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Due date</label>
+          <label class="block text-xs font-medium text-[var(--linear-muted)] mb-1">Due date</label>
           <Input
             v-model="dueDate"
             type="date"
@@ -217,7 +217,7 @@ async function handleSubmit() {
       </div>
 
       <!-- Actions -->
-      <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+      <div class="flex justify-end gap-3 pt-4 border-t border-[var(--linear-border)]">
         <Button type="button" variant="ghost" @click="emit('close')">
           Cancel
         </Button>

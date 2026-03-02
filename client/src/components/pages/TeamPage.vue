@@ -8,6 +8,7 @@ import { useCurrentTeam } from '@/composables/useCurrentTeam'
 import EmojiIcon from '@/components/ui/EmojiIcon.vue'
 import Dropdown from '@/components/ui/Dropdown.vue'
 import DropdownItem from '@/components/ui/DropdownItem.vue'
+import Button from '@/components/ui/Button.vue'
 import {
   LayoutList,
   Columns3,
@@ -119,20 +120,21 @@ function isTabActive(routeName: string) {
       </div>
 
       <div class="flex items-center gap-2">
-        <button 
+        <Button
+          size="sm"
+          :variant="uiStore.filtersOpen ? 'secondary' : 'ghost'"
           @click="uiStore.toggleFilters()"
-          class="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-surface)] rounded transition-colors"
         >
           <Filter class="h-4 w-4" />
           Filter
-        </button>
-        <button 
+        </Button>
+        <Button
+          size="sm"
           @click="uiStore.openCreateIssueModal()"
-          class="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded transition-colors"
         >
           <Plus class="h-4 w-4" />
           New issue
-        </button>
+        </Button>
         <Dropdown align="right">
           <template #trigger>
             <button class="p-1.5 hover:bg-[var(--linear-surface)] rounded text-[var(--linear-muted)] hover:text-[var(--linear-text)] transition-colors">

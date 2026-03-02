@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, watch } from 'vue'
 import { useIssuesStore, type IssueFilters } from '@/stores/issues'
 import { useUiStore } from '@/stores/ui'
 import { cn } from '@/utils/cn'
@@ -34,7 +33,6 @@ const emit = defineEmits<{
   (e: 'createIssue'): void
 }>()
 
-const router = useRouter()
 const issuesStore = useIssuesStore()
 
 const filters = ref<IssueFilters>({
@@ -148,15 +146,22 @@ async function fetchIssues() {
 watch(
   () => [props.teamId, props.projectId],
   () => {
-    filters.value.teamId = props.teamId
-    filters.value.projectId = props.projectId
-    fetchIssues()
-  }
+    filters.value = {
+      ...filters.value,
+      teamId: props.teamId,
+      projectId: props.projectId
+    }
+  },
+  { immediate: true }
 )
 
-onMounted(() => {
-  fetchIssues()
-})
+watch(
+  filters,
+  () => {
+    fetchIssues()
+  },
+  { deep: true }
+)
 
 function handleIssueClick(issue: Issue) {
   emit('issueClick', issue)

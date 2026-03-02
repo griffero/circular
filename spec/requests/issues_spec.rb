@@ -120,6 +120,34 @@ RSpec.describe "Issues API" do
       expect(ids).to contain_exactly(started_issue.id)
     end
 
+    it "applies assignee, status, and priority filters together" do
+      matching_issue = create(
+        :issue,
+        team: team_a,
+        creator: user,
+        assignee: assignee,
+        status: "todo",
+        priority: 2,
+        title: "Matching issue"
+      )
+      create(:issue, team: team_a, creator: user, assignee: assignee, status: "todo", priority: 4, title: "Wrong priority")
+      create(:issue, team: team_a, creator: user, assignee: assignee, status: "done", priority: 2, title: "Wrong status")
+      create(:issue, team: team_a, creator: user, assignee: nil, status: "todo", priority: 2, title: "Unassigned")
+      create(:issue, team: team_b, creator: user, assignee: assignee, status: "todo", priority: 2, title: "Wrong team")
+
+      get "/api/v1/issues",
+          params: {
+            team_id: team_a.id,
+            assignee_id: assignee.id,
+            status: "todo",
+            priority: 2
+          }
+
+      expect(response).to have_http_status(:ok)
+      ids = json_response[:issues].map { |item| item[:id] }
+      expect(ids).to contain_exactly(matching_issue.id)
+    end
+
     it "sorts by priority with no-priority issues last by default" do
       urgent = create(:issue, team: team_a, creator: user, priority: 1, updated_at: 10.minutes.ago, title: "Urgent")
       low = create(:issue, team: team_a, creator: user, priority: 4, updated_at: 8.minutes.ago, title: "Low")
