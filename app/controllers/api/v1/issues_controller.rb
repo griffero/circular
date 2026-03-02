@@ -38,18 +38,7 @@ module Api
         issues = issues.search(params[:q]) if params[:q].present?
 
         # Sorting
-        case params[:sort]
-        when "created_at"
-          issues = issues.order(created_at: sort_direction)
-        when "updated_at"
-          issues = issues.order(updated_at: sort_direction)
-        when "priority"
-          issues = issues.order(priority: sort_direction)
-        when "due_date"
-          issues = issues.order(due_date: sort_direction)
-        else
-          issues = issues.order(sort_order: :asc, created_at: :desc)
-        end
+        issues = apply_sort(issues)
 
         # Pagination
         page = (params[:page] || 1).to_i
@@ -139,6 +128,7 @@ module Api
         params.require(:issue).permit(
           :title, :description, :status, :priority,
           :assignee_id, :project_id, :parent_id,
+          :workflow_state_id, :cycle_id,
           :due_date, :estimate, :sort_order,
           label_ids: []
         )
@@ -146,6 +136,40 @@ module Api
 
       def sort_direction
         params[:direction] == "asc" ? :asc : :desc
+      end
+
+      def apply_sort(scope)
+        case params[:sort]
+        when "created_at"
+          scope.order(created_at: sort_direction, id: :asc)
+        when "updated_at"
+          scope.order(updated_at: sort_direction, created_at: :desc, id: :asc)
+        when "priority"
+          # Linear-like priority: urgent/high/medium/low first, no-priority last.
+          # (priority=0 is treated as lowest value for default ascending sorting)
+          rank_direction = sort_direction == :asc ? "ASC" : "DESC"
+          scope.order(
+            Arel.sql("CASE WHEN issues.priority = 0 THEN 5 ELSE issues.priority END #{rank_direction}"),
+            updated_at: :desc,
+            id: :asc
+          )
+        when "due_date"
+          # Keep undated issues grouped after dated ones to avoid noisy ordering.
+          due_date_direction = sort_direction == :asc ? "ASC" : "DESC"
+          scope.order(
+            Arel.sql("CASE WHEN issues.due_date IS NULL THEN 1 ELSE 0 END ASC"),
+            Arel.sql("issues.due_date #{due_date_direction}"),
+            created_at: :desc,
+            id: :asc
+          )
+        else
+          scope.order(
+            Arel.sql("CASE WHEN issues.sort_order IS NULL THEN 1 ELSE 0 END ASC"),
+            sort_order: :asc,
+            created_at: :desc,
+            id: :asc
+          )
+        end
       end
 
       # Realtime broadcasts
