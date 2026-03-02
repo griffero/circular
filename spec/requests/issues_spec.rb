@@ -175,5 +175,18 @@ RSpec.describe "Issues API" do
       expect(ids.index(overdue.id)).to be < ids.index(upcoming.id)
       expect(ids.index(upcoming.id)).to be < ids.index(undated.id)
     end
+
+    it "filters by my_issues flag for current user" do
+      mine = create(:issue, team: team_a, creator: user, assignee: user, title: "Mine")
+      other_user = create(:user, email: "other-user@fintoc.com")
+      create(:issue, team: team_a, creator: user, assignee: other_user, title: "Theirs")
+
+      get "/api/v1/issues",
+          params: { team_id: team_a.id, my_issues: "true" }
+
+      expect(response).to have_http_status(:ok)
+      ids = json_response[:issues].map { |item| item[:id] }
+      expect(ids).to contain_exactly(mine.id)
+    end
   end
 end

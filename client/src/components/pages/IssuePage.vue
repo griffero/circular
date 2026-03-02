@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import { useIssuesStore } from '@/stores/issues'
 import { useAppStore } from '@/stores/app'
 import type { Issue, WorkflowState } from '@/types'
@@ -36,6 +37,7 @@ import {
 
 const route = useRoute()
 const router = useRouter()
+const authStore = useAuthStore()
 const issuesStore = useIssuesStore()
 const appStore = useAppStore()
 const emojiStore = useEmojiStore()
@@ -43,6 +45,7 @@ const emojiStore = useEmojiStore()
 const issueId = computed(() => route.params.issueId as string)
 
 const issue = computed(() => issuesStore.currentIssue)
+const currentUser = computed(() => authStore.user)
 const loading = computed(() => issuesStore.loading)
 const workflowStates = computed(() => issuesStore.workflowStates)
 const labels = computed(() => issuesStore.labels)
@@ -346,6 +349,13 @@ function formatDate(dateString?: string | null) {
               </button>
             </template>
             <div class="py-1 min-w-[200px] max-h-[300px] overflow-auto">
+              <DropdownItem v-if="currentUser" @click="updateAssignee(currentUser.id)">
+                <div class="flex items-center gap-2">
+                  <Avatar :src="currentUser.avatarUrl" :name="currentUser.name" size="xs" />
+                  <span>{{ currentUser.displayName || currentUser.name }} (me)</span>
+                </div>
+              </DropdownItem>
+              <div v-if="currentUser" class="border-t border-[var(--linear-border)] my-1"></div>
               <DropdownItem @click="updateAssignee(null)">
                 <div class="flex items-center gap-2">
                   <User class="h-4 w-4 text-[var(--linear-muted)]" />
@@ -409,7 +419,7 @@ function formatDate(dateString?: string | null) {
                     </div>
                     <CheckCircle2 
                       v-if="issue.labels?.some(l => l.id === label.id)" 
-                      class="h-4 w-4 text-indigo-400" 
+                      class="h-4 w-4 text-[var(--linear-accent)]" 
                     />
                   </div>
                 </DropdownItem>
@@ -526,7 +536,7 @@ function formatDate(dateString?: string | null) {
             <template #trigger>
               <button class="w-full flex items-center justify-between gap-2 px-3 py-2 bg-[var(--linear-surface)] border border-[var(--linear-border)] rounded hover:bg-[var(--linear-surface)] text-sm transition-colors">
                 <div class="flex items-center gap-2">
-                  <Calendar class="h-4 w-4" :class="issue.dueDate ? 'text-indigo-400' : 'text-[var(--linear-muted)]'" />
+                  <Calendar class="h-4 w-4" :class="issue.dueDate ? 'text-[var(--linear-accent)]' : 'text-[var(--linear-muted)]'" />
                   <span :class="issue.dueDate ? 'text-[var(--linear-text)]' : 'text-[var(--linear-muted)]'">
                     {{ formatDate(issue.dueDate) || 'Set due date' }}
                   </span>
@@ -539,7 +549,7 @@ function formatDate(dateString?: string | null) {
                 type="date" 
                 :value="issue.dueDate?.split('T')[0]"
                 @change="(e) => updateDueDate((e.target as HTMLInputElement).value)"
-                class="w-full px-3 py-2 bg-[var(--linear-surface)] border border-[var(--linear-border)] rounded text-sm text-[var(--linear-text)] focus:outline-none focus:border-indigo-500"
+                class="w-full px-3 py-2 bg-[var(--linear-surface)] border border-[var(--linear-border)] rounded text-sm text-[var(--linear-text)] focus:outline-none focus:border-[var(--linear-accent)]"
               />
               <button 
                 v-if="issue.dueDate"

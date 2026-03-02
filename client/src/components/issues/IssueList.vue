@@ -209,7 +209,7 @@ function getEffectiveStatus(issue: Issue): IssueStatus {
   <div class="h-full flex flex-col bg-[var(--linear-bg)]">
     <!-- Filters panel -->
     <div 
-      v-if="uiStore.filtersOpen" 
+      v-if="showFilters && uiStore.filtersOpen" 
       class="px-4 py-3 border-b border-[var(--linear-border)] bg-[var(--linear-bg)]"
     >
       <IssueFiltersComponent
