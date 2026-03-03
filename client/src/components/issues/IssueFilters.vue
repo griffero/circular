@@ -95,7 +95,9 @@ const hasActiveFilters = computed(() => {
          props.filters.status !== undefined ||
          props.filters.priority !== undefined || 
          props.filters.assigneeId !== undefined ||
-         !!props.filters.q?.trim()
+         !!props.filters.q?.trim() ||
+         props.filters.sort !== undefined ||
+         props.filters.direction !== undefined
 })
 
 function updateFilter<K extends keyof Filters>(key: K, value: Filters[K]) {
@@ -113,8 +115,8 @@ function clearFilters() {
     priority: undefined,
     assigneeId: undefined,
     q: undefined,
-    sort: props.filters.sort,
-    direction: props.filters.direction
+    sort: undefined,
+    direction: undefined
   })
 }
 

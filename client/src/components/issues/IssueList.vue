@@ -46,6 +46,16 @@ const issuesStore = useIssuesStore()
 const validStatuses: IssueStatus[] = ['backlog', 'todo', 'in_progress', 'in_review', 'done', 'canceled']
 const validSortOptions: NonNullable<IssueFilters['sort']>[] = ['created_at', 'updated_at', 'priority', 'due_date']
 const validDirections: NonNullable<IssueFilters['direction']>[] = ['asc', 'desc']
+const sortLabelByValue: Record<NonNullable<IssueFilters['sort']>, string> = {
+  created_at: 'Created',
+  updated_at: 'Updated',
+  priority: 'Priority',
+  due_date: 'Due date',
+}
+const directionLabelByValue: Record<NonNullable<IssueFilters['direction']>, string> = {
+  asc: 'Ascending',
+  desc: 'Descending',
+}
 
 function getQueryValue(value: unknown): string | undefined {
   if (Array.isArray(value)) return value[0]
@@ -370,6 +380,26 @@ const activeFilterChips = computed(() => {
     })
   }
 
+  if (userFilters.value.sort) {
+    chips.push({
+      key: 'sort',
+      label: `Sort: ${sortLabelByValue[userFilters.value.sort] || userFilters.value.sort}`,
+      clear: () => {
+        userFilters.value = { ...userFilters.value, sort: undefined }
+      }
+    })
+  }
+
+  if (userFilters.value.direction) {
+    chips.push({
+      key: 'direction',
+      label: `Direction: ${directionLabelByValue[userFilters.value.direction] || userFilters.value.direction}`,
+      clear: () => {
+        userFilters.value = { ...userFilters.value, direction: undefined }
+      }
+    })
+  }
+
   return chips
 })
 
@@ -381,6 +411,8 @@ function clearAllUserFilters() {
     priority: undefined,
     assigneeId: undefined,
     q: undefined,
+    sort: undefined,
+    direction: undefined,
   }
 }
 

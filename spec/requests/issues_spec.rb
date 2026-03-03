@@ -331,6 +331,20 @@ RSpec.describe "Issues API" do
       expect(ids.index(upcoming.id)).to be < ids.index(undated.id)
     end
 
+    it "sorts by due_date descending while keeping undated issues last" do
+      far_due = create(:issue, team: team_a, creator: user, due_date: Date.current + 7.days, title: "Far due")
+      near_due = create(:issue, team: team_a, creator: user, due_date: Date.current + 1.day, title: "Near due")
+      undated = create(:issue, team: team_a, creator: user, due_date: nil, title: "No date")
+
+      get "/api/v1/issues",
+          params: { team_id: team_a.id, sort: "due_date", direction: "desc" }
+
+      expect(response).to have_http_status(:ok)
+      ids = json_response[:issues].map { |item| item[:id] }
+      expect(ids.index(far_due.id)).to be < ids.index(near_due.id)
+      expect(ids.index(near_due.id)).to be < ids.index(undated.id)
+    end
+
     it "defaults to updated_at desc ordering when sort is omitted" do
       stale = create(:issue, team: team_a, creator: user, updated_at: 3.days.ago, title: "Stale")
       fresh = create(:issue, team: team_a, creator: user, updated_at: 2.hours.ago, title: "Fresh")
