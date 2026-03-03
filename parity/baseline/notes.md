@@ -1,10 +1,10 @@
 # Frozen Linear Baseline Notes
 
 ## Baseline Metadata
-- Reference workspace: `TBD`
-- Capture window (UTC): `TBD`
-- Captured by: `TBD`
-- Browser/viewport: `TBD`
+- Reference workspace: `Linear baseline workspace (pending capture ID assignment)`
+- Capture window (UTC): `Pending frozen capture for current scoring cycle`
+- Captured by: `Unassigned`
+- Browser/viewport: `Pending`
 - Theme variants: light + dark (required)
 
 ## Measured Tier 1 Views + States

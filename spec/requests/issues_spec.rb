@@ -38,6 +38,7 @@ RSpec.describe "Issues API" do
     let(:team) { create(:team, key: "API") }
     let(:issue) { create(:issue, team: team, creator: user, status: "todo") }
     let(:started_state) { create(:workflow_state, team: team, name: "In Progress", state_type: "started", position: 20.0) }
+    let(:assignee) { create(:user, email: "assignee-flow@fintoc.com") }
     let(:cycle) do
       create(
         :cycle,
@@ -64,6 +65,43 @@ RSpec.describe "Issues API" do
       expect(issue.cycle_id).to eq(cycle.id)
       expect(issue.title).to eq("Updated title")
       expect(issue.status).to eq("in_progress")
+    end
+
+    it "updates key fields used in issue detail editing" do
+      patch "/api/v1/issues/#{issue.id}",
+            params: {
+              issue: {
+                title: "New heading",
+                description: "Updated details for this issue"
+              }
+            }
+
+      expect(response).to have_http_status(:ok)
+      issue.reload
+      expect(issue.title).to eq("New heading")
+      expect(issue.description).to eq("Updated details for this issue")
+    end
+
+    it "supports assign and unassign flow" do
+      patch "/api/v1/issues/#{issue.id}",
+            params: {
+              issue: {
+                assignee_id: assignee.id
+              }
+            }
+      expect(response).to have_http_status(:ok)
+      issue.reload
+      expect(issue.assignee_id).to eq(assignee.id)
+
+      patch "/api/v1/issues/#{issue.id}",
+            params: {
+              issue: {
+                assignee_id: nil
+              }
+            }
+      expect(response).to have_http_status(:ok)
+      issue.reload
+      expect(issue.assignee_id).to be_nil
     end
   end
 

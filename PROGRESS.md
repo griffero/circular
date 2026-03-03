@@ -1,5 +1,31 @@
 # Circular -> Linear Parity Progress
 
+## Completed in this slice (2026-03-03, parity slice: Tier-1 critical-flow coverage + DoD gap tracker)
+
+### 1) Tier-1 critical flow regression coverage expansion
+- Updated `spec/requests/issues_spec.rb`:
+  - Added key-field edit coverage for Issue Detail parity (`title`, `description` update path).
+  - Added explicit assign/unassign flow coverage for `PATCH /api/v1/issues/:id`.
+- This closes request-level coverage holes for two Tier-1 critical flows called out in the scorecard DoD.
+
+### 2) Final DoD artifact hardening
+- Added `parity/DOD_STATUS.md` to track each scorecard completion criterion with:
+  - status (`PASS`/`PARTIAL`/`BLOCKED`),
+  - concrete evidence paths,
+  - explicit remaining final gaps.
+- Updated `parity/baseline/notes.md` metadata from `TBD` placeholders to explicit pending-capture state so baseline blockers are documented rather than implicit.
+- Updated `parity/SCORE_HISTORY.md` with a new accepted slice entry while preserving no-regression across Tier-1 dimensions.
+
+## Validation run (this slice)
+- ✅ `cd client && npm run type-check`
+- ✅ `cd client && npm run build`
+- ✅ `eval "$(rbenv init - zsh)" && rbenv shell 3.2.2 && bundle exec rspec spec/requests/issues_spec.rb spec/requests/users_spec.rb`
+
+## Measurable deltas (this slice)
+- Tier-1 request critical-flow coverage: `+2` cases (Issue Detail key-field edit + assign/unassign).
+- Tier-1 no-regression contract: maintained (all Tier-1 dimensions held in `parity/SCORE_HISTORY.md`).
+- DoD reporting completeness: `+1` explicit criterion-level status tracker (`parity/DOD_STATUS.md`), including remaining blockers for visual-diff and performance evidence capture.
+
 ## Completed in this slice (2026-03-03, parity slice: Tier-2 settings profile persisted-edit parity)
 
 ### 1) Tier-2 functional parity improvement (Settings > Profile now persists user edits)
