@@ -1,16 +1,51 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useUiStore } from '@/stores/ui'
 import IssueList from '@/components/issues/IssueList.vue'
 import type { Issue } from '@/types'
 
+type MyIssuesTab = 'assigned' | 'created' | 'subscribed'
+
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 const uiStore = useUiStore()
 
-const activeTab = ref<'assigned' | 'created' | 'subscribed'>('assigned')
+function resolveTab(view: unknown): MyIssuesTab {
+  if (view === 'created' || view === 'subscribed') {
+    return view
+  }
+  return 'assigned'
+}
+
+const activeTab = ref<MyIssuesTab>(resolveTab(route.query.view))
+
+watch(
+  () => route.query.view,
+  (view) => {
+    const nextTab = resolveTab(view)
+    if (activeTab.value !== nextTab) {
+      activeTab.value = nextTab
+    }
+  }
+)
+
+watch(
+  activeTab,
+  (tab) => {
+    if (route.query.view === tab) return
+    router.replace({
+      path: '/my-issues',
+      query: {
+        ...route.query,
+        view: tab,
+      },
+    })
+  },
+  { immediate: true }
+)
 
 const baseFilters = computed(() => {
   if (activeTab.value === 'assigned') {

@@ -1,5 +1,35 @@
 # Circular -> Linear Parity Progress
 
+## Completed in this slice (2026-03-03, parity slice: Tier-1 My Issues URL sub-view parity)
+
+### 1) Tier-1 sub-view parity fix (My Issues tab state is now URL-addressable)
+- Updated `client/src/components/pages/MyIssuesPage.vue`:
+  - Synced active tab state with `?view=` query param using the allowed values `assigned`, `created`, and `subscribed`.
+  - Added route-query -> local-state hydration so reload/back-forward/shared links restore the correct sub-view instead of resetting to default.
+  - Added local-state -> route-query synchronization via `router.replace(...)` so tab switches persist without polluting history.
+
+### 2) Tier-1 functional/filter parity hardening (stable sub-view persistence)
+- My Issues now preserves sub-view intent across navigation lifecycle events, making filter context stable for each sub-view and reducing accidental context loss during daily issue triage.
+
+## Validation run (this slice)
+- ✅ `cd client && npm run type-check`
+- ✅ `cd client && npm run build`
+- ✅ `eval "$(rbenv init - zsh)" && rbenv shell 3.2.2 && bundle exec rspec spec/requests/issues_spec.rb spec/requests/users_spec.rb`
+
+## Measurable deltas (this slice)
+- Tier-1 sub-view parity: `+2` (My Issues sub-views are now deep-linkable and persist across reload/back-forward flows).
+- Tier-1 functional parity: `+1` (sub-view context no longer resets unexpectedly on navigation lifecycle changes).
+- Tier-1 filter parity: `+1` (sub-view-specific filtering context is preserved and shareable via URL state).
+- Tier-1 no-regression contract: maintained (all Tier-1 dimensions held or improved in `parity/SCORE_HISTORY.md`).
+- Global parity score: `97 -> 98`.
+
+## Gap-to-target snapshot (Tier-1 threshold target: `95` each)
+- Visual: `76/95` (`gap: 19`)
+- Functional: `94/95` (`gap: 1`)
+- Filter: `90/95` (`gap: 5`)
+- Sub-view: `90/95` (`gap: 5`)
+- Data/order: `92/95` (`gap: 3`)
+
 ## Completed in this slice (2026-03-03, parity slice: Tier-1 issue-activity + shared-search-filter parity)
 
 ### 1) Tier-1 Issue Detail functional/sub-view parity fix (Activity is now real)
