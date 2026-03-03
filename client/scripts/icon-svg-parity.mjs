@@ -195,6 +195,30 @@ async function pickVisibleLocator(page, selectors) {
   return null
 }
 
+async function pickHeuristicLocator(page, target) {
+  const id = (target?.id || '').toLowerCase()
+  const description = (target?.description || '').toLowerCase()
+  const isHomeLike = id.includes('home') || description.includes('home navigation')
+  if (!isHomeLike) return null
+
+  const fallbacks = [
+    "aside nav button[aria-label*='Workspace Menu']",
+    "button[aria-label*='Workspace Menu']",
+    "aside nav a[href*='/pulse/']",
+    "a[href*='/pulse/']",
+    "aside nav a[href*='/my-issues/assigned']",
+  ]
+  for (const selector of fallbacks) {
+    const locator = page.locator(selector).first()
+    const visible = await locator.isVisible().catch(() => false)
+    if (visible) return { locator, selector: `heuristic:${selector}` }
+    await locator.waitFor({ state: 'visible', timeout: 2000 }).catch(() => {})
+    const becameVisible = await locator.isVisible().catch(() => false)
+    if (becameVisible) return { locator, selector: `heuristic:${selector}` }
+  }
+  return null
+}
+
 async function pickVisibleSvg(host, svgSelectors) {
   for (const svgSelector of svgSelectors) {
     const candidate = svgSelector === 'self' ? host : host.locator(svgSelector).first()
@@ -216,7 +240,7 @@ async function captureSingleTarget({ page, target, app, resolved }) {
     files: { screenshots: [], svgs: [] },
   }
 
-  const hostPick = await pickVisibleLocator(page, resolved.selectors)
+  const hostPick = (await pickVisibleLocator(page, resolved.selectors)) || (await pickHeuristicLocator(page, target))
   if (!hostPick) {
     entry.status = 'error'
     entry.error = `No visible selector matched: ${resolved.selectors.join(' | ')}`

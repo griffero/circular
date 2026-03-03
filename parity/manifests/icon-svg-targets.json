@@ -130,6 +130,15 @@
         "[role='button']:has-text('Home')",
         "button[aria-label*='Home']"
       ],
+      "linear": {
+        "selector": [
+          "aside nav button[aria-label*='Workspace Menu']",
+          "button[aria-label*='Workspace Menu']",
+          "aside nav a[href*='/pulse/']",
+          "a[href*='/pulse/']",
+          "aside nav a[href*='/my-issues/assigned']"
+        ]
+      },
       "svgSelector": [
         "svg",
         "self"

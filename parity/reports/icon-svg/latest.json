@@ -1,8 +1,8 @@
 {
-  "runId": "2026-03-03_05-14-06-177",
-  "generatedAt": "2026-03-03T05:14:06.258Z",
-  "status": "partial",
-  "runDir": "parity/reports/icon-svg/2026-03-03_05-14-06-177",
-  "reportFile": "parity/reports/icon-svg/2026-03-03_05-14-06-177/report.md",
-  "resultsFile": "parity/reports/icon-svg/2026-03-03_05-14-06-177/results.json"
+  "runId": "2026-03-03_05-47-55-716",
+  "generatedAt": "2026-03-03T05:47:55.791Z",
+  "status": "ok",
+  "runDir": "parity/reports/icon-svg/2026-03-03_05-47-55-716",
+  "reportFile": "parity/reports/icon-svg/2026-03-03_05-47-55-716/report.md",
+  "resultsFile": "parity/reports/icon-svg/2026-03-03_05-47-55-716/results.json"
 }
