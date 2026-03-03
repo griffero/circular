@@ -1,0 +1,42 @@
+{
+  "generatedAt": "2026-03-03T03:35:07.215Z",
+  "captureBaseline": false,
+  "targetDiffPercent": 2,
+  "summary": {
+    "total": 2,
+    "compared": 2,
+    "pass": 2,
+    "fail": 0,
+    "blocked": 0,
+    "averageDiffPercent": 1.462
+  },
+  "scenarios": [
+    {
+      "key": "team-issues__default-list",
+      "view": "team-issues",
+      "state": "default-list",
+      "circularPath": "/team/ONB/issues",
+      "linearPath": "/team/ONB/all",
+      "baselinePath": "parity/baseline/linear/team-issues/default-list.png",
+      "actualPath": "parity/evidence/2026-03-03_03-35-05-813/visual/team-issues__default-list__circular.png",
+      "diffPath": "parity/evidence/2026-03-03_03-35-05-813/visual/team-issues__default-list__diff.png",
+      "status": "PASS",
+      "diffPercent": 1.94,
+      "reason": null
+    },
+    {
+      "key": "my-issues__assigned",
+      "view": "my-issues",
+      "state": "assigned",
+      "circularPath": "/my-issues?view=assigned",
+      "linearPath": "/my-issues/assigned",
+      "baselinePath": "parity/baseline/linear/my-issues/assigned.png",
+      "actualPath": "parity/evidence/2026-03-03_03-35-05-813/visual/my-issues__assigned__circular.png",
+      "diffPath": "parity/evidence/2026-03-03_03-35-05-813/visual/my-issues__assigned__diff.png",
+      "status": "PASS",
+      "diffPercent": 0.984,
+      "reason": null
+    }
+  ],
+  "blockers": []
+}

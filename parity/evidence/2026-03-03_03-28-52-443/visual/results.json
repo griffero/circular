@@ -1,0 +1,42 @@
+{
+  "generatedAt": "2026-03-03T03:29:12.796Z",
+  "captureBaseline": false,
+  "targetDiffPercent": 2,
+  "summary": {
+    "total": 2,
+    "compared": 0,
+    "pass": 0,
+    "fail": 0,
+    "blocked": 2,
+    "averageDiffPercent": null
+  },
+  "scenarios": [
+    {
+      "key": "team-issues__default-list",
+      "view": "team-issues",
+      "state": "default-list",
+      "circularPath": "/team/ONB/issues",
+      "linearPath": "/team/ONB/all",
+      "baselinePath": "parity/baseline/linear/team-issues/default-list.png",
+      "actualPath": "parity/evidence/2026-03-03_03-28-52-443/visual/team-issues__default-list__circular.png",
+      "diffPath": "parity/evidence/2026-03-03_03-28-52-443/visual/team-issues__default-list__diff.png",
+      "status": "BLOCKED",
+      "diffPercent": null,
+      "reason": "TimeoutError: page.waitForSelector: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"app-shell-ready\"]') to be visible\u001b[22m\n"
+    },
+    {
+      "key": "my-issues__assigned",
+      "view": "my-issues",
+      "state": "assigned",
+      "circularPath": "/my-issues?view=assigned",
+      "linearPath": "/my-issues/assigned",
+      "baselinePath": "parity/baseline/linear/my-issues/assigned.png",
+      "actualPath": "parity/evidence/2026-03-03_03-28-52-443/visual/my-issues__assigned__circular.png",
+      "diffPath": "parity/evidence/2026-03-03_03-28-52-443/visual/my-issues__assigned__diff.png",
+      "status": "BLOCKED",
+      "diffPercent": null,
+      "reason": "TimeoutError: page.waitForSelector: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"app-shell-ready\"]') to be visible\u001b[22m\n"
+    }
+  ],
+  "blockers": []
+}

@@ -1,0 +1,45 @@
+{
+  "generatedAt": "2026-03-03T03:35:49.516Z",
+  "flows": [
+    {
+      "key": "create_issue",
+      "label": "Create issue",
+      "status": "BLOCKED",
+      "evidence": null,
+      "reason": "TimeoutError: page.waitForSelector: Timeout 45000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"app-shell-ready\"]') to be visible\u001b[22m\n"
+    },
+    {
+      "key": "edit_issue_key_fields",
+      "label": "Edit issue key fields",
+      "status": "BLOCKED",
+      "evidence": null,
+      "reason": "Error: Create issue flow did not complete"
+    },
+    {
+      "key": "move_or_assign",
+      "label": "Move workflow/state + assign/unassign",
+      "status": "BLOCKED",
+      "evidence": null,
+      "reason": "Error: Issue detail page was not opened"
+    },
+    {
+      "key": "filter_and_switch_subviews",
+      "label": "Filter + switch sub-views",
+      "status": "BLOCKED",
+      "evidence": null,
+      "reason": "TimeoutError: page.waitForSelector: Timeout 45000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"app-shell-ready\"]') to be visible\u001b[22m\n"
+    },
+    {
+      "key": "delete_issue",
+      "label": "Delete issue",
+      "status": "BLOCKED",
+      "evidence": null,
+      "reason": "Error: Issue detail page was not opened"
+    }
+  ],
+  "blockers": [],
+  "summary": {
+    "pass": 0,
+    "blocked": 5
+  }
+}

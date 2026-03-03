@@ -1,0 +1,68 @@
+{
+  "generatedAt": "2026-03-03T03:29:52.963Z",
+  "samples": 5,
+  "budgetsMs": {
+    "initial_list_render": 1800,
+    "issue_detail_open": 1200,
+    "filter_apply_stable_list": 1000,
+    "cud_feedback": 1000
+  },
+  "metrics": [
+    {
+      "key": "initial_list_render",
+      "budgetMs": 1800,
+      "p95Ms": null,
+      "samplesMs": [],
+      "status": "BLOCKED",
+      "reason": "TimeoutError: page.waitForSelector: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"app-shell-ready\"]') to be visible\u001b[22m\n"
+    },
+    {
+      "key": "issue_detail_open",
+      "budgetMs": 1200,
+      "p95Ms": 266,
+      "samplesMs": [
+        266,
+        258,
+        257,
+        259,
+        260
+      ],
+      "status": "PASS",
+      "reason": null
+    },
+    {
+      "key": "filter_apply_stable_list",
+      "budgetMs": 1000,
+      "p95Ms": 1015,
+      "samplesMs": [
+        999,
+        1015,
+        1008,
+        1011,
+        1008
+      ],
+      "status": "FAIL",
+      "reason": null
+    },
+    {
+      "key": "cud_feedback",
+      "budgetMs": 1000,
+      "p95Ms": 552,
+      "samplesMs": [
+        531,
+        508,
+        412,
+        438,
+        552
+      ],
+      "status": "PASS",
+      "reason": null
+    }
+  ],
+  "blockers": [],
+  "summary": {
+    "pass": 2,
+    "fail": 1,
+    "blocked": 1
+  }
+}

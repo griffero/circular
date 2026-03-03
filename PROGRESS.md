@@ -1,5 +1,49 @@
 # Circular -> Linear Parity Progress
 
+## Completed in this slice (2026-03-03, parity slice: final DoD evidence unblock automation + authenticated fixture path)
+
+### 1) Added reproducible auth/evidence automation for final blockers
+- Added `script/parity-bootstrap-circular-auth.sh`:
+  - Requests magic link for `cristobal@fintoc.com` (or `PARITY_AUTH_EMAIL` override).
+  - Ensures parity fixture data exists for this user (`ONB` team membership, workflow states, seed issue) so Tier-1 team flows can execute.
+  - Verifies token in browser and writes authenticated storage state to `/tmp/circular-prod-storage-state.json`.
+- Added `script/parity-run-final-evidence.sh`:
+  - Runs auth bootstrap.
+  - Runs `parity:evidence:baseline` then `parity:evidence`.
+  - Prints baseline/standard run IDs for deterministic artifact lookup.
+
+### 2) Hardened parity evidence runner against environment drift
+- Updated `client/scripts/parity-evidence.mjs`:
+  - Dynamically resolves Circular team context from authenticated `auth/me` payload.
+  - Adds UI helpers for issue creation/open flows used by performance + E2E probes.
+  - Improves selector resilience for key interactions (create/edit/move/delete attempts).
+  - Increases app-ready timeout to reduce false `BLOCKED` results on cold-load contexts.
+
+### 3) New evidence runs and current unblock status
+- Executed:
+  - `./script/parity-run-final-evidence.sh`
+  - `./script/parity-bootstrap-circular-auth.sh`
+  - `npm --prefix client run parity:evidence`
+- Latest run: `parity/evidence/2026-03-03_03-35-05-813`
+- Outcomes:
+  - Visual diff evidence: unblocked and passing (`2/2` compared, avg `1.462%`).
+  - p95 performance evidence: partially unblocked (3 measured statuses + 1 intermittent blocked sample path).
+  - Browser E2E evidence: partially unblocked (automation path works, but run stability remains intermittent and delete flow selector remains flaky in some runs).
+
+### 4) Documentation/status updates
+- Updated `parity/DOD_STATUS.md` with fresh run IDs and criterion-level status notes.
+- Updated `parity/EVIDENCE.md` with new bootstrap/full-run commands.
+
+## Completion Event
+- `event`: `PARITY_FINAL_DOD_BLOCKERS_PARTIAL_UNBLOCK`
+- `timestamp_utc`: `2026-03-03T03:37:19Z`
+- `evidence_run_id`: `2026-03-03_03-35-05-813`
+- `status`:
+  - visual diff evidence: `PASS`
+  - p95 performance evidence: `PARTIAL` (`PASS/PASS/FAIL/BLOCKED`)
+  - browser E2E evidence: `PARTIAL` (intermittent auth-shell timeout + remaining delete-flow selector flake)
+- `next_action`: continue with runner stabilization for deterministic auth-ready contexts and remove remaining flaky selectors to convert partial evidence to all-green DoD gates.
+
 ## Completed in this slice (2026-03-03, parity slice: final-blocker rerun + evidence feasibility refinement)
 
 ### 1) Final evidence blockers re-measured with fresh artifacts

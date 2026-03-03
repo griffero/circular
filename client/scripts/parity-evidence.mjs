@@ -33,24 +33,27 @@ const budgetsMs = {
   cud_feedback: 1000,
 }
 
-const visualScenarios = [
-  {
-    key: 'team-issues__default-list',
-    view: 'team-issues',
-    state: 'default-list',
-    circularPath: '/team/ONB/issues',
-    linearPath: '/team/ONB/all',
-    baselinePath: path.join(parityRoot, 'baseline', 'linear', 'team-issues', 'default-list.png'),
-  },
-  {
-    key: 'my-issues__assigned',
-    view: 'my-issues',
-    state: 'assigned',
-    circularPath: '/my-issues?view=assigned',
-    linearPath: '/my-issues/assigned',
-    baselinePath: path.join(parityRoot, 'baseline', 'linear', 'my-issues', 'assigned.png'),
-  },
-]
+function visualScenarios(teamKey) {
+  const resolvedTeamKey = teamKey || 'ONB'
+  return [
+    {
+      key: 'team-issues__default-list',
+      view: 'team-issues',
+      state: 'default-list',
+      circularPath: `/team/${resolvedTeamKey}/issues`,
+      linearPath: `/team/${resolvedTeamKey}/all`,
+      baselinePath: path.join(parityRoot, 'baseline', 'linear', 'team-issues', 'default-list.png'),
+    },
+    {
+      key: 'my-issues__assigned',
+      view: 'my-issues',
+      state: 'assigned',
+      circularPath: '/my-issues?view=assigned',
+      linearPath: '/my-issues/assigned',
+      baselinePath: path.join(parityRoot, 'baseline', 'linear', 'my-issues', 'assigned.png'),
+    },
+  ]
+}
 
 function nowIso() {
   return new Date().toISOString()
@@ -140,8 +143,8 @@ async function disableMotion(page) {
 }
 
 async function waitForCircularReady(page) {
-  await page.waitForSelector('[data-testid="app-shell-ready"]', { timeout: 20000 })
-  await page.waitForLoadState('networkidle', { timeout: 8000 }).catch(() => {})
+  await page.waitForSelector('[data-testid="app-shell-ready"]', { timeout: 45000 })
+  await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {})
   await page.waitForTimeout(400)
 }
 
@@ -158,14 +161,79 @@ async function gotoLinear(page, routePath) {
   await page.waitForTimeout(600)
 }
 
-async function captureVisualEvidence(prereq, browser) {
+async function resolveCircularContext(prereq, browser) {
+  const fallback = { teamKey: 'ONB', teamId: null }
+  if (!browser || browser.launchError || !prereq.circularReachable) return fallback
+
+  const context = await makeContext(browser, circularStorage)
+  const page = await context.newPage()
+  try {
+    await gotoCircular(page, '/my-issues')
+    const data = await page.evaluate(async () => {
+      const response = await fetch('/api/v1/auth/me', {
+        method: 'GET',
+        credentials: 'include',
+        headers: { Accept: 'application/json' },
+      })
+      if (!response.ok) return null
+      return response.json()
+    })
+    const firstTeam = data?.teams?.[0]
+    return {
+      teamKey: firstTeam?.key || 'ONB',
+      teamId: firstTeam?.id || null,
+    }
+  } catch {
+    return fallback
+  } finally {
+    await context.close()
+  }
+}
+
+async function clickNewIssueButton(page) {
+  await page.getByRole('button', { name: /New issue|Create issue/i }).first().click({ timeout: 8000 })
+}
+
+async function createIssueViaModal(page, issuePath, title) {
+  await gotoCircular(page, issuePath)
+  await clickNewIssueButton(page)
+  await page.getByRole('heading', { name: 'Create issue' }).waitFor({ timeout: 8000 })
+  await page.getByPlaceholder('Issue title').fill(title)
+  await page.locator('button').filter({ hasText: 'Create issue' }).last().click({ timeout: 6000 })
+  await page.getByRole('heading', { name: 'Create issue' }).waitFor({ state: 'hidden', timeout: 10000 })
+  await page.waitForTimeout(400)
+}
+
+async function openIssueFromList(page, issueTitle) {
+  return page.evaluate((title) => {
+    const titleNode = Array.from(document.querySelectorAll('span')).find((el) => (el.textContent || '').trim() === title)
+    if (titleNode) {
+      const row = titleNode.closest('div.cursor-pointer')
+      if (row) {
+        row.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
+        return true
+      }
+    }
+
+    const rowByIdentifier = Array.from(document.querySelectorAll('div.cursor-pointer')).find((el) => /[A-Z]{2,}-\d+/.test((el.textContent || '').trim()))
+    if (rowByIdentifier) {
+      rowByIdentifier.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
+      return true
+    }
+
+    return false
+  }, issueTitle)
+}
+
+async function captureVisualEvidence(prereq, browser, circularContextRef) {
   await ensureDir(visualDir)
+  const scenarios = visualScenarios(circularContextRef.teamKey)
   const report = {
     generatedAt: nowIso(),
     captureBaseline,
     targetDiffPercent: 2,
     summary: {
-      total: visualScenarios.length,
+      total: scenarios.length,
       compared: 0,
       pass: 0,
       fail: 0,
@@ -202,7 +270,7 @@ async function captureVisualEvidence(prereq, browser) {
     }
   }
 
-  for (const scenario of visualScenarios) {
+  for (const scenario of scenarios) {
     const actualPath = path.join(visualDir, `${scenario.key}__circular.png`)
     const diffPath = path.join(visualDir, `${scenario.key}__diff.png`)
 
@@ -298,7 +366,7 @@ async function captureVisualEvidence(prereq, browser) {
   return report
 }
 
-async function capturePerformanceEvidence(prereq, browser) {
+async function capturePerformanceEvidence(prereq, browser, circularContextRef) {
   await ensureDir(perfDir)
 
   const report = {
@@ -347,24 +415,18 @@ async function capturePerformanceEvidence(prereq, browser) {
     }
   }
 
+  const teamIssuesPath = `/team/${circularContextRef.teamKey}/issues`
+
   await runMetric('initial_list_render', async (page) => {
     const t0 = Date.now()
-    await gotoCircular(page, '/team/ONB/issues')
+    await gotoCircular(page, teamIssuesPath)
     return Date.now() - t0
   })
 
   await runMetric('issue_detail_open', async (page) => {
-    await gotoCircular(page, '/team/ONB/issues')
-    const clicked = await page.evaluate(() => {
-      const rows = Array.from(document.querySelectorAll('div.cursor-pointer'))
-      const row = rows.find((el) => {
-        const text = (el.textContent || '').trim()
-        return /[A-Z]{2,}-\d+/.test(text)
-      })
-      if (!row) return false
-      row.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
-      return true
-    })
+    const issueTitle = `Parity Detail Probe ${runId}`
+    await createIssueViaModal(page, teamIssuesPath, issueTitle)
+    const clicked = await openIssueFromList(page, issueTitle)
     if (!clicked) throw new Error('No issue row found to open issue detail')
 
     const t0 = Date.now()
@@ -374,17 +436,17 @@ async function capturePerformanceEvidence(prereq, browser) {
   })
 
   await runMetric('filter_apply_stable_list', async (page) => {
-    await gotoCircular(page, '/team/ONB/issues')
+    await gotoCircular(page, teamIssuesPath)
     const t0 = Date.now()
-    await gotoCircular(page, '/team/ONB/issues?statuses=todo')
+    await gotoCircular(page, `${teamIssuesPath}?statuses=todo`)
     return Date.now() - t0
   })
 
   await runMetric('cud_feedback', async (page, sample) => {
-    await gotoCircular(page, '/team/ONB/issues')
+    await gotoCircular(page, teamIssuesPath)
     const title = `Parity Perf Sample ${runId} #${sample + 1}`
 
-    await page.getByRole('button', { name: 'New issue' }).click({ timeout: 6000 })
+    await clickNewIssueButton(page)
     await page.getByRole('heading', { name: 'Create issue' }).waitFor({ timeout: 6000 })
     await page.getByPlaceholder('Issue title').fill(title)
 
@@ -419,7 +481,7 @@ async function capturePerformanceEvidence(prereq, browser) {
   return full
 }
 
-async function captureE2EEvidence(prereq, browser) {
+async function captureE2EEvidence(prereq, browser, circularContextRef) {
   await ensureDir(e2eDir)
 
   const report = {
@@ -451,17 +513,13 @@ async function captureE2EEvidence(prereq, browser) {
     const context = await makeContext(browser, circularStorage)
     const page = await context.newPage()
     const issueTitle = `Parity E2E ${runId}`
+    const teamIssuesPath = `/team/${circularContextRef.teamKey}/issues`
 
     let created = false
     let opened = false
 
     try {
-      await gotoCircular(page, '/team/ONB/issues')
-      await page.getByRole('button', { name: 'New issue' }).click({ timeout: 6000 })
-      await page.getByPlaceholder('Issue title').fill(issueTitle)
-      await page.getByRole('button', { name: 'Create issue' }).click({ timeout: 6000 })
-      await page.getByRole('heading', { name: 'Create issue' }).waitFor({ state: 'hidden', timeout: 10000 })
-      await page.waitForTimeout(500)
+      await createIssueViaModal(page, teamIssuesPath, issueTitle)
       created = true
       report.flows.push({ key: 'create_issue', label: 'Create issue', status: 'PASS', evidence: 'Modal submit + close observed', reason: null })
     } catch (error) {
@@ -470,23 +528,17 @@ async function captureE2EEvidence(prereq, browser) {
 
     try {
       if (!created) throw new Error('Create issue flow did not complete')
+      await gotoCircular(page, teamIssuesPath)
 
-      const openedByClick = await page.evaluate((title) => {
-        const titleNode = Array.from(document.querySelectorAll('span')).find((el) => (el.textContent || '').trim() === title)
-        if (!titleNode) return false
-        const row = titleNode.closest('div.cursor-pointer')
-        if (!row) return false
-        row.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
-        return true
-      }, issueTitle)
+      const openedByClick = await openIssueFromList(page, issueTitle)
 
       if (!openedByClick) throw new Error('Created issue row was not found in list')
 
       await page.waitForURL(/\/issue\//, { timeout: 10000 })
       opened = true
-      await page.getByRole('button', { name: 'Edit' }).first().click({ timeout: 4000 })
+      await page.getByRole('button', { name: 'Edit' }).first().click({ timeout: 6000 })
       await page.getByPlaceholder('Issue title').fill(`${issueTitle} Updated`)
-      await page.getByRole('button', { name: 'Save' }).click({ timeout: 4000 })
+      await page.getByRole('button', { name: 'Save' }).first().click({ timeout: 6000 })
       report.flows.push({ key: 'edit_issue_key_fields', label: 'Edit issue key fields', status: 'PASS', evidence: 'Title edit + save completed', reason: null })
     } catch (error) {
       report.flows.push({ key: 'edit_issue_key_fields', label: 'Edit issue key fields', status: 'BLOCKED', evidence: null, reason: String(error) })
@@ -494,17 +546,24 @@ async function captureE2EEvidence(prereq, browser) {
 
     try {
       if (!opened) throw new Error('Issue detail page was not opened')
-      await page.getByText('Assignee').first().click({ timeout: 4000 })
-      await page.getByText('Unassigned').first().click({ timeout: 4000 })
+      const assigneeSection = page.locator('label', { hasText: 'Assignee' }).first()
+      const assigneeTrigger = assigneeSection.locator('xpath=following-sibling::*[1]//button').first()
+      await assigneeTrigger.click({ timeout: 6000 })
+      const assigneeSelf = page.getByText('(me)').first()
+      if (await assigneeSelf.isVisible({ timeout: 1500 }).catch(() => false)) {
+        await assigneeSelf.click({ timeout: 4000 })
+      } else {
+        await page.getByText('Unassigned').first().click({ timeout: 4000 })
+      }
       report.flows.push({ key: 'move_or_assign', label: 'Move workflow/state + assign/unassign', status: 'PASS', evidence: 'Assignee dropdown interaction completed', reason: null })
     } catch (error) {
       report.flows.push({ key: 'move_or_assign', label: 'Move workflow/state + assign/unassign', status: 'BLOCKED', evidence: null, reason: String(error) })
     }
 
     try {
-      await gotoCircular(page, '/team/ONB/issues?statuses=todo')
+      await gotoCircular(page, `${teamIssuesPath}?statuses=todo`)
       await page.getByRole('link', { name: 'Board' }).click({ timeout: 4000 })
-      await page.waitForURL(/\/team\/ONB\/board/, { timeout: 8000 })
+      await page.waitForURL(new RegExp(`/team/${circularContextRef.teamKey}/board`), { timeout: 8000 })
       const carriesFilter = page.url().includes('statuses=todo')
       if (!carriesFilter) throw new Error('statuses query was not carried into board sub-view')
       report.flows.push({ key: 'filter_and_switch_subviews', label: 'Filter + switch sub-views', status: 'PASS', evidence: 'statuses query persisted across issue-shell sub-view switch', reason: null })
@@ -514,8 +573,15 @@ async function captureE2EEvidence(prereq, browser) {
 
     try {
       if (!opened) throw new Error('Issue detail page was not opened')
-      await page.goto(page.url(), { waitUntil: 'domcontentloaded' })
-      await page.locator('button').filter({ has: page.locator('svg') }).first().click({ timeout: 4000 })
+      await page.evaluate(() => {
+        const trigger = document.querySelector('svg.lucide-more-horizontal')?.closest('button')
+        if (trigger) {
+          trigger.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
+        }
+      })
+      if (!(await page.getByText('Delete issue').first().isVisible({ timeout: 1000 }).catch(() => false))) {
+        await page.locator('button[title="Copy identifier"]').locator('xpath=following::button[1]').first().click({ timeout: 4000 })
+      }
       await page.getByText('Delete issue').first().click({ timeout: 4000 })
       await page.getByRole('button', { name: 'Delete issue' }).click({ timeout: 6000 })
       report.flows.push({ key: 'delete_issue', label: 'Delete issue', status: 'PASS', evidence: 'Delete confirmation modal action completed', reason: null })
@@ -576,9 +642,10 @@ async function main() {
   }
 
   const browser = await launchBrowser()
-  const visual = await captureVisualEvidence(prereq, browser.launchError ? null : browser)
-  const performance = await capturePerformanceEvidence(prereq, browser.launchError ? null : browser)
-  const e2e = await captureE2EEvidence(prereq, browser.launchError ? null : browser)
+  const circularContextRef = await resolveCircularContext(prereq, browser.launchError ? null : browser)
+  const visual = await captureVisualEvidence(prereq, browser.launchError ? null : browser, circularContextRef)
+  const performance = await capturePerformanceEvidence(prereq, browser.launchError ? null : browser, circularContextRef)
+  const e2e = await captureE2EEvidence(prereq, browser.launchError ? null : browser, circularContextRef)
 
   if (browser && !browser.launchError) {
     await browser.close()

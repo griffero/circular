@@ -20,6 +20,18 @@ Capture missing Linear baseline screenshots during the same run:
 npm --prefix client run parity:evidence:baseline
 ```
 
+Bootstrap authenticated Circular storage state (magic-link flow for `cristobal@fintoc.com` by default):
+
+```bash
+./script/parity-bootstrap-circular-auth.sh
+```
+
+Run the full unblock pipeline (auth bootstrap + baseline + standard evidence):
+
+```bash
+./script/parity-run-final-evidence.sh
+```
+
 ## Output Contract
 
 Each run writes artifacts under:

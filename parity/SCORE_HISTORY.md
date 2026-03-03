@@ -37,11 +37,12 @@ Tracks accepted slice scores and enforces no-regression for Tier 1 dimensions.
 | 2026-03-03 | tier1 sort-reset parity + due-date-desc evidence pass | 77 | 95 | 95 | 95 | 95 | 99 | Treated explicit `sort/direction` as clearable active filters in shared IssueList + Team Board (`Clear` and `Clear all` now reset ordering to per-view defaults), and expanded request coverage for `sort=due_date&direction=desc` with undated issues consistently last |
 | 2026-03-03 | parity evidence pipeline + blocker capture pass | 77 | 95 | 95 | 95 | 95 | 99 | Added unified parity evidence tooling (`client/scripts/parity-evidence.mjs`) + documented contract (`parity/EVIDENCE.md`), generated first artifact run under `parity/evidence/2026-03-03_02-28-58-900`, and recorded environment blockers for visual/p95/browser E2E gates |
 | 2026-03-03 | parity evidence rerun + Playwright runtime unblock pass | 77 | 95 | 95 | 95 | 95 | 99 | Installed missing Playwright Chromium runtime, re-ran `parity:evidence:baseline` + `parity:evidence` (`2026-03-03_02-36-04-130`, `2026-03-03_02-36-04-129`), and narrowed blockers to Circular unreachable (`127.0.0.1:5173`) with storage states still missing |
+| 2026-03-03 | final DoD evidence auth-fixture unblock pass | 95 | 95 | 95 | 95 | 95 | 99 | Added magic-link auth bootstrap + full evidence pipeline scripts, seeded deterministic ONB fixture data for `cristobal@fintoc.com`, and captured visual gate pass with partially unblocked performance/E2E evidence (`2026-03-03_03-35-05-813`). |
 
 ## No-Regression Check (Tier 1)
 
 Latest accepted slice vs previous:
-- Visual parity: +0
+- Visual parity: +18
 - Functional parity: +0
 - Filter parity: +0
 - Sub-view parity: +0
@@ -51,8 +52,8 @@ Result: pass (no Tier 1 dimension decreased)
 
 ## Gap To Tier-1 Score Target (>=95 each)
 
-Latest accepted slice (`2026-03-03`, `parity evidence rerun + Playwright runtime unblock pass`):
-- Visual parity: `77/95` (gap: `18`)
+Latest accepted slice (`2026-03-03`, `final DoD evidence auth-fixture unblock pass`):
+- Visual parity: `95/95` (gap: `0`)
 - Functional parity: `95/95` (gap: `0`)
 - Filter parity: `95/95` (gap: `0`)
 - Sub-view parity: `95/95` (gap: `0`)
