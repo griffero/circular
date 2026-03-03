@@ -1,5 +1,34 @@
 # Circular -> Linear Parity Progress
 
+## Completed in this slice (2026-03-03, parity slice: Tier-1 team-issues ordering + Tier-2 board interaction parity)
+
+### 1) Tier-1 Team Issues data/order parity improvement
+- Updated `client/src/components/pages/team/TeamIssuesPage.vue` to enforce explicit default ordering:
+  - `sort=updated_at`
+  - `direction=desc`
+- This aligns Team Issues main-list ordering with the already-normalized ordering behavior used by Active/Backlog/Triage/My Issues and reduces default-sort drift in the primary Tier-1 surface.
+
+### 2) Tier-2 Team Board parity pass (filters + workflow-state move flow)
+- Refactored `client/src/components/pages/team/TeamBoardPage.vue` to use shared issue infrastructure:
+  - Switched data loading to `useIssuesStore` (`fetchWorkflowStates` + `fetchIssues`) instead of bespoke direct API calls.
+  - Added shared `IssueFilters` panel support when filters are open, including status/priority/assignee/sort controls.
+  - Added drag-and-drop workflow-state moves between board columns, wired to `issuesStore.updateIssue(..., { workflowStateId })`.
+  - Added drop-target highlighting and in-flight movement state feedback for cards.
+  - Preserved deterministic column order by workflow-state position, with stable in-column order from filtered API results.
+
+## Validation run (this slice)
+- ✅ `cd client && npm run type-check`
+- ✅ `cd client && npm run build`
+- ⚠️ `bundle exec rspec spec/requests/issues_spec.rb` blocked in this environment:
+  - Missing Bundler version required by lockfile: `bundler 2.6.4`.
+
+## Measurable deltas (this slice)
+- Tier-1 default-order parity updated on primary Team Issues list: `+1` view normalized.
+- Tier-2 Team Board parity improvements delivered:
+  - `+1` shared filter surface (`IssueFilters`) added.
+  - `+1` workflow-state move interaction path (drag/drop between columns).
+  - `-1` bespoke direct-fetch path removed in favor of shared issues store flow.
+
 ## Completed in this slice (2026-03-03, parity slice: Tier-2 project/triage list parity)
 
 ### 1) Tier-2 Team Triage moved to shared issue list behavior

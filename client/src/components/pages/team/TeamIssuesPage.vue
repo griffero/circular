@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUiStore } from '@/stores/ui'
 import IssueList from '@/components/issues/IssueList.vue'
@@ -8,6 +9,11 @@ import { useCurrentTeam } from '@/composables/useCurrentTeam'
 const router = useRouter()
 const uiStore = useUiStore()
 const { currentTeam } = useCurrentTeam()
+
+const baseFilters = computed(() => ({
+  sort: 'updated_at' as const,
+  direction: 'desc' as const,
+}))
 
 function handleIssueClick(issue: Issue) {
   router.push(`/issue/${issue.id}`)
@@ -22,6 +28,7 @@ function handleCreateIssue() {
   <IssueList
     v-if="currentTeam"
     :team-id="currentTeam.id"
+    :base-filters="baseFilters"
     :show-filters="true"
     empty-title="No issues"
     empty-description="Issues from this team will appear here."

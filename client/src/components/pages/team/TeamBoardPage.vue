@@ -2,9 +2,10 @@
 import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUiStore } from '@/stores/ui'
-import { api } from '@/api/client'
+import { useIssuesStore, type IssueFilters } from '@/stores/issues'
 import { cn } from '@/utils/cn'
 import Avatar from '@/components/ui/Avatar.vue'
+import IssueFiltersComponent from '@/components/issues/IssueFilters.vue'
 import type { Issue, WorkflowState, WorkflowStateType } from '@/types'
 import { useCurrentTeam } from '@/composables/useCurrentTeam'
 import { 
@@ -15,7 +16,6 @@ import {
   CheckCircle2,
   XCircle,
   MoreHorizontal,
-  AlertTriangle,
   ArrowUp,
   ArrowRight,
   ArrowDown,
@@ -27,11 +27,27 @@ import {
 
 const router = useRouter()
 const uiStore = useUiStore()
+const issuesStore = useIssuesStore()
 const { currentTeam } = useCurrentTeam()
 
-const loading = ref(false)
-const boardIssues = ref<Issue[]>([])
-const boardWorkflowStates = ref<WorkflowState[]>([])
+const filters = ref<IssueFilters>({
+  sort: 'updated_at',
+  direction: 'desc',
+  perPage: 500,
+})
+const draggingIssueId = ref<string | null>(null)
+const movingIssueIds = ref<Set<string>>(new Set())
+const dropTargetStateId = ref<string | null>(null)
+
+const loading = computed(() => issuesStore.loading)
+const boardIssues = computed(() => issuesStore.issues)
+const boardWorkflowStates = computed(() => issuesStore.workflowStates)
+const teamId = computed(() => currentTeam.value?.id)
+const effectiveFilters = computed<IssueFilters>(() => ({
+  ...filters.value,
+  teamId: teamId.value,
+  perPage: 500,
+}))
 
 // Dynamic workflow states ordered by position
 const columns = computed(() => {
@@ -46,46 +62,82 @@ const issuesByColumn = computed(() => {
   for (const state of columns.value) {
     grouped[state.id] = []
   }
-  
-  // Group issues by workflowStateId
-  const teamIssues = boardIssues.value.filter(i => i.teamId === currentTeam.value?.id)
+
+  // Group issues by workflowStateId and keep API order inside each column
+  const fallbackStateId = columns.value[0]?.id
+  const teamIssues = boardIssues.value.filter((issue) => issue.teamId === currentTeam.value?.id)
   for (const issue of teamIssues) {
-    if (issue.workflowStateId && grouped[issue.workflowStateId]) {
-      grouped[issue.workflowStateId].push(issue)
+    const targetStateId = issue.workflowStateId && grouped[issue.workflowStateId]
+      ? issue.workflowStateId
+      : fallbackStateId
+    if (targetStateId && grouped[targetStateId]) {
+      grouped[targetStateId].push(issue)
     }
   }
-  
+
   return grouped
 })
 
-async function fetchBoardData(teamId: string) {
-  loading.value = true
-  try {
-    const [workflowData, issuesData] = await Promise.all([
-      api.get<{ workflow_states: WorkflowState[] }>(`/api/v1/teams/${teamId}/workflow_states`),
-      api.get<{ issues: Issue[] }>(`/api/v1/issues?team_id=${teamId}&per_page=500`),
-    ])
-    boardWorkflowStates.value = workflowData.workflow_states
-    boardIssues.value = issuesData.issues
-  } catch (err) {
-    console.error('Failed to fetch board data:', err)
-    boardWorkflowStates.value = []
-    boardIssues.value = []
-  } finally {
-    loading.value = false
-  }
+async function fetchBoardWorkflowStates(nextTeamId: string) {
+  await issuesStore.fetchWorkflowStates(nextTeamId)
 }
 
-// Fetch workflow states and issues when team changes
+async function fetchBoardIssues() {
+  if (!teamId.value) return
+  await issuesStore.fetchIssues(effectiveFilters.value)
+}
+
 watch(
-  () => currentTeam.value?.id,
-  async (teamId) => {
-    if (teamId) {
-      await fetchBoardData(teamId)
-    }
+  teamId,
+  async (nextTeamId) => {
+    if (!nextTeamId) return
+    await fetchBoardWorkflowStates(nextTeamId)
+    await fetchBoardIssues()
   },
   { immediate: true }
 )
+
+watch(
+  effectiveFilters,
+  () => {
+    fetchBoardIssues()
+  },
+  { deep: true }
+)
+
+function handleFilterUpdate(nextFilters: IssueFilters) {
+  filters.value = { ...nextFilters, perPage: 500 }
+}
+
+function handleDragStart(issueId: string) {
+  draggingIssueId.value = issueId
+}
+
+function handleDragEnd() {
+  draggingIssueId.value = null
+  dropTargetStateId.value = null
+}
+
+function handleDragOver(stateId: string) {
+  dropTargetStateId.value = stateId
+}
+
+async function handleDrop(stateId: string) {
+  dropTargetStateId.value = null
+  const issueId = draggingIssueId.value
+  if (!issueId) return
+
+  const issue = boardIssues.value.find((candidate) => candidate.id === issueId)
+  if (!issue || issue.workflowStateId === stateId || movingIssueIds.value.has(issueId)) return
+
+  movingIssueIds.value.add(issueId)
+  try {
+    await issuesStore.updateIssue(issueId, { workflowStateId: stateId })
+  } finally {
+    movingIssueIds.value.delete(issueId)
+    draggingIssueId.value = null
+  }
+}
 
 function handleIssueClick(issue: Issue) {
   router.push(`/issue/${issue.id}`)
@@ -115,7 +167,18 @@ const priorityConfig: Record<number, { icon: typeof Circle; color: string; label
 </script>
 
 <template>
-  <div class="h-full overflow-x-auto bg-[var(--linear-bg)]">
+  <div class="h-full flex flex-col bg-[var(--linear-bg)]">
+    <div
+      v-if="uiStore.filtersOpen"
+      class="px-4 py-3 border-b border-[var(--linear-border)] bg-[var(--linear-bg)]"
+    >
+      <IssueFiltersComponent
+        :filters="filters"
+        @update:filters="handleFilterUpdate"
+      />
+    </div>
+
+    <div class="flex-1 overflow-x-auto">
     <div v-if="loading && columns.length === 0" class="flex items-center justify-center py-16 h-full">
       <div class="animate-spin rounded-full h-8 w-8 border-2 border-[var(--linear-accent)] border-t-transparent"></div>
     </div>
@@ -125,13 +188,15 @@ const priorityConfig: Record<number, { icon: typeof Circle; color: string; label
     </div>
 
     <div v-else class="flex gap-0.5 p-2 h-full min-w-max">
-      <div
-        v-for="column in columns"
-        :key="column.id"
-        class="w-[280px] flex-shrink-0 flex flex-col group"
-      >
-        <!-- Column header -->
-        <div class="flex items-center justify-between px-3 py-2 sticky top-0 bg-[var(--linear-bg)] z-10">
+        <div
+          v-for="column in columns"
+          :key="column.id"
+          class="w-[280px] flex-shrink-0 flex flex-col group"
+          @dragover.prevent="handleDragOver(column.id)"
+          @drop.prevent="handleDrop(column.id)"
+        >
+          <!-- Column header -->
+          <div class="flex items-center justify-between px-3 py-2 sticky top-0 bg-[var(--linear-bg)] z-10">
           <div class="flex items-center gap-2">
             <component 
               :is="getStateIcon(column)" 
@@ -157,16 +222,25 @@ const priorityConfig: Record<number, { icon: typeof Circle; color: string; label
         </div>
 
         <!-- Column content -->
-        <div class="flex-1 overflow-y-auto px-1.5 pb-2 space-y-1">
+        <div
+          :class="cn(
+            'flex-1 overflow-y-auto px-1.5 pb-2 space-y-1 rounded',
+            dropTargetStateId === column.id && 'bg-[var(--linear-elevated)]'
+          )"
+        >
           <!-- Issue cards -->
           <div
             v-for="issue in issuesByColumn[column.id]"
             :key="issue.id"
             @click="handleIssueClick(issue)"
+            draggable="true"
+            @dragstart="handleDragStart(issue.id)"
+            @dragend="handleDragEnd"
             :class="cn(
               'px-3 py-2.5 bg-[var(--linear-elevated)] rounded border border-[var(--linear-border)]',
               'hover:border-[#343a46] hover:bg-[var(--linear-surface)]',
-              'cursor-pointer transition-colors'
+              'cursor-pointer transition-colors',
+              movingIssueIds.has(issue.id) && 'opacity-60'
             )"
           >
             <!-- Issue header: identifier + priority -->
@@ -221,6 +295,7 @@ const priorityConfig: Record<number, { icon: typeof Circle; color: string; label
           </div>
         </div>
       </div>
+    </div>
     </div>
   </div>
 </template>
