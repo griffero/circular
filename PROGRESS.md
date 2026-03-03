@@ -1,5 +1,59 @@
 # Circular -> Linear Parity Progress
 
+## Completed in this slice (2026-03-03, parity slice: final-blocker rerun + evidence feasibility refinement)
+
+### 1) Final evidence blockers re-measured with fresh artifacts
+- Executed:
+  - `npm --prefix client run parity:evidence:baseline`
+  - `npm --prefix client run parity:evidence`
+- Generated fresh artifacts:
+  - baseline-mode run: `parity/evidence/2026-03-03_02-36-04-130/*`
+  - standard run: `parity/evidence/2026-03-03_02-36-04-129/*`
+  - latest pointer: `parity/evidence/latest.json` -> `2026-03-03_02-36-04-130`
+- Current outcomes (both runs):
+  - Visual baseline/diff: `BLOCKED` (`0/2 compared`)
+  - Tier-1 p95 performance budgets: `BLOCKED` (all four metrics blocked)
+  - Browser E2E critical flows: `BLOCKED` (all five required flows blocked)
+
+### 2) Playwright runtime feasibility blocker reduced
+- Diagnosed prior browser blocker explicitly:
+  - `browserType.launch: Executable doesn't exist ... chromium_headless_shell-1208`
+- Remediated environment:
+  - `cd client && npx playwright install chromium`
+  - Verified launchability with `node --input-type=module ... chromium.launch(...)` (`launch_ok`)
+- Impact:
+  - Playwright-launch failure is no longer reported in latest evidence.
+  - Remaining hard blocker is Circular app unreachable at `http://127.0.0.1:5173`.
+
+### 3) Baseline capture feasibility status (explicit)
+- `LINEAR_BASE` reachability is confirmed (`https://linear.app/fintoc` reachable), but `parity:evidence:baseline` still cannot capture baseline images while Circular is unreachable because the runner blocks scenario execution when Circular preconditions fail.
+- Auth storage states remain missing:
+  - `/tmp/circular-prod-storage-state.json`
+  - `/tmp/linear-storage-state.json`
+- Result: baseline capture and state-matched visual diffs remain infeasible in this environment until app reachability and auth-state prerequisites are satisfied.
+
+## Validation run (this slice)
+- ✅ `npm --prefix client run type-check`
+- ✅ `npm --prefix client run build`
+- ✅ `eval "$(rbenv init - zsh)" && rbenv shell 3.2.2 && bundle exec rspec spec/requests/issues_spec.rb spec/requests/users_spec.rb`
+  - Result: `29 examples, 0 failures`
+
+## Measurable deltas (this slice)
+- Tier-1 visual parity: `+0` (still blocked by app reachability; no comparisons produced).
+- Tier-1 functional parity: `+0` (held at target).
+- Tier-1 filter parity: `+0` (held at target).
+- Tier-1 sub-view parity: `+0` (held at target).
+- Tier-1 data/order parity: `+0` (held at target).
+- Tier-1 no-regression contract: maintained (no Tier-1 dimension decreased).
+- Global parity score: `99 -> 99`.
+
+## Explicit completion gate decision
+- Objective status: `INCOMPLETE`.
+- Evidence:
+  - Visual diff DoD remains blocked (`0/2` compared) until Circular app is reachable and baseline capture can execute.
+  - Tier-1 p95 performance evidence remains blocked due to unreachable app.
+  - Critical browser E2E evidence remains blocked due to unreachable app.
+
 ## Completed in this slice (2026-03-03, parity slice: visual/p95/browser-e2e evidence pipeline + blocker capture)
 
 ### 1) Unified parity evidence tooling shipped (visual + performance + browser E2E)

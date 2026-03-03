@@ -36,6 +36,7 @@ Tracks accepted slice scores and enforces no-regression for Tier 1 dimensions.
 | 2026-03-03 | tier1 board active-filter parity + priority-desc ordering pass | 77 | 95 | 94 | 94 | 94 | 99 | Added Team Board active filter chips with per-filter remove + clear-all, and fixed API priority-desc sorting so no-priority issues remain last; added request coverage for `sort=priority&direction=desc` |
 | 2026-03-03 | tier1 sort-reset parity + due-date-desc evidence pass | 77 | 95 | 95 | 95 | 95 | 99 | Treated explicit `sort/direction` as clearable active filters in shared IssueList + Team Board (`Clear` and `Clear all` now reset ordering to per-view defaults), and expanded request coverage for `sort=due_date&direction=desc` with undated issues consistently last |
 | 2026-03-03 | parity evidence pipeline + blocker capture pass | 77 | 95 | 95 | 95 | 95 | 99 | Added unified parity evidence tooling (`client/scripts/parity-evidence.mjs`) + documented contract (`parity/EVIDENCE.md`), generated first artifact run under `parity/evidence/2026-03-03_02-28-58-900`, and recorded environment blockers for visual/p95/browser E2E gates |
+| 2026-03-03 | parity evidence rerun + Playwright runtime unblock pass | 77 | 95 | 95 | 95 | 95 | 99 | Installed missing Playwright Chromium runtime, re-ran `parity:evidence:baseline` + `parity:evidence` (`2026-03-03_02-36-04-130`, `2026-03-03_02-36-04-129`), and narrowed blockers to Circular unreachable (`127.0.0.1:5173`) with storage states still missing |
 
 ## No-Regression Check (Tier 1)
 
@@ -50,7 +51,7 @@ Result: pass (no Tier 1 dimension decreased)
 
 ## Gap To Tier-1 Score Target (>=95 each)
 
-Latest accepted slice (`2026-03-03`, `parity evidence pipeline + blocker capture pass`):
+Latest accepted slice (`2026-03-03`, `parity evidence rerun + Playwright runtime unblock pass`):
 - Visual parity: `77/95` (gap: `18`)
 - Functional parity: `95/95` (gap: `0`)
 - Filter parity: `95/95` (gap: `0`)

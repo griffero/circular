@@ -1,0 +1,47 @@
+{
+  "generatedAt": "2026-03-03T02:36:05.149Z",
+  "flows": [
+    {
+      "key": "create_issue",
+      "label": "Create issue",
+      "status": "BLOCKED",
+      "evidence": null,
+      "reason": "Circular is unreachable at http://127.0.0.1:5173"
+    },
+    {
+      "key": "edit_issue_key_fields",
+      "label": "Edit issue key fields",
+      "status": "BLOCKED",
+      "evidence": null,
+      "reason": "Circular is unreachable at http://127.0.0.1:5173"
+    },
+    {
+      "key": "move_or_assign",
+      "label": "Move workflow/state + assign/unassign",
+      "status": "BLOCKED",
+      "evidence": null,
+      "reason": "Circular is unreachable at http://127.0.0.1:5173"
+    },
+    {
+      "key": "filter_and_switch_subviews",
+      "label": "Filter + switch sub-views",
+      "status": "BLOCKED",
+      "evidence": null,
+      "reason": "Circular is unreachable at http://127.0.0.1:5173"
+    },
+    {
+      "key": "delete_issue",
+      "label": "Delete issue",
+      "status": "BLOCKED",
+      "evidence": null,
+      "reason": "Circular is unreachable at http://127.0.0.1:5173"
+    }
+  ],
+  "blockers": [
+    "Circular is unreachable at http://127.0.0.1:5173"
+  ],
+  "summary": {
+    "pass": 0,
+    "blocked": 5
+  }
+}

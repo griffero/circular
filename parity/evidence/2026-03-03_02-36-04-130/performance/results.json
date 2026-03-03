@@ -1,0 +1,52 @@
+{
+  "generatedAt": "2026-03-03T02:36:05.148Z",
+  "samples": 5,
+  "budgetsMs": {
+    "initial_list_render": 1800,
+    "issue_detail_open": 1200,
+    "filter_apply_stable_list": 1000,
+    "cud_feedback": 1000
+  },
+  "metrics": [
+    {
+      "key": "initial_list_render",
+      "budgetMs": 1800,
+      "p95Ms": null,
+      "samplesMs": [],
+      "status": "BLOCKED",
+      "reason": "Circular is unreachable at http://127.0.0.1:5173"
+    },
+    {
+      "key": "issue_detail_open",
+      "budgetMs": 1200,
+      "p95Ms": null,
+      "samplesMs": [],
+      "status": "BLOCKED",
+      "reason": "Circular is unreachable at http://127.0.0.1:5173"
+    },
+    {
+      "key": "filter_apply_stable_list",
+      "budgetMs": 1000,
+      "p95Ms": null,
+      "samplesMs": [],
+      "status": "BLOCKED",
+      "reason": "Circular is unreachable at http://127.0.0.1:5173"
+    },
+    {
+      "key": "cud_feedback",
+      "budgetMs": 1000,
+      "p95Ms": null,
+      "samplesMs": [],
+      "status": "BLOCKED",
+      "reason": "Circular is unreachable at http://127.0.0.1:5173"
+    }
+  ],
+  "blockers": [
+    "Circular is unreachable at http://127.0.0.1:5173"
+  ],
+  "summary": {
+    "pass": 0,
+    "fail": 0,
+    "blocked": 4
+  }
+}
