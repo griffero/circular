@@ -1,5 +1,48 @@
 # Circular -> Linear Parity Progress
 
+## Completed in this slice (2026-03-03, parity slice: Tier-1 final-threshold gating hardening)
+
+### 1) Scorecard completion-gate hardening (explicit Tier-1 threshold contract)
+- Updated `PARITY_SCORECARD.md`:
+  - Added explicit blocking Tier-1 thresholds (`>=95`) for visual/functional/filter/sub-view/data-order.
+  - Added deterministic delta formula: `delta = max(95 - current_score, 0)`.
+  - Added explicit completion decision contract:
+    - `COMPLETE` only when all DoD criteria pass and all Tier-1 deltas are `0`.
+    - `INCOMPLETE` when any DoD criterion is partial/blocked or any Tier-1 delta is non-zero.
+
+### 2) Score history/gating reporting alignment (no-regression preserved)
+- Updated `parity/SCORE_HISTORY.md`:
+  - Added accepted slice entry for gating hardening with unchanged scores.
+  - Updated no-regression check against the prior accepted slice (`+0` on all Tier-1 dimensions, pass).
+  - Updated latest-slice gap snapshot reference to this slice while preserving exact current gaps.
+
+## Validation run (this slice)
+- ✅ `cd client && npm run type-check`
+- ✅ `cd client && npm run build`
+- ✅ `eval "$(rbenv init - zsh)" && rbenv shell 3.2.2 && bundle exec rspec spec/requests/issues_spec.rb spec/requests/users_spec.rb`
+
+## Measurable deltas (this slice)
+- Tier-1 visual parity: `+0` (no score movement; gating clarity only).
+- Tier-1 functional parity: `+0` (no score movement; gating clarity only).
+- Tier-1 filter parity: `+0` (no score movement; gating clarity only).
+- Tier-1 sub-view parity: `+0` (no score movement; gating clarity only).
+- Tier-1 data/order parity: `+0` (no score movement; gating clarity only).
+- Tier-1 no-regression contract: maintained (latest accepted slice is flat vs previous on all Tier-1 dimensions).
+- Global parity score: `99 -> 99`.
+
+## Gap-to-target snapshot (Tier-1 threshold target: `95` each)
+- Visual: `76/95` (`gap: 19`)
+- Functional: `95/95` (`gap: 0`)
+- Filter: `92/95` (`gap: 3`)
+- Sub-view: `92/95` (`gap: 3`)
+- Data/order: `92/95` (`gap: 3`)
+
+## Explicit completion gate decision
+- Objective status: `INCOMPLETE`.
+- Evidence:
+  - Tier-1 non-zero deltas remain (`visual +19`, `filter +3`, `sub-view +3`, `data/order +3`).
+  - DoD criterion "Tier-1 visual diff average <2%" remains blocked pending frozen baseline capture + diff run evidence.
+
 ## Completed in this slice (2026-03-03, parity slice: Tier-1 shared-list filter URL persistence parity)
 
 ### 1) Tier-1 filter/sub-view parity fix (shared list filters are now URL-persistent)

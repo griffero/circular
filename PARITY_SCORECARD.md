@@ -51,6 +51,23 @@ Objective is complete only if **all** are true:
    - Delete issue
 6. No open P0/P1 blockers for daily usage
 
+## Final Tier-1 Threshold Gate (Blocking)
+
+Tier-1 per-dimension threshold vector (must all pass):
+- Visual parity: `>=95`
+- Functional parity: `>=95`
+- Filter parity: `>=95`
+- Sub-view parity: `>=95`
+- Data/order parity: `>=95`
+
+Completion delta formula (reported every slice):
+- `delta(dimension) = max(95 - current_score, 0)`
+
+Explicit completion decision:
+1. `COMPLETE` only when all six DoD criteria above pass **and** all Tier-1 deltas are `0`.
+2. `INCOMPLETE` when any DoD criterion is `PARTIAL/BLOCKED` or any Tier-1 delta is `>0`.
+3. Release/merge parity objective closure is gated by rule (1); otherwise continue slicing and report exact remaining deltas.
+
 ---
 
 ## Additions (Hardening)
