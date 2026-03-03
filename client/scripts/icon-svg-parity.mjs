@@ -3,6 +3,7 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import crypto from 'node:crypto'
+import { spawn } from 'node:child_process'
 import { chromium } from 'playwright'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -13,9 +14,15 @@ const circularBase = process.env.CIRCULAR_BASE || 'http://127.0.0.1:5173'
 const linearBase = process.env.LINEAR_BASE || 'https://linear.app/fintoc'
 const circularStorage = process.env.CIRCULAR_STORAGE_STATE || '/tmp/circular-prod-storage-state.json'
 const linearStorage = process.env.LINEAR_STORAGE_STATE || '/tmp/linear-storage-state.json'
+const apiBase = process.env.API_BASE || 'http://127.0.0.1:3000'
 const manifestPath =
   process.env.ICON_PARITY_MANIFEST || path.join(repoRoot, 'parity', 'manifests', 'icon-svg-targets.json')
 const defaultTeamKey = process.env.ICON_PARITY_TEAM_KEY || 'ONB'
+const autoResumeEnabled = process.env.ICON_PARITY_AUTO_RESUME !== '0'
+const autoResumeTimeoutMs = Math.max(
+  Number.parseInt(process.env.ICON_PARITY_AUTO_RESUME_TIMEOUT_MS || '90000', 10) || 90000,
+  5000,
+)
 const sweepLimit = Math.max(Number.parseInt(process.env.ICON_PARITY_SWEEP_LIMIT || '150', 10) || 150, 10)
 const sweepScreenshotLimit = Math.max(
   Number.parseInt(process.env.ICON_PARITY_SWEEP_SCREENSHOT_LIMIT || '20', 10) || 20,
@@ -67,6 +74,101 @@ async function canReach(url) {
   } finally {
     clearTimeout(timeout)
   }
+}
+
+function isLoopbackUrl(url) {
+  try {
+    const parsed = new URL(url)
+    return ['127.0.0.1', 'localhost', '::1'].includes(parsed.hostname)
+  } catch {
+    return false
+  }
+}
+
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+async function waitForReachable(url, timeoutMs = autoResumeTimeoutMs) {
+  const deadline = Date.now() + timeoutMs
+  while (Date.now() < deadline) {
+    if (await canReach(url)) return true
+    await wait(1000)
+  }
+  return false
+}
+
+function spawnShell(command) {
+  const shell = '/bin/bash'
+  const child = spawn(shell, ['-lc', command], {
+    cwd: repoRoot,
+    env: process.env,
+    stdio: 'ignore',
+  })
+  return child
+}
+
+async function stopManagedProcesses(processes) {
+  for (const proc of processes) {
+    if (!proc || proc.killed) continue
+    proc.kill('SIGTERM')
+  }
+
+  const deadline = Date.now() + 8000
+  while (Date.now() < deadline) {
+    const alive = processes.filter((proc) => proc && !proc.killed && proc.exitCode === null)
+    if (!alive.length) return
+    await wait(250)
+  }
+
+  for (const proc of processes) {
+    if (!proc || proc.killed || proc.exitCode !== null) continue
+    proc.kill('SIGKILL')
+  }
+}
+
+async function ensureCircularRuntime() {
+  const managed = []
+  const notes = []
+
+  let circularReachable = await canReach(circularBase)
+  if (circularReachable) {
+    return { circularReachable, managed, notes }
+  }
+
+  if (!autoResumeEnabled) {
+    notes.push('Circular auto-resume disabled via ICON_PARITY_AUTO_RESUME=0')
+    return { circularReachable, managed, notes }
+  }
+
+  if (!isLoopbackUrl(circularBase)) {
+    notes.push(`Skipping Circular auto-resume because CIRCULAR_BASE is not loopback: ${circularBase}`)
+    return { circularReachable, managed, notes }
+  }
+
+  const apiHealthUrl = `${apiBase.replace(/\/$/, '')}/up`
+  let apiReachable = await canReach(apiHealthUrl)
+  if (!apiReachable && isLoopbackUrl(apiBase)) {
+    notes.push(`Starting Rails server for parity auto-resume (${apiBase})`)
+    const rails = spawnShell(
+      'if command -v rbenv >/dev/null 2>&1; then eval "$(rbenv init - bash)"; rbenv shell 3.2.2; fi; bundle exec rails server -b 127.0.0.1 -p 3000',
+    )
+    managed.push(rails)
+    apiReachable = await waitForReachable(apiHealthUrl)
+    if (!apiReachable) {
+      notes.push(`Rails auto-resume failed to reach ${apiHealthUrl}`)
+    }
+  }
+
+  notes.push(`Starting Vite dev server for parity auto-resume (${circularBase})`)
+  const vite = spawnShell('npm --prefix client run dev -- --host 127.0.0.1 --port 5173 --strictPort')
+  managed.push(vite)
+  circularReachable = await waitForReachable(circularBase)
+  if (!circularReachable) {
+    notes.push(`Vite auto-resume failed to reach ${circularBase}`)
+  }
+
+  return { circularReachable, managed, notes }
 }
 
 async function ensureDirs() {
@@ -369,9 +471,14 @@ async function run() {
   await ensureDirs()
 
   const manifest = await readManifest()
+  const runtime = await ensureCircularRuntime()
+  const managedProcesses = runtime.managed
   const blockers = []
+  for (const note of runtime.notes) {
+    if (/failed|disabled|Skipping/.test(note)) blockers.push(note)
+  }
 
-  const circularReachable = await canReach(circularBase)
+  const circularReachable = runtime.circularReachable
   const linearReachable = await canReach(linearBase)
   const hasCircularStorage = await exists(circularStorage)
   const hasLinearStorage = await exists(linearStorage)
@@ -412,78 +519,81 @@ async function run() {
     },
   }
 
-  const browser = await chromium.launch({ headless: true }).catch((error) => error)
-  if (browser instanceof Error) {
-    blockers.push(`Playwright launch failed: ${String(browser)}`)
-  }
-
-  let circularContext = null
-  let linearContext = null
-  let circularPage = null
-  let linearPage = null
   try {
-    if (!(browser instanceof Error)) {
-      runResult.teamKey = await resolveTeamKey(browser, circularReachable, hasCircularStorage)
-      if (circularReachable) {
-        circularContext = await contextFor(browser, circularStorage)
-        circularPage = await circularContext.newPage()
-      }
-      if (linearReachable) {
-        linearContext = await contextFor(browser, linearStorage)
-        linearPage = await linearContext.newPage()
-      }
+    const browser = await chromium.launch({ headless: true }).catch((error) => error)
+    if (browser instanceof Error) {
+      blockers.push(`Playwright launch failed: ${String(browser)}`)
     }
 
-    for (const target of manifest.targets) {
-      const circularEntry = await captureForApp({
-        app: 'circular',
-        page: circularPage,
-        baseUrl: circularBase,
-        reachable: circularReachable && Boolean(circularPage),
-        storageExists: hasCircularStorage,
-        target,
-        teamKey: runResult.teamKey,
-      })
-      const linearEntry = await captureForApp({
-        app: 'linear',
-        page: linearPage,
-        baseUrl: linearBase,
-        reachable: linearReachable && Boolean(linearPage),
-        storageExists: hasLinearStorage,
-        target,
-        teamKey: runResult.teamKey,
-      })
-
-      const circularHashes = new Set(circularEntry.svgHashes)
-      const linearHashes = new Set(linearEntry.svgHashes)
-      const overlap = [...circularHashes].filter((hash) => linearHashes.has(hash))
-
-      const entry = {
-        id: target.id,
-        description: target.description || null,
-        circular: circularEntry,
-        linear: linearEntry,
-        hashOverlap: {
-          count: overlap.length,
-          sample: overlap.slice(0, 10),
-        },
+    let circularContext = null
+    let linearContext = null
+    let circularPage = null
+    let linearPage = null
+    try {
+      if (!(browser instanceof Error)) {
+        runResult.teamKey = await resolveTeamKey(browser, circularReachable, hasCircularStorage)
+        if (circularReachable) {
+          circularContext = await contextFor(browser, circularStorage)
+          circularPage = await circularContext.newPage()
+        }
+        if (linearReachable) {
+          linearContext = await contextFor(browser, linearStorage)
+          linearPage = await linearContext.newPage()
+        }
       }
+      for (const target of manifest.targets) {
+        const circularEntry = await captureForApp({
+          app: 'circular',
+          page: circularPage,
+          baseUrl: circularBase,
+          reachable: circularReachable && Boolean(circularPage),
+          storageExists: hasCircularStorage,
+          target,
+          teamKey: runResult.teamKey,
+        })
+        const linearEntry = await captureForApp({
+          app: 'linear',
+          page: linearPage,
+          baseUrl: linearBase,
+          reachable: linearReachable && Boolean(linearPage),
+          storageExists: hasLinearStorage,
+          target,
+          teamKey: runResult.teamKey,
+        })
 
-      if (circularEntry.status === 'missing_svg') runResult.summary.missingSvg.circular += 1
-      if (linearEntry.status === 'missing_svg') runResult.summary.missingSvg.linear += 1
-      if (circularEntry.status === 'error' || linearEntry.status === 'error') runResult.summary.errors += 1
-      runResult.summary.captured.circular += circularEntry.svgHashes.length
-      runResult.summary.captured.linear += linearEntry.svgHashes.length
-      if (overlap.length) runResult.summary.hashOverlapTargets += 1
+        const circularHashes = new Set(circularEntry.svgHashes)
+        const linearHashes = new Set(linearEntry.svgHashes)
+        const overlap = [...circularHashes].filter((hash) => linearHashes.has(hash))
 
-      runResult.targets.push(entry)
+        const entry = {
+          id: target.id,
+          description: target.description || null,
+          circular: circularEntry,
+          linear: linearEntry,
+          hashOverlap: {
+            count: overlap.length,
+            sample: overlap.slice(0, 10),
+          },
+        }
+
+        if (circularEntry.status === 'missing_svg') runResult.summary.missingSvg.circular += 1
+        if (linearEntry.status === 'missing_svg') runResult.summary.missingSvg.linear += 1
+        if (circularEntry.status === 'error' || linearEntry.status === 'error') runResult.summary.errors += 1
+        runResult.summary.captured.circular += circularEntry.svgHashes.length
+        runResult.summary.captured.linear += linearEntry.svgHashes.length
+        if (overlap.length) runResult.summary.hashOverlapTargets += 1
+
+        runResult.targets.push(entry)
+      }
+    } finally {
+      await circularContext?.close().catch(() => {})
+      await linearContext?.close().catch(() => {})
+      if (!(browser instanceof Error)) {
+        await browser.close().catch(() => {})
+      }
     }
   } finally {
-    await circularContext?.close().catch(() => {})
-    await linearContext?.close().catch(() => {})
-    if (!(browser instanceof Error)) {
-      await browser.close().catch(() => {})
-    }
+    await stopManagedProcesses(managedProcesses)
   }
 
   const uniqueHashes = new Set(
