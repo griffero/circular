@@ -1,5 +1,40 @@
 # Circular -> Linear Parity Progress
 
+## Completed in this slice (2026-03-03, parity slice: Tier-2 settings profile persisted-edit parity)
+
+### 1) Tier-2 functional parity improvement (Settings > Profile now persists user edits)
+- Updated `client/src/components/pages/settings/ProfileSettings.vue`:
+  - Replaced placeholder save behavior with real `PATCH /api/v1/users/:id` persistence.
+  - Wired profile form state (`name`, `display_name`, `timezone`) to authenticated user data and reactive store updates.
+  - Added explicit success and error feedback states for save outcomes.
+- Updated `client/src/stores/auth.ts` with `setCurrentUser(...)` so profile changes are reflected immediately in the app shell after save.
+
+### 2) Tier-2 API parity hardening (self-service profile updates + payload compatibility)
+- Updated `app/controllers/api/v1/users_controller.rb`:
+  - Added `authorize_update!` to allow non-admin users to update only their own profile.
+  - Kept admin/owner management capabilities for user administration actions.
+  - Expanded `user_params` to support both nested (`user: { ... }`) and flat payload shapes used across settings screens.
+  - Allowed admin updates to include `display_name` while preserving non-admin restrictions on sensitive fields like `email`.
+
+### 3) Regression coverage expansion (request specs for users update behavior)
+- Added `spec/requests/users_spec.rb` with coverage for:
+  - Member self-update profile success (including `display_name` + `timezone`).
+  - Member forbidden when attempting to update a different user.
+  - Admin update compatibility using flat params (`name`, `display_name`, `email`) for settings management parity.
+
+## Validation run (this slice)
+- ✅ `cd client && npm run type-check`
+- ✅ `cd client && npm run build`
+- ⚠️ `eval "$(rbenv init - zsh)" && rbenv shell 3.2.2 && bundle exec rspec spec/requests`
+  - Fails on pre-existing `spec/requests/auth_spec.rb` drift (legacy `/api/v1/auth/signup` and `/api/v1/auth/login` expectations, plus unrelated project factory status assertions).
+- ✅ `eval "$(rbenv init - zsh)" && rbenv shell 3.2.2 && bundle exec rspec spec/requests/issues_spec.rb spec/requests/users_spec.rb`
+
+## Measurable deltas (this slice)
+- Tier-2 Settings functional parity: `+1` (Profile settings moved from placeholder save to persisted API-backed updates with in-app feedback).
+- Tier-2 settings data-consistency parity: `+1` (profile saves now update authenticated user state immediately without reload).
+- Tier-1 no-regression contract: maintained (no Tier-1 dimension decreased in `parity/SCORE_HISTORY.md`).
+- Global parity score: `94 -> 95`.
+
 ## Completed in this slice (2026-03-03, parity slice: Tier-1 issue-detail delete-confirm parity)
 
 ### 1) Tier-1 sub-view/functional parity fix (Issue Detail delete confirmation state)

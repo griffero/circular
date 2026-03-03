@@ -25,14 +25,15 @@ Tracks accepted slice scores and enforces no-regression for Tier 1 dimensions.
 | 2026-03-03 | tier2 triage-vs-backlog workflow-state parity pass | 74 | 88 | 87 | 82 | 91 | 92 | Added `workflow_state_type` filtering and wired Team Triage/Backlog to distinct state-type filters (with legacy backlog fallback + request-spec coverage) |
 | 2026-03-03 | tier2 settings-labels CRUD parity pass | 74 | 88 | 87 | 82 | 91 | 93 | Replaced placeholder Settings > Labels data with API-backed load/create/update/delete flows and wired row action buttons to persisted mutations |
 | 2026-03-03 | tier1 issue-detail delete-confirm parity pass | 75 | 89 | 87 | 83 | 91 | 94 | Replaced browser-native delete confirm with in-app Issue Detail confirmation modal state, including cancel/delete actions and in-flight lockout |
+| 2026-03-03 | tier2 settings-profile persisted-edit parity pass | 75 | 90 | 87 | 83 | 91 | 95 | Wired Settings > Profile to persisted user updates with reactive auth-state refresh, added self-update authorization + payload-shape compatibility in users API, and added request-spec coverage for member/admin update paths |
 
 ## No-Regression Check (Tier 1)
 
 Latest accepted slice vs previous:
-- Visual parity: +1
+- Visual parity: +0
 - Functional parity: +1
 - Filter parity: +0
-- Sub-view parity: +1
+- Sub-view parity: +0
 - Data/order parity: +0
 
 Result: pass (no Tier 1 dimension decreased)

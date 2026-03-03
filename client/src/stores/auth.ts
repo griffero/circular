@@ -17,6 +17,10 @@ export const useAuthStore = defineStore('auth', () => {
     initialized.value = true
   }
 
+  function setCurrentUser(nextUser: User) {
+    user.value = nextUser
+  }
+
   // Send magic link to email
   async function sendMagicLink(email: string) {
     loading.value = true
@@ -93,6 +97,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     // Actions
     setAuthData,
+    setCurrentUser,
     sendMagicLink,
     verifyMagicLink,
     tokenLogin,

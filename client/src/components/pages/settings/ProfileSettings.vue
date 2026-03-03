@@ -1,20 +1,49 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { api } from '@/api/client'
+import Button from '@/components/ui/Button.vue'
+import type { User } from '@/types'
 
 const authStore = useAuthStore()
 const user = computed(() => authStore.user)
 
 const fullName = ref(user.value?.name || '')
-const displayName = ref(user.value?.name || '')
-const username = ref(user.value?.email?.split('@')[0] || '')
+const displayName = ref(user.value?.displayName || '')
+const timezone = ref(user.value?.timezone || 'UTC')
 const saving = ref(false)
+const saveError = ref('')
+const saveSuccess = ref(false)
+
+watch(user, (nextUser) => {
+  fullName.value = nextUser?.name || ''
+  displayName.value = nextUser?.displayName || ''
+  timezone.value = nextUser?.timezone || 'UTC'
+}, { immediate: true })
 
 async function handleSave() {
+  if (!user.value) return
+
   saving.value = true
+  saveError.value = ''
+  saveSuccess.value = false
+
   try {
-    // TODO: Implement profile update API
-    await new Promise(resolve => setTimeout(resolve, 500))
+    const payload = {
+      user: {
+        name: fullName.value.trim(),
+        displayName: displayName.value.trim() || null,
+        timezone: timezone.value.trim() || 'UTC',
+      },
+    }
+
+    const response = await api.patch<{ user: User }>(`/api/v1/users/${user.value.id}`, payload)
+    if (response.user) {
+      authStore.setCurrentUser(response.user)
+      saveSuccess.value = true
+    }
+  } catch (err) {
+    saveError.value = err instanceof Error ? err.message : 'Failed to update profile'
   } finally {
     saving.value = false
   }
@@ -23,95 +52,111 @@ async function handleSave() {
 
 <template>
   <div class="p-8 max-w-2xl">
-    <h1 class="text-xl font-semibold text-white mb-8">
+    <h1 class="text-xl font-semibold text-[var(--linear-text)] mb-8">
       Profile
     </h1>
 
     <form @submit.prevent="handleSave" class="space-y-6">
+      <div
+        v-if="saveError"
+        class="p-3 rounded-lg border border-red-500/40 bg-red-500/10 text-sm text-red-300"
+      >
+        {{ saveError }}
+      </div>
+
+      <div
+        v-if="saveSuccess"
+        class="p-3 rounded-lg border border-emerald-500/40 bg-emerald-500/10 text-sm text-emerald-300"
+      >
+        Profile updated.
+      </div>
+
       <!-- Avatar -->
-      <div class="flex items-center gap-4 pb-6 border-b border-[#222]">
-        <div class="w-16 h-16 rounded-full bg-indigo-600 flex items-center justify-center">
+      <div class="flex items-center gap-4 pb-6 border-b border-[var(--linear-border)]">
+        <div class="w-16 h-16 rounded-full bg-[var(--linear-accent)]/80 flex items-center justify-center">
           <span class="text-2xl font-medium text-white">
             {{ user?.name?.charAt(0)?.toUpperCase() || '?' }}
           </span>
         </div>
         <div>
-          <button 
+          <Button
             type="button"
-            class="px-3 py-1.5 bg-[#1a1a1a] border border-[#333] rounded text-[13px] text-white hover:bg-[#222] transition-colors"
+            variant="secondary"
+            size="sm"
+            disabled
           >
             Upload photo
-          </button>
-          <p class="mt-1 text-[12px] text-gray-500">
-            Recommended size: 256x256px
+          </Button>
+          <p class="mt-1 text-[12px] text-[var(--linear-muted)]">
+            Avatar upload is not available in this slice.
           </p>
         </div>
       </div>
 
       <!-- Full name -->
       <div>
-        <label class="block text-[14px] text-white mb-2">
+        <label class="block text-[14px] text-[var(--linear-text)] mb-2">
           Full name
         </label>
         <input
           v-model="fullName"
           type="text"
-          class="w-full bg-[#1a1a1a] border border-[#333] rounded px-3 py-2 text-[14px] text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
+          class="w-full bg-[var(--linear-elevated)] border border-[var(--linear-border)] rounded px-3 py-2 text-[14px] text-[var(--linear-text)] placeholder-[var(--linear-muted)] focus:outline-none focus:border-[var(--linear-accent)]"
           placeholder="Your full name"
         />
       </div>
 
       <!-- Display name -->
       <div>
-        <label class="block text-[14px] text-white mb-2">
+        <label class="block text-[14px] text-[var(--linear-text)] mb-2">
           Display name
         </label>
         <input
           v-model="displayName"
           type="text"
-          class="w-full bg-[#1a1a1a] border border-[#333] rounded px-3 py-2 text-[14px] text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
+          class="w-full bg-[var(--linear-elevated)] border border-[var(--linear-border)] rounded px-3 py-2 text-[14px] text-[var(--linear-text)] placeholder-[var(--linear-muted)] focus:outline-none focus:border-[var(--linear-accent)]"
           placeholder="Display name"
         />
-        <p class="mt-1 text-[12px] text-gray-500">
+        <p class="mt-1 text-[12px] text-[var(--linear-muted)]">
           This could be your first name, or a nickname
         </p>
       </div>
 
-      <!-- Username -->
+      <!-- Timezone -->
       <div>
-        <label class="block text-[14px] text-white mb-2">
-          Username
+        <label class="block text-[14px] text-[var(--linear-text)] mb-2">
+          Timezone
         </label>
         <input
-          v-model="username"
+          v-model="timezone"
           type="text"
-          class="w-full bg-[#1a1a1a] border border-[#333] rounded px-3 py-2 text-[14px] text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
-          placeholder="username"
+          class="w-full bg-[var(--linear-elevated)] border border-[var(--linear-border)] rounded px-3 py-2 text-[14px] text-[var(--linear-text)] placeholder-[var(--linear-muted)] focus:outline-none focus:border-[var(--linear-accent)]"
+          placeholder="UTC"
         />
       </div>
 
       <!-- Email (read-only) -->
       <div>
-        <label class="block text-[14px] text-white mb-2">
+        <label class="block text-[14px] text-[var(--linear-text)] mb-2">
           Email
         </label>
         <input
           :value="user?.email"
           type="email"
           disabled
-          class="w-full bg-[#111] border border-[#222] rounded px-3 py-2 text-[14px] text-gray-500 cursor-not-allowed"
+          class="w-full bg-[var(--linear-surface)] border border-[var(--linear-border)] rounded px-3 py-2 text-[14px] text-[var(--linear-muted)] cursor-not-allowed"
         />
       </div>
 
       <!-- Save button -->
       <div class="pt-4">
-        <button
+        <Button
           type="submit"
+          :loading="saving"
           :disabled="saving"
-          class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 rounded text-[14px] text-white font-medium transition-colors"
         >
-          {{ saving ? 'Saving...' : 'Save changes' }}
-        </button>
+          Save changes
+        </Button>
       </div>
     </form>
   </div>

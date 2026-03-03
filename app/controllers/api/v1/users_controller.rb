@@ -4,7 +4,8 @@ module Api
   module V1
     class UsersController < BaseController
       before_action :set_user, only: %i[show update destroy role]
-      before_action :require_admin!, only: %i[index update destroy role]
+      before_action :require_admin!, only: %i[index destroy role]
+      before_action :authorize_update!, only: %i[update]
 
       def index
         users = User.includes(:teams, :projects).order(:name)
@@ -74,15 +75,23 @@ module Api
         @user = User.find(params[:id])
       end
 
+      def authorize_update!
+        return if current_user&.admin?
+        return if @user == current_user
+
+        render json: { error: "Forbidden" }, status: :forbidden
+      end
+
       def user_params
-        permitted = [:name, :email, :avatar_url, :timezone]
-        
+        permitted = [:name, :display_name, :avatar_url, :timezone]
+        permitted << :email if current_user&.admin?
+
         # Only owners can change roles and active status
-        if current_user.owner?
+        if current_user&.owner?
           permitted += [:role, :active]
         end
-        
-        params.require(:user).permit(permitted)
+
+        params.fetch(:user, params).permit(permitted)
       end
     end
   end
