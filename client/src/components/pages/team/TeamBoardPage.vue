@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useUiStore } from '@/stores/ui'
 import { useIssuesStore, type IssueFilters } from '@/stores/issues'
 import { cn } from '@/utils/cn'
 import Avatar from '@/components/ui/Avatar.vue'
 import IssueFiltersComponent from '@/components/issues/IssueFilters.vue'
-import type { Issue, WorkflowState, WorkflowStateType } from '@/types'
+import type { Issue, IssueStatus, WorkflowState, WorkflowStateType } from '@/types'
 import { useCurrentTeam } from '@/composables/useCurrentTeam'
 import { 
   Plus, 
@@ -26,15 +26,92 @@ import {
 } from 'lucide-vue-next'
 
 const router = useRouter()
+const route = useRoute()
 const uiStore = useUiStore()
 const issuesStore = useIssuesStore()
 const { currentTeam } = useCurrentTeam()
 
-const filters = ref<IssueFilters>({
-  sort: 'updated_at',
-  direction: 'desc',
-  perPage: 500,
-})
+const validStatuses: IssueStatus[] = ['backlog', 'todo', 'in_progress', 'in_review', 'done', 'canceled']
+const validSortOptions: NonNullable<IssueFilters['sort']>[] = ['created_at', 'updated_at', 'priority', 'due_date']
+const validDirections: NonNullable<IssueFilters['direction']>[] = ['asc', 'desc']
+
+function getQueryValue(value: unknown): string | undefined {
+  if (Array.isArray(value)) return value[0]
+  return typeof value === 'string' ? value : undefined
+}
+
+function parseFiltersFromQuery(query: Record<string, unknown>): IssueFilters {
+  const statusesParam = getQueryValue(query.statuses)
+  const statusParam = getQueryValue(query.status)
+  const priorityParam = getQueryValue(query.priority)
+  const assigneeParam = getQueryValue(query.assignee)
+  const sortParam = getQueryValue(query.sort)
+  const directionParam = getQueryValue(query.direction)
+  const qParam = getQueryValue(query.q)
+
+  const statuses = (statusesParam || statusParam || '')
+    .split(',')
+    .map((status) => status.trim())
+    .filter((status): status is IssueStatus => validStatuses.includes(status as IssueStatus))
+
+  const parsedPriority = priorityParam !== undefined ? Number(priorityParam) : undefined
+  const priority = Number.isInteger(parsedPriority) && parsedPriority >= 0 && parsedPriority <= 4
+    ? parsedPriority
+    : undefined
+
+  const sort = validSortOptions.includes(sortParam as NonNullable<IssueFilters['sort']>)
+    ? (sortParam as NonNullable<IssueFilters['sort']>)
+    : undefined
+
+  const direction = validDirections.includes(directionParam as NonNullable<IssueFilters['direction']>)
+    ? (directionParam as NonNullable<IssueFilters['direction']>)
+    : undefined
+
+  return {
+    statuses: statuses.length > 0 ? statuses : undefined,
+    status: statuses.length === 1 ? statuses[0] : undefined,
+    priority,
+    assigneeId: assigneeParam || undefined,
+    sort,
+    direction,
+    q: qParam && qParam.trim().length > 0 ? qParam.trim() : undefined,
+  }
+}
+
+function normalizeFilters(filters: IssueFilters): IssueFilters {
+  const normalizedStatuses = filters.statuses && filters.statuses.length > 0
+    ? Array.from(new Set(filters.statuses))
+    : undefined
+
+  return {
+    status: normalizedStatuses && normalizedStatuses.length === 1 ? normalizedStatuses[0] : undefined,
+    statuses: normalizedStatuses,
+    priority: filters.priority,
+    assigneeId: filters.assigneeId,
+    sort: filters.sort,
+    direction: filters.direction,
+    q: filters.q && filters.q.trim().length > 0 ? filters.q.trim() : undefined,
+  }
+}
+
+function serializeFiltersForQuery(filters: IssueFilters): Record<string, string> {
+  const serialized: Record<string, string> = {}
+
+  if (filters.statuses && filters.statuses.length > 0) serialized.statuses = filters.statuses.join(',')
+  if (filters.priority !== undefined) serialized.priority = String(filters.priority)
+  if (filters.assigneeId) serialized.assignee = filters.assigneeId
+  if (filters.sort) serialized.sort = filters.sort
+  if (filters.direction) serialized.direction = filters.direction
+  if (filters.q) serialized.q = filters.q
+
+  return serialized
+}
+
+function areFiltersEqual(a: IssueFilters, b: IssueFilters): boolean {
+  return JSON.stringify(normalizeFilters(a)) === JSON.stringify(normalizeFilters(b))
+}
+
+const filters = ref<IssueFilters>(parseFiltersFromQuery(route.query as Record<string, unknown>))
 const draggingIssueId = ref<string | null>(null)
 const movingIssueIds = ref<Set<string>>(new Set())
 const dropTargetStateId = ref<string | null>(null)
@@ -43,8 +120,17 @@ const loading = computed(() => issuesStore.loading)
 const boardIssues = computed(() => issuesStore.issues)
 const boardWorkflowStates = computed(() => issuesStore.workflowStates)
 const teamId = computed(() => currentTeam.value?.id)
+const resolvedSort = computed<IssueFilters['sort']>(() => filters.value.sort || 'updated_at')
+const resolvedDirection = computed<IssueFilters['direction']>(() => filters.value.direction || 'desc')
+const visibleFilters = computed<IssueFilters>(() => ({
+  ...filters.value,
+  sort: resolvedSort.value,
+  direction: resolvedDirection.value,
+}))
 const effectiveFilters = computed<IssueFilters>(() => ({
   ...filters.value,
+  sort: resolvedSort.value,
+  direction: resolvedDirection.value,
   teamId: teamId.value,
   perPage: 500,
 }))
@@ -105,8 +191,48 @@ watch(
   { deep: true }
 )
 
+watch(
+  () => route.query,
+  (query) => {
+    const parsed = parseFiltersFromQuery(query as Record<string, unknown>)
+    if (!areFiltersEqual(filters.value, parsed)) {
+      filters.value = parsed
+    }
+  }
+)
+
+watch(
+  filters,
+  (nextFilters) => {
+    const normalized = normalizeFilters(nextFilters)
+    if (!areFiltersEqual(nextFilters, normalized)) {
+      filters.value = normalized
+      return
+    }
+
+    const nextQuery = { ...route.query } as Record<string, string | undefined>
+    delete nextQuery.statuses
+    delete nextQuery.status
+    delete nextQuery.priority
+    delete nextQuery.assignee
+    delete nextQuery.sort
+    delete nextQuery.direction
+    delete nextQuery.q
+
+    const serialized = serializeFiltersForQuery(normalized)
+    const merged = { ...nextQuery, ...serialized }
+
+    const currentSerialized = JSON.stringify(route.query)
+    const nextSerialized = JSON.stringify(merged)
+    if (currentSerialized !== nextSerialized) {
+      router.replace({ path: route.path, query: merged })
+    }
+  },
+  { deep: true }
+)
+
 function handleFilterUpdate(nextFilters: IssueFilters) {
-  filters.value = { ...nextFilters, perPage: 500 }
+  filters.value = { ...nextFilters }
 }
 
 function handleDragStart(issueId: string) {
@@ -173,7 +299,7 @@ const priorityConfig: Record<number, { icon: typeof Circle; color: string; label
       class="px-4 py-3 border-b border-[var(--linear-border)] bg-[var(--linear-bg)]"
     >
       <IssueFiltersComponent
-        :filters="filters"
+        :filters="visibleFilters"
         @update:filters="handleFilterUpdate"
       />
     </div>

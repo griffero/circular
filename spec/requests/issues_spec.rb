@@ -330,6 +330,30 @@ RSpec.describe "Issues API" do
       expect(ids.index(fresh.id)).to be < ids.index(stale.id)
     end
 
+    it "supports updated_at ascending ordering when explicitly requested" do
+      oldest = create(:issue, team: team_a, creator: user, updated_at: 3.days.ago, title: "Oldest")
+      middle = create(:issue, team: team_a, creator: user, updated_at: 2.hours.ago, title: "Middle")
+      newest = create(:issue, team: team_a, creator: user, updated_at: 5.minutes.ago, title: "Newest")
+
+      get "/api/v1/issues", params: { team_id: team_a.id, sort: "updated_at", direction: "asc" }
+
+      expect(response).to have_http_status(:ok)
+      ids = json_response[:issues].map { |item| item[:id] }
+      expect(ids.index(oldest.id)).to be < ids.index(middle.id)
+      expect(ids.index(middle.id)).to be < ids.index(newest.id)
+    end
+
+    it "filters by text query on title/description" do
+      matching = create(:issue, team: team_a, creator: user, title: "Upgrade API auth", description: "token refresh flow")
+      create(:issue, team: team_a, creator: user, title: "Polish dashboard", description: "design QA")
+
+      get "/api/v1/issues", params: { team_id: team_a.id, q: "auth token" }
+
+      expect(response).to have_http_status(:ok)
+      ids = json_response[:issues].map { |item| item[:id] }
+      expect(ids).to contain_exactly(matching.id)
+    end
+
     it "filters by my_issues flag for current user" do
       mine = create(:issue, team: team_a, creator: user, assignee: user, title: "Mine")
       other_user = create(:user, email: "other-user@fintoc.com")

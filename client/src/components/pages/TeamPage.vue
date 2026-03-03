@@ -60,6 +60,18 @@ const issueShellRouteNames = new Set([
 ])
 
 const showIssueShellHeader = computed(() => issueShellRouteNames.has(String(route.name || '')))
+const issueFilterQueryKeys = ['q', 'status', 'statuses', 'priority', 'assignee', 'sort', 'direction']
+
+const issueShellQuery = computed(() => {
+  const nextQuery: Record<string, unknown> = {}
+  for (const key of issueFilterQueryKeys) {
+    const value = route.query[key]
+    if (value !== undefined && value !== null && value !== '') {
+      nextQuery[key] = value
+    }
+  }
+  return nextQuery
+})
 
 // Check if has emoji
 function hasEmoji(icon?: string | null): boolean {
@@ -71,6 +83,13 @@ function isTabActive(routeName: string) {
     return route.name === 'team-cycles-current' || route.name === 'team-cycles-upcoming'
   }
   return route.name === routeName
+}
+
+function tabTarget(tab: Tab) {
+  if (issueShellRouteNames.has(tab.routeName)) {
+    return { path: tab.to, query: issueShellQuery.value }
+  }
+  return { path: tab.to }
 }
 </script>
 
@@ -97,7 +116,7 @@ function isTabActive(routeName: string) {
           <router-link
             v-for="tab in tabs"
             :key="tab.name"
-            :to="tab.to"
+            :to="tabTarget(tab)"
             :class="[
               'px-3 py-1.5 text-sm rounded-md transition-colors',
               isTabActive(tab.routeName)

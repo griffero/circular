@@ -1,5 +1,50 @@
 # Circular -> Linear Parity Progress
 
+## Completed in this slice (2026-03-03, parity slice: Tier-1 team-board filter URL + sub-view carryover parity)
+
+### 1) Tier-1 sub-view/filter parity improvement (Team issue-shell tab carryover)
+- Updated `client/src/components/pages/TeamPage.vue`:
+  - Preserved shared issue filter query keys (`q`, `status`, `statuses`, `priority`, `assignee`, `sort`, `direction`) when switching between Team issue-shell tabs (`All Issues`, `Active`, `Triage`, `Backlog`, `Board`).
+  - Kept non-issue-shell navigation behavior unchanged (for example, cycles routes do not inherit issue-list filters).
+
+### 2) Tier-1 filter parity improvement (Team Board now hydrates/persists shared filters)
+- Updated `client/src/components/pages/team/TeamBoardPage.vue`:
+  - Added route-query hydration for board filters so deep links/reload/back-forward restore filter state.
+  - Added filter-to-query synchronization (`router.replace`) for `q/statuses/priority/assignee/sort/direction` in board mode.
+  - Aligned board sort/direction fallback behavior to shared-list semantics (`updated_at desc`) while preserving `perPage: 500`.
+
+### 3) Tier-1 data/order parity evidence expansion (request coverage)
+- Updated `spec/requests/issues_spec.rb`:
+  - Added coverage for explicit `sort=updated_at&direction=asc` ordering semantics.
+  - Added coverage for text search filter (`q`) on issue title/description.
+
+## Validation run (this slice)
+- ✅ `cd client && npm run type-check`
+- ✅ `cd client && npm run build`
+- ✅ `eval "$(rbenv init - zsh)" && rbenv shell 3.2.2 && bundle exec rspec spec/requests/issues_spec.rb spec/requests/users_spec.rb`
+
+## Measurable deltas (this slice)
+- Tier-1 visual parity: `+0` (no visual diff pass captured in this slice).
+- Tier-1 functional parity: `+0` (functional threshold already met and held).
+- Tier-1 filter parity: `+1` (Team Board now matches shared URL-persistent filter behavior in issue-shell flows).
+- Tier-1 sub-view parity: `+1` (switching Team issue sub-views now preserves shared filter context).
+- Tier-1 data/order parity: `+1` (explicit `updated_at asc` ordering covered and aligned with board/list query persistence behavior).
+- Tier-1 no-regression contract: maintained (no Tier-1 dimension decreased).
+- Global parity score: `99 -> 99`.
+
+## Gap-to-target snapshot (Tier-1 threshold target: `95` each)
+- Visual: `76/95` (`gap: 19`)
+- Functional: `95/95` (`gap: 0`)
+- Filter: `93/95` (`gap: 2`)
+- Sub-view: `93/95` (`gap: 2`)
+- Data/order: `93/95` (`gap: 2`)
+
+## Explicit completion gate decision
+- Objective status: `INCOMPLETE`.
+- Evidence:
+  - Tier-1 non-zero deltas remain (`visual +19`, `filter +2`, `sub-view +2`, `data/order +2`).
+  - DoD criterion "Tier-1 visual diff average <2%" remains blocked pending frozen baseline capture + diff run evidence.
+
 ## Completed in this slice (2026-03-03, parity slice: Tier-1 final-threshold gating hardening)
 
 ### 1) Scorecard completion-gate hardening (explicit Tier-1 threshold contract)
