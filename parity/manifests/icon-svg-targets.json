@@ -34,6 +34,30 @@
       "description": "My issues assigned view icon sweep"
     },
     {
+      "id": "my-issues-created-sweep",
+      "mode": "sweep",
+      "circular": {
+        "route": "/my-issues?view=created"
+      },
+      "linear": {
+        "route": "/my-issues/created"
+      },
+      "maxSvg": 200,
+      "description": "My issues created view icon sweep"
+    },
+    {
+      "id": "my-issues-subscribed-sweep",
+      "mode": "sweep",
+      "circular": {
+        "route": "/my-issues?view=subscribed"
+      },
+      "linear": {
+        "route": "/my-issues/subscribed"
+      },
+      "maxSvg": 200,
+      "description": "My issues subscribed view icon sweep"
+    },
+    {
       "id": "inbox-sweep",
       "mode": "sweep",
       "route": "/inbox",
@@ -46,6 +70,41 @@
       "route": "/projects",
       "maxSvg": 180,
       "description": "Projects index icon sweep"
+    },
+    {
+      "id": "views-sweep",
+      "mode": "sweep",
+      "route": "/views",
+      "maxSvg": 180,
+      "description": "Views index icon sweep"
+    },
+    {
+      "id": "team-views-sweep",
+      "mode": "sweep",
+      "route": "/team/{TEAM_KEY}/views",
+      "maxSvg": 220,
+      "description": "Team views icon sweep"
+    },
+    {
+      "id": "team-projects-sweep",
+      "mode": "sweep",
+      "route": "/team/{TEAM_KEY}/projects",
+      "maxSvg": 220,
+      "description": "Team projects icon sweep"
+    },
+    {
+      "id": "team-cycles-sweep",
+      "mode": "sweep",
+      "route": "/team/{TEAM_KEY}/cycles",
+      "maxSvg": 220,
+      "description": "Team cycles icon sweep"
+    },
+    {
+      "id": "initiatives-sweep",
+      "mode": "sweep",
+      "route": "/initiatives",
+      "maxSvg": 220,
+      "description": "Initiatives icon sweep"
     },
     {
       "id": "team-active-sweep",
@@ -67,7 +126,9 @@
       "route": "/",
       "selector": [
         "aside nav a[href='/']",
-        "a[href='/']"
+        "a[href='/']",
+        "[role='button']:has-text('Home')",
+        "button[aria-label*='Home']"
       ],
       "svgSelector": [
         "svg",
@@ -82,14 +143,28 @@
         "route": "/team/{TEAM_KEY}/issues",
         "selector": [
           "button:has-text('New issue')",
-          "button:has-text('Create issue')"
+          "button:has-text('Create issue')",
+          "button[aria-label*='Create new issue']",
+          "button[aria-label*='New issue']",
+          "button[aria-label*='Create issue']"
         ]
       },
       "linear": {
         "route": "/team/{TEAM_KEY}/all",
         "selector": [
           "button:has-text('New issue')",
-          "button:has-text('Create issue')"
+          "button:has-text('Create issue')",
+          "button[aria-label*='Create new issue']",
+          "button[aria-label*='New issue']",
+          "button[aria-label*='Create issue']",
+          "button[aria-label*='New Issue']",
+          "button[aria-label*='Create Issue']",
+          "[data-testid*='new-issue']",
+          "[data-testid*='create-issue']",
+          "[data-testid*='newIssue']",
+          "[data-testid*='createIssue']",
+          "button:has-text('New')",
+          "button:has-text('Create')"
         ]
       },
       "svgSelector": "svg",
@@ -102,14 +177,18 @@
         "route": "/team/{TEAM_KEY}/issues",
         "selector": [
           "button:has-text('Filter')",
-          "button[aria-label*='Filter']"
+          "button:has-text('Add filter')",
+          "button[aria-label*='Filter']",
+          "button[aria-label*='filter']"
         ]
       },
       "linear": {
         "route": "/team/{TEAM_KEY}/all",
         "selector": [
           "button:has-text('Filter')",
-          "button[aria-label*='Filter']"
+          "button:has-text('Add filter')",
+          "button[aria-label*='Filter']",
+          "button[aria-label*='filter']"
         ]
       },
       "svgSelector": "svg",
