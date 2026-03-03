@@ -164,11 +164,11 @@ module Api
         when "updated_at"
           scope.order(updated_at: sort_direction, created_at: :desc, id: :asc)
         when "priority"
-          # Linear-like priority: urgent/high/medium/low first, no-priority last.
-          # (priority=0 is treated as lowest value for default ascending sorting)
-          rank_direction = sort_direction == :asc ? "ASC" : "DESC"
+          # Keep no-priority items at the end in both directions for stable triage UX.
+          priority_direction = sort_direction == :asc ? "ASC" : "DESC"
           scope.order(
-            Arel.sql("CASE WHEN issues.priority = 0 THEN 5 ELSE issues.priority END #{rank_direction}"),
+            Arel.sql("CASE WHEN issues.priority = 0 THEN 1 ELSE 0 END ASC"),
+            Arel.sql("CASE WHEN issues.priority = 0 THEN NULL ELSE issues.priority END #{priority_direction}"),
             updated_at: :desc,
             id: :asc
           )

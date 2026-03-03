@@ -127,6 +127,14 @@ const visibleFilters = computed<IssueFilters>(() => ({
   sort: resolvedSort.value,
   direction: resolvedDirection.value,
 }))
+const statusLabelByValue: Record<IssueStatus, string> = {
+  backlog: 'Backlog',
+  todo: 'Todo',
+  in_progress: 'In Progress',
+  in_review: 'In Review',
+  done: 'Done',
+  canceled: 'Canceled',
+}
 const effectiveFilters = computed<IssueFilters>(() => ({
   ...filters.value,
   sort: resolvedSort.value,
@@ -235,6 +243,78 @@ function handleFilterUpdate(nextFilters: IssueFilters) {
   filters.value = { ...nextFilters }
 }
 
+const activeFilterChips = computed(() => {
+  const chips: Array<{ key: string; label: string; clear: () => void }> = []
+
+  if (filters.value.statuses && filters.value.statuses.length > 0) {
+    for (const status of filters.value.statuses) {
+      const nextStatuses = filters.value.statuses.filter((item) => item !== status)
+      chips.push({
+        key: `status-${status}`,
+        label: `Status: ${statusLabelByValue[status] || status}`,
+        clear: () => {
+          filters.value = {
+            ...filters.value,
+            status: nextStatuses.length === 1 ? nextStatuses[0] : undefined,
+            statuses: nextStatuses.length > 0 ? nextStatuses : undefined,
+          }
+        },
+      })
+    }
+  } else if (filters.value.status) {
+    chips.push({
+      key: `status-${filters.value.status}`,
+      label: `Status: ${statusLabelByValue[filters.value.status] || filters.value.status}`,
+      clear: () => {
+        filters.value = { ...filters.value, status: undefined, statuses: undefined }
+      },
+    })
+  }
+
+  if (filters.value.priority !== undefined) {
+    chips.push({
+      key: 'priority',
+      label: `Priority: P${filters.value.priority}`,
+      clear: () => {
+        filters.value = { ...filters.value, priority: undefined }
+      },
+    })
+  }
+
+  if (filters.value.assigneeId) {
+    chips.push({
+      key: 'assignee',
+      label: filters.value.assigneeId === 'unassigned' ? 'Assignee: Unassigned' : 'Assignee',
+      clear: () => {
+        filters.value = { ...filters.value, assigneeId: undefined }
+      },
+    })
+  }
+
+  if (filters.value.q) {
+    chips.push({
+      key: 'q',
+      label: `Search: ${filters.value.q}`,
+      clear: () => {
+        filters.value = { ...filters.value, q: undefined }
+      },
+    })
+  }
+
+  return chips
+})
+
+function clearAllFilters() {
+  filters.value = {
+    ...filters.value,
+    status: undefined,
+    statuses: undefined,
+    priority: undefined,
+    assigneeId: undefined,
+    q: undefined,
+  }
+}
+
 function handleDragStart(issueId: string) {
   draggingIssueId.value = issueId
 }
@@ -302,6 +382,23 @@ const priorityConfig: Record<number, { icon: typeof Circle; color: string; label
         :filters="visibleFilters"
         @update:filters="handleFilterUpdate"
       />
+      <div v-if="activeFilterChips.length > 0" class="mt-2 flex flex-wrap items-center gap-2">
+        <button
+          v-for="chip in activeFilterChips"
+          :key="chip.key"
+          class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] border border-[var(--linear-border)] bg-[var(--linear-surface)] text-[var(--linear-text)]"
+          @click="chip.clear"
+        >
+          <span>{{ chip.label }}</span>
+          <span class="text-[var(--linear-muted)]">x</span>
+        </button>
+        <button
+          class="text-[11px] text-[var(--linear-muted)] hover:text-[var(--linear-text)] underline underline-offset-2"
+          @click="clearAllFilters"
+        >
+          Clear all
+        </button>
+      </div>
     </div>
 
     <div class="flex-1 overflow-x-auto">

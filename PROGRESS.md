@@ -1,5 +1,50 @@
 # Circular -> Linear Parity Progress
 
+## Completed in this slice (2026-03-03, parity slice: Tier-1 board filter interaction + priority-desc order parity)
+
+### 1) Tier-1 filter/sub-view/visual parity improvement (Team Board active filter interaction shell)
+- Updated `client/src/components/pages/team/TeamBoardPage.vue`:
+  - Added active filter chips in board mode for `statuses/status`, `priority`, `assignee`, and `q`.
+  - Added one-click per-chip remove actions and a `Clear all` action.
+  - Kept board query synchronization behavior unchanged while making board filter interactions consistent with shared list surfaces.
+
+### 2) Tier-1 data/order parity fix (priority descending keeps no-priority last)
+- Updated `app/controllers/api/v1/issues_controller.rb`:
+  - Adjusted `sort=priority` ordering to always place `priority=0` issues at the end for both `asc` and `desc`.
+  - Preserved deterministic tie-breakers (`updated_at desc`, `id asc`) for stable list/board ordering.
+
+### 3) Tier-1 data/order evidence expansion (request coverage)
+- Updated `spec/requests/issues_spec.rb`:
+  - Added explicit coverage for `GET /api/v1/issues?sort=priority&direction=desc` confirming no-priority issues remain last.
+
+## Validation run (this slice)
+- ✅ `cd client && npm run type-check`
+- ✅ `cd client && npm run build`
+- ✅ `eval "$(rbenv init - zsh)" && rbenv shell 3.2.2 && bundle exec rspec spec/requests/issues_spec.rb spec/requests/users_spec.rb`
+  - Result: `28 examples, 0 failures`
+
+## Measurable deltas (this slice)
+- Tier-1 visual parity: `+1` (Team Board now exposes an app-native active-filter chip surface aligned with shared list interaction patterns).
+- Tier-1 functional parity: `+0` (threshold held at target).
+- Tier-1 filter parity: `+1` (board mode now supports direct per-filter removal and clear-all interaction parity).
+- Tier-1 sub-view parity: `+1` (board sub-view filter behavior now matches issue-list sub-view affordances).
+- Tier-1 data/order parity: `+1` (priority descending ordering semantics normalized with no-priority consistently last).
+- Tier-1 no-regression contract: maintained (no Tier-1 dimension decreased).
+- Global parity score: `99 -> 99`.
+
+## Gap-to-target snapshot (Tier-1 threshold target: `95` each)
+- Visual: `77/95` (`gap: 18`)
+- Functional: `95/95` (`gap: 0`)
+- Filter: `94/95` (`gap: 1`)
+- Sub-view: `94/95` (`gap: 1`)
+- Data/order: `94/95` (`gap: 1`)
+
+## Explicit completion gate decision
+- Objective status: `INCOMPLETE`.
+- Evidence:
+  - Tier-1 non-zero deltas remain (`visual +18`, `filter +1`, `sub-view +1`, `data/order +1`).
+  - DoD criterion "Tier-1 visual diff average <2%" remains blocked pending frozen baseline capture + diff run evidence.
+
 ## Completed in this slice (2026-03-03, parity slice: Tier-1 team-board filter URL + sub-view carryover parity)
 
 ### 1) Tier-1 sub-view/filter parity improvement (Team issue-shell tab carryover)

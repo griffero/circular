@@ -303,6 +303,20 @@ RSpec.describe "Issues API" do
       expect(ids.index(low.id)).to be < ids.index(no_priority.id)
     end
 
+    it "keeps no-priority issues last when sorting priority descending" do
+      high = create(:issue, team: team_a, creator: user, priority: 2, updated_at: 10.minutes.ago, title: "High")
+      low = create(:issue, team: team_a, creator: user, priority: 4, updated_at: 8.minutes.ago, title: "Low")
+      no_priority = create(:issue, team: team_a, creator: user, priority: 0, updated_at: 5.minutes.ago, title: "None")
+
+      get "/api/v1/issues",
+          params: { team_id: team_a.id, sort: "priority", direction: "desc" }
+
+      expect(response).to have_http_status(:ok)
+      ids = json_response[:issues].map { |item| item[:id] }
+      expect(ids.index(low.id)).to be < ids.index(high.id)
+      expect(ids.index(high.id)).to be < ids.index(no_priority.id)
+    end
+
     it "sorts by due_date with undated issues last" do
       overdue = create(:issue, team: team_a, creator: user, due_date: Date.current - 1.day, title: "Past due")
       upcoming = create(:issue, team: team_a, creator: user, due_date: Date.current + 1.day, title: "Upcoming")
