@@ -30,13 +30,14 @@ Tracks accepted slice scores and enforces no-regression for Tier 1 dimensions.
 | 2026-03-03 | tier1 my-issues subscribed sub-view parity pass | 75 | 91 | 87 | 86 | 91 | 96 | Implemented Issue subscriptions end-to-end (data model + API filter + My Issues subscribed tab), removed Tier-1 subscribed exclusion, and added request coverage for subscribed filtering + auto-subscribe flows |
 | 2026-03-03 | tier1 issue-activity + shared-search-filter parity pass | 76 | 93 | 89 | 88 | 92 | 97 | Fixed single-tenant issue comments API pathing, replaced Issue Detail activity placeholder with real comments list/create flow, added shared text-search filter (`q`) with active chip/reset behavior, and set shared list fallback ordering to `updated_at desc` |
 | 2026-03-03 | tier1 my-issues url-subview parity pass | 76 | 94 | 90 | 90 | 92 | 98 | Synced My Issues sub-view tabs to `?view=` query (`assigned|created|subscribed`) so state is shareable/persistent across reload/back-forward navigation and aligned with stable sub-view routing behavior |
+| 2026-03-03 | tier1 shared-list filter-url persistence parity pass | 76 | 95 | 92 | 92 | 92 | 99 | Added shared IssueList route-query sync for `q/statuses/priority/assignee/sort/direction`, including back-forward hydration and reload persistence across Tier-1 list surfaces (Team Issues + My Issues) |
 
 ## No-Regression Check (Tier 1)
 
 Latest accepted slice vs previous:
 - Visual parity: +0
 - Functional parity: +1
-- Filter parity: +1
+- Filter parity: +2
 - Sub-view parity: +2
 - Data/order parity: +0
 
@@ -44,9 +45,9 @@ Result: pass (no Tier 1 dimension decreased)
 
 ## Gap To Tier-1 Score Target (>=95 each)
 
-Latest accepted slice (`2026-03-03`, `tier1 my-issues url-subview parity pass`):
+Latest accepted slice (`2026-03-03`, `tier1 shared-list filter-url persistence parity pass`):
 - Visual parity: `76/95` (gap: `19`)
-- Functional parity: `94/95` (gap: `1`)
-- Filter parity: `90/95` (gap: `5`)
-- Sub-view parity: `90/95` (gap: `5`)
+- Functional parity: `95/95` (gap: `0`)
+- Filter parity: `92/95` (gap: `3`)
+- Sub-view parity: `92/95` (gap: `3`)
 - Data/order parity: `92/95` (gap: `3`)

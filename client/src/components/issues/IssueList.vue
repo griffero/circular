@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useIssuesStore, type IssueFilters } from '@/stores/issues'
 import { useUiStore } from '@/stores/ui'
 import { useAppStore } from '@/stores/app'
@@ -30,6 +31,8 @@ const props = defineProps<{
   emptyDescription?: string
 }>()
 
+const route = useRoute()
+const router = useRouter()
 const uiStore = useUiStore()
 const appStore = useAppStore()
 
@@ -40,7 +43,87 @@ const emit = defineEmits<{
 
 const issuesStore = useIssuesStore()
 
-const userFilters = ref<IssueFilters>({})
+const validStatuses: IssueStatus[] = ['backlog', 'todo', 'in_progress', 'in_review', 'done', 'canceled']
+const validSortOptions: NonNullable<IssueFilters['sort']>[] = ['created_at', 'updated_at', 'priority', 'due_date']
+const validDirections: NonNullable<IssueFilters['direction']>[] = ['asc', 'desc']
+
+function getQueryValue(value: unknown): string | undefined {
+  if (Array.isArray(value)) return value[0]
+  return typeof value === 'string' ? value : undefined
+}
+
+function parseUserFiltersFromQuery(query: Record<string, unknown>): IssueFilters {
+  const statusesParam = getQueryValue(query.statuses)
+  const statusParam = getQueryValue(query.status)
+  const priorityParam = getQueryValue(query.priority)
+  const assigneeParam = getQueryValue(query.assignee)
+  const sortParam = getQueryValue(query.sort)
+  const directionParam = getQueryValue(query.direction)
+  const qParam = getQueryValue(query.q)
+
+  const statuses = (statusesParam || statusParam || '')
+    .split(',')
+    .map((status) => status.trim())
+    .filter((status): status is IssueStatus => validStatuses.includes(status as IssueStatus))
+
+  const parsedPriority = priorityParam !== undefined ? Number(priorityParam) : undefined
+  const priority = Number.isInteger(parsedPriority) && parsedPriority >= 0 && parsedPriority <= 4
+    ? (parsedPriority as IssuePriority)
+    : undefined
+
+  const sort = validSortOptions.includes(sortParam as NonNullable<IssueFilters['sort']>)
+    ? (sortParam as NonNullable<IssueFilters['sort']>)
+    : undefined
+
+  const direction = validDirections.includes(directionParam as NonNullable<IssueFilters['direction']>)
+    ? (directionParam as NonNullable<IssueFilters['direction']>)
+    : undefined
+
+  return {
+    statuses: statuses.length > 0 ? statuses : undefined,
+    status: statuses.length === 1 ? statuses[0] : undefined,
+    priority,
+    assigneeId: assigneeParam || undefined,
+    sort,
+    direction,
+    q: qParam && qParam.trim().length > 0 ? qParam.trim() : undefined,
+  }
+}
+
+function normalizeUserFilters(filters: IssueFilters): IssueFilters {
+  const normalizedStatuses = filters.statuses && filters.statuses.length > 0
+    ? Array.from(new Set(filters.statuses))
+    : undefined
+
+  return {
+    status: normalizedStatuses && normalizedStatuses.length === 1 ? normalizedStatuses[0] : undefined,
+    statuses: normalizedStatuses,
+    priority: filters.priority,
+    assigneeId: filters.assigneeId,
+    sort: filters.sort,
+    direction: filters.direction,
+    q: filters.q && filters.q.trim().length > 0 ? filters.q.trim() : undefined,
+  }
+}
+
+function serializeUserFiltersForQuery(filters: IssueFilters): Record<string, string> {
+  const serialized: Record<string, string> = {}
+
+  if (filters.statuses && filters.statuses.length > 0) serialized.statuses = filters.statuses.join(',')
+  if (filters.priority !== undefined) serialized.priority = String(filters.priority)
+  if (filters.assigneeId) serialized.assignee = filters.assigneeId
+  if (filters.sort) serialized.sort = filters.sort
+  if (filters.direction) serialized.direction = filters.direction
+  if (filters.q) serialized.q = filters.q
+
+  return serialized
+}
+
+function areUserFiltersEqual(a: IssueFilters, b: IssueFilters): boolean {
+  return JSON.stringify(normalizeUserFilters(a)) === JSON.stringify(normalizeUserFilters(b))
+}
+
+const userFilters = ref<IssueFilters>(parseUserFiltersFromQuery(route.query as Record<string, unknown>))
 
 const resolvedSort = computed<IssueFilters['sort']>(() => (
   userFilters.value.sort || props.baseFilters?.sort || 'updated_at'
@@ -168,6 +251,46 @@ watch(
     fetchIssues()
   },
   { deep: true, immediate: true }
+)
+
+watch(
+  () => route.query,
+  (query) => {
+    const parsed = parseUserFiltersFromQuery(query as Record<string, unknown>)
+    if (!areUserFiltersEqual(userFilters.value, parsed)) {
+      userFilters.value = parsed
+    }
+  }
+)
+
+watch(
+  userFilters,
+  (filters) => {
+    const normalized = normalizeUserFilters(filters)
+    if (!areUserFiltersEqual(filters, normalized)) {
+      userFilters.value = normalized
+      return
+    }
+
+    const nextQuery = { ...route.query } as Record<string, string | undefined>
+    delete nextQuery.statuses
+    delete nextQuery.status
+    delete nextQuery.priority
+    delete nextQuery.assignee
+    delete nextQuery.sort
+    delete nextQuery.direction
+    delete nextQuery.q
+
+    const serialized = serializeUserFiltersForQuery(normalized)
+    const merged = { ...nextQuery, ...serialized }
+
+    const currentSerialized = JSON.stringify(route.query)
+    const nextSerialized = JSON.stringify(merged)
+    if (currentSerialized !== nextSerialized) {
+      router.replace({ path: route.path, query: merged })
+    }
+  },
+  { deep: true }
 )
 
 onMounted(() => {

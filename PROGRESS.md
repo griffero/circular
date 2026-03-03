@@ -1,5 +1,35 @@
 # Circular -> Linear Parity Progress
 
+## Completed in this slice (2026-03-03, parity slice: Tier-1 shared-list filter URL persistence parity)
+
+### 1) Tier-1 filter/sub-view parity fix (shared list filters are now URL-persistent)
+- Updated `client/src/components/issues/IssueList.vue`:
+  - Added route-query hydration for shared filters: `q`, `statuses`, `priority`, `assignee`, `sort`, `direction`.
+  - Added local filter -> URL synchronization via `router.replace(...)` so Team Issues/My Issues filter context survives reload/back-forward and is shareable as a link.
+  - Added route-query -> local filter synchronization so browser navigation restores prior filtered list state instead of resetting.
+
+### 2) Tier-1 functional parity hardening (navigation-safe list state)
+- Shared issue list flows now keep list filter intent stable across navigation lifecycle events, reducing lost-context churn during team triage and personal issue review.
+
+## Validation run (this slice)
+- ✅ `cd client && npm run type-check`
+- ✅ `cd client && npm run build`
+- ✅ `eval "$(rbenv init - zsh)" && rbenv shell 3.2.2 && bundle exec rspec spec/requests/issues_spec.rb spec/requests/users_spec.rb`
+
+## Measurable deltas (this slice)
+- Tier-1 functional parity: `+1` (shared list filter state now persists through navigation/reload, reducing context-reset behavior in Tier-1 list workflows).
+- Tier-1 filter parity: `+2` (shared list filters are now deep-linkable and restorable via URL query across Tier-1 list surfaces).
+- Tier-1 sub-view parity: `+2` (state restoration through back-forward/reload now applies to filterable list states inside Tier-1 sub-views, not only tab selection).
+- Tier-1 no-regression contract: maintained (all Tier-1 dimensions held or improved in `parity/SCORE_HISTORY.md`).
+- Global parity score: `98 -> 99`.
+
+## Gap-to-target snapshot (Tier-1 threshold target: `95` each)
+- Visual: `76/95` (`gap: 19`)
+- Functional: `95/95` (`gap: 0`)
+- Filter: `92/95` (`gap: 3`)
+- Sub-view: `92/95` (`gap: 3`)
+- Data/order: `92/95` (`gap: 3`)
+
 ## Completed in this slice (2026-03-03, parity slice: Tier-1 My Issues URL sub-view parity)
 
 ### 1) Tier-1 sub-view parity fix (My Issues tab state is now URL-addressable)
