@@ -120,6 +120,34 @@ RSpec.describe "Issues API" do
       expect(ids).to contain_exactly(started_issue.id)
     end
 
+    it "filters by workflow_state_type triage/backlog as distinct sub-views" do
+      triage_state = create(:workflow_state, team: team_a, name: "Triage", state_type: "triage", position: 5.0)
+      backlog_issue = create(:issue, team: team_a, creator: user, workflow_state: backlog_state, status: "backlog", title: "Backlog state")
+      triage_issue = create(:issue, team: team_a, creator: user, workflow_state: triage_state, status: "backlog", title: "Triage state")
+      create(:issue, team: team_a, creator: user, workflow_state: started_state, status: "in_progress", title: "Started state")
+
+      get "/api/v1/issues", params: { team_id: team_a.id, workflow_state_type: "triage" }
+      expect(response).to have_http_status(:ok)
+      triage_ids = json_response[:issues].map { |item| item[:id] }
+      expect(triage_ids).to contain_exactly(triage_issue.id)
+
+      get "/api/v1/issues", params: { team_id: team_a.id, workflow_state_type: "backlog" }
+      expect(response).to have_http_status(:ok)
+      backlog_ids = json_response[:issues].map { |item| item[:id] }
+      expect(backlog_ids).to contain_exactly(backlog_issue.id)
+    end
+
+    it "keeps legacy backlog issues without workflow_state in backlog filter" do
+      legacy_backlog = create(:issue, team: team_a, creator: user, workflow_state: nil, status: "backlog", title: "Legacy backlog")
+      create(:issue, team: team_a, creator: user, workflow_state: nil, status: "todo", title: "Legacy todo")
+
+      get "/api/v1/issues", params: { team_id: team_a.id, workflow_state_type: "backlog" }
+
+      expect(response).to have_http_status(:ok)
+      ids = json_response[:issues].map { |item| item[:id] }
+      expect(ids).to include(legacy_backlog.id)
+    end
+
     it "applies assignee, status, and priority filters together" do
       matching_issue = create(
         :issue,

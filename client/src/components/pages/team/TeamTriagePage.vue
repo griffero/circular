@@ -11,7 +11,7 @@ const uiStore = useUiStore()
 const { currentTeam } = useCurrentTeam()
 
 const baseFilters = computed(() => ({
-  statuses: ['backlog'] as const,
+  workflowStateType: 'triage' as const,
   sort: 'updated_at' as const,
   direction: 'desc' as const,
 }))

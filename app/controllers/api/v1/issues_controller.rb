@@ -33,6 +33,12 @@ module Api
         # Filter by workflow_state
         issues = issues.where(workflow_state_id: params[:workflow_state_id]) if params[:workflow_state_id].present?
 
+        # Filter by workflow_state type (triage/backlog/unstarted/started/completed/canceled).
+        # Keep legacy backlog issues (without workflow_state_id) visible in backlog mode.
+        if params[:workflow_state_type].present?
+          issues = apply_workflow_state_type_filter(issues, params[:workflow_state_type])
+        end
+
         # Filter by cycle
         issues = issues.where(cycle_id: params[:cycle_id]) if params[:cycle_id].present?
 
@@ -173,6 +179,15 @@ module Api
         else
           scope.order(updated_at: :desc, created_at: :desc, id: :asc)
         end
+      end
+
+      def apply_workflow_state_type_filter(scope, workflow_state_type)
+        workflow_state_type = workflow_state_type.to_s
+        filtered = scope.left_joins(:workflow_state).where(workflow_states: { state_type: workflow_state_type })
+
+        return filtered unless workflow_state_type == "backlog"
+
+        filtered.or(scope.where(workflow_state_id: nil, status: "backlog"))
       end
 
       # Realtime broadcasts

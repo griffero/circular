@@ -12,6 +12,7 @@ export interface IssueFilters {
   myIssues?: boolean
   cycleId?: string
   workflowStateId?: string
+  workflowStateType?: WorkflowStateType
   status?: IssueStatus
   statuses?: IssueStatus[]
   priority?: IssuePriority
@@ -112,6 +113,7 @@ export const useIssuesStore = defineStore('issues', () => {
       if (filters.myIssues) params.append('my_issues', 'true')
       if (filters.cycleId) params.append('cycle_id', filters.cycleId)
       if (filters.workflowStateId) params.append('workflow_state_id', filters.workflowStateId)
+      if (filters.workflowStateType) params.append('workflow_state_type', filters.workflowStateType)
       if (filters.status) params.append('status', filters.status)
       if (filters.statuses && filters.statuses.length > 0) params.append('statuses', filters.statuses.join(','))
       if (filters.priority !== undefined) params.append('priority', String(filters.priority))

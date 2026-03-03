@@ -1,5 +1,35 @@
 # Circular -> Linear Parity Progress
 
+## Completed in this slice (2026-03-03, parity slice: Tier-2 triage/backlog workflow-state parity)
+
+### 1) Tier-2 sub-view parity fix (triage vs backlog no longer duplicates)
+- Added `workflow_state_type` filtering support to `GET /api/v1/issues` in `app/controllers/api/v1/issues_controller.rb`.
+- Implemented a legacy-safe backlog fallback in the same filter path:
+  - `workflow_state_type=backlog` now includes issues with no `workflow_state_id` when their legacy `status` is `backlog`.
+- Wired team sub-views to distinct filters:
+  - `client/src/components/pages/team/TeamTriagePage.vue` now uses `workflowStateType='triage'`.
+  - `client/src/components/pages/team/TeamBacklogPage.vue` now uses `workflowStateType='backlog'`.
+
+### 2) Client filter serialization parity hardening
+- Extended shared issue filter typing/serialization in `client/src/stores/issues.ts`:
+  - Added typed `workflowStateType` in `IssueFilters`.
+  - Added query serialization for `workflow_state_type`.
+
+### 3) Regression coverage expansion (request specs)
+- Extended `spec/requests/issues_spec.rb` with:
+  - Distinct triage/backlog behavior when filtering by `workflow_state_type`.
+  - Legacy backlog fallback coverage for issues without `workflow_state_id`.
+
+## Validation run (this slice)
+- ✅ `cd client && npm run type-check`
+- ✅ `cd client && npm run build`
+- ✅ `eval "$(rbenv init - zsh)" && rbenv shell 3.2.2 && bundle exec rspec spec/requests/issues_spec.rb`
+
+## Measurable deltas (this slice)
+- Tier-2 sub-view parity: `+1` (`Team Triage` and `Team Backlog` now query distinct workflow-state type datasets instead of sharing the same backlog status filter).
+- Tier-1 no-regression contract: maintained (all Tier-1 dimensions held or improved in `parity/SCORE_HISTORY.md`).
+- Global parity score: `91 -> 92`.
+
 ## Completed in this slice (2026-03-03, parity slice: Tier-1 default-order parity + Tier-2 team sub-view discoverability)
 
 ### 1) Tier-2 sub-view parity improvement (team issue-shell navigation)
