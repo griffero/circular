@@ -175,6 +175,19 @@ RSpec.describe "Issues API" do
       expect(ids).to contain_exactly(todo_issue.id, in_progress_issue.id)
     end
 
+    it "prioritizes statuses list over single status when both are provided" do
+      todo_issue = create(:issue, team: team_a, creator: user, status: "todo", title: "Todo")
+      done_issue = create(:issue, team: team_a, creator: user, status: "done", title: "Done")
+      create(:issue, team: team_a, creator: user, status: "backlog", title: "Backlog")
+
+      get "/api/v1/issues",
+          params: { team_id: team_a.id, status: "backlog", statuses: "todo,done" }
+
+      expect(response).to have_http_status(:ok)
+      ids = json_response[:issues].map { |item| item[:id] }
+      expect(ids).to contain_exactly(todo_issue.id, done_issue.id)
+    end
+
     it "sorts by priority with no-priority issues last by default" do
       urgent = create(:issue, team: team_a, creator: user, priority: 1, updated_at: 10.minutes.ago, title: "Urgent")
       low = create(:issue, team: team_a, creator: user, priority: 4, updated_at: 8.minutes.ago, title: "Low")

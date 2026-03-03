@@ -1,5 +1,34 @@
 # Circular -> Linear Parity Progress
 
+## Completed in this slice (2026-03-03, parity slice: Tier-1 multi-status filter interaction parity)
+
+### 1) Tier-1 filter parity improvement (shared multi-status selection)
+- Updated `client/src/components/issues/IssueFilters.vue` to support multi-select status filtering in the shared filter bar:
+  - Status dropdown now supports selecting multiple statuses simultaneously.
+  - Selected status summary now reflects count (`N statuses`) or specific status when only one is selected.
+  - Clearing statuses now resets both `status` and `statuses` fields to prevent stale mixed filter state.
+
+### 2) Tier-1 filter interaction parity improvement (active filter visibility + remove actions)
+- Updated `client/src/components/issues/IssueList.vue` to add active filter chips directly below the shared filters:
+  - Per-filter remove actions for status(es), priority, and assignee.
+  - `Clear all` action to reset all user-applied filters while preserving base sub-view filters.
+- This restores high-visibility filter state feedback and one-click filter removal behavior in the core Team Issues/My Issues/Project shared list surfaces.
+
+### 3) Tier-1 API/filter semantics hardening
+- Extended `spec/requests/issues_spec.rb` with precedence coverage when both `status` and `statuses` are provided:
+  - New test confirms `statuses` takes precedence over `status`, matching controller behavior and preventing parameter ambiguity regressions in shared filter flows.
+
+## Validation run (this slice)
+- ✅ `cd client && npm run type-check`
+- ✅ `cd client && npm run build`
+- ⚠️ `bundle exec rspec spec/requests/issues_spec.rb` blocked in this environment:
+  - Missing Bundler version required by lockfile: `bundler 2.6.4`.
+
+## Measurable deltas (this slice)
+- Tier-1 shared filter parity: `+1` major interaction capability (multi-status selection in shared IssueFilters).
+- Tier-1 filter clarity/actions: `+1` shared active-filter chip surface with per-filter remove and clear-all.
+- Request-level regression coverage: `+1` precedence case (`statuses` over `status`) for shared list semantics.
+
 ## Completed in this slice (2026-03-03, parity slice: Tier-1 issue-detail inline editing parity)
 
 ### 1) Tier-1 Issue Detail functional parity improvement (edit key fields)

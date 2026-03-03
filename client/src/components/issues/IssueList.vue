@@ -15,7 +15,8 @@ import {
   XCircle,
   ChevronDown,
   GitPullRequest,
-  MessageSquare
+  MessageSquare,
+  X
 } from 'lucide-vue-next'
 import type { Issue, IssueStatus, WorkflowStateType, WorkflowState } from '@/types'
 
@@ -162,6 +163,67 @@ function handleFilterUpdate(newFilters: IssueFilters) {
   userFilters.value = { ...newFilters }
 }
 
+const activeFilterChips = computed(() => {
+  const chips: Array<{ key: string; label: string; clear: () => void }> = []
+
+  if (userFilters.value.statuses && userFilters.value.statuses.length > 0) {
+    for (const status of userFilters.value.statuses) {
+      const nextStatuses = userFilters.value.statuses.filter((item) => item !== status)
+      chips.push({
+        key: `status-${status}`,
+        label: `Status: ${status.replace('_', ' ')}`,
+        clear: () => {
+          userFilters.value = {
+            ...userFilters.value,
+            status: nextStatuses.length === 1 ? nextStatuses[0] : undefined,
+            statuses: nextStatuses.length > 0 ? nextStatuses : undefined,
+          }
+        }
+      })
+    }
+  } else if (userFilters.value.status) {
+    chips.push({
+      key: `status-${userFilters.value.status}`,
+      label: `Status: ${userFilters.value.status.replace('_', ' ')}`,
+      clear: () => {
+        userFilters.value = { ...userFilters.value, status: undefined, statuses: undefined }
+      }
+    })
+  }
+
+  if (userFilters.value.priority !== undefined) {
+    chips.push({
+      key: 'priority',
+      label: `Priority: ${priorityConfig[userFilters.value.priority]?.label || userFilters.value.priority}`,
+      clear: () => {
+        userFilters.value = { ...userFilters.value, priority: undefined }
+      }
+    })
+  }
+
+  if (userFilters.value.assigneeId) {
+    chips.push({
+      key: 'assignee',
+      label: userFilters.value.assigneeId === 'unassigned' ? 'Assignee: Unassigned' : 'Assignee: Assigned to me',
+      clear: () => {
+        userFilters.value = { ...userFilters.value, assigneeId: undefined }
+      }
+    })
+  }
+
+  return chips
+})
+
+function clearAllUserFilters() {
+  userFilters.value = {
+    ...userFilters.value,
+    status: undefined,
+    statuses: undefined,
+    priority: undefined,
+    assigneeId: undefined,
+  }
+}
+
 function formatDate(dateString: string) {
   const date = new Date(dateString)
   return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
@@ -203,6 +265,24 @@ function getEffectiveStatus(issue: Issue): IssueStatus {
         :filters="userFilters"
         @update:filters="handleFilterUpdate"
       />
+      <div v-if="activeFilterChips.length > 0" class="mt-2 flex flex-wrap items-center gap-2">
+        <button
+          v-for="chip in activeFilterChips"
+          :key="chip.key"
+          class="inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs border border-[var(--linear-border)] text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-surface)] transition-colors"
+          @click="chip.clear()"
+        >
+          <span class="capitalize">{{ chip.label }}</span>
+          <X class="w-3 h-3" />
+        </button>
+        <button
+          class="inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-surface)] transition-colors"
+          @click="clearAllUserFilters"
+        >
+          <X class="w-3 h-3" />
+          Clear all
+        </button>
+      </div>
     </div>
 
     <!-- Loading -->

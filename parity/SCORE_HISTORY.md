@@ -18,13 +18,14 @@ Tracks accepted slice scores and enforces no-regression for Tier 1 dimensions.
 | 2026-03-03 | tier2 triage + project shared-list parity pass | 74 | 83 | 82 | 79 | 86 | 83 | Moved Team Triage + Project Issues onto shared IssueList/filter stack; improved Project page theme-token consistency |
 | 2026-03-03 | tier1 team-issues order + tier2 board interactions pass | 74 | 83 | 82 | 79 | 88 | 85 | Set Team Issues default ordering to updated-desc and upgraded Team Board with shared filters + drag/drop workflow-state transitions |
 | 2026-03-03 | tier1 issue-detail inline editing parity pass | 74 | 85 | 82 | 79 | 88 | 87 | Added persisted inline editing for issue title/description with save/cancel keyboard flow; closes a Tier-1 issue-detail key-field gap |
+| 2026-03-03 | tier1 multi-status filter interaction parity pass | 74 | 86 | 85 | 79 | 88 | 88 | Added shared multi-status filter selection + active filter chips in IssueList and request-spec coverage for `statuses` precedence behavior |
 
 ## No-Regression Check (Tier 1)
 
 Latest accepted slice vs previous:
 - Visual parity: +0
-- Functional parity: +2
-- Filter parity: +0
+- Functional parity: +1
+- Filter parity: +3
 - Sub-view parity: +0
 - Data/order parity: +0
 

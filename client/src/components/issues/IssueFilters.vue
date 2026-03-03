@@ -23,6 +23,7 @@ import {
 
 interface Filters {
   status?: IssueStatus
+  statuses?: IssueStatus[]
   priority?: IssuePriority
   assigneeId?: string
   sort?: 'created_at' | 'updated_at' | 'priority' | 'due_date'
@@ -68,7 +69,8 @@ const sortOptions: { value: string; label: string }[] = [
 ]
 
 const hasActiveFilters = computed(() => {
-  return props.filters.status !== undefined || 
+  return (props.filters.statuses?.length ?? 0) > 0 ||
+         props.filters.status !== undefined ||
          props.filters.priority !== undefined || 
          props.filters.assigneeId !== undefined
 })
@@ -77,8 +79,16 @@ function updateFilter<K extends keyof Filters>(key: K, value: Filters[K]) {
   emit('update:filters', { ...props.filters, [key]: value })
 }
 
+function updateFilters(next: Partial<Filters>) {
+  emit('update:filters', { ...props.filters, ...next })
+}
+
 function clearFilters() {
   emit('update:filters', {
+    status: undefined,
+    statuses: undefined,
+    priority: undefined,
+    assigneeId: undefined,
     sort: props.filters.sort,
     direction: props.filters.direction
   })
@@ -91,6 +101,43 @@ function toggleDirection() {
 
 function getStatusLabel(status?: IssueStatus) {
   return statuses.find(s => s.value === status)?.label || 'All statuses'
+}
+
+const selectedStatuses = computed<IssueStatus[]>(() => {
+  if (props.filters.statuses && props.filters.statuses.length > 0) {
+    return props.filters.statuses
+  }
+  return props.filters.status ? [props.filters.status] : []
+})
+
+function toggleStatus(status: IssueStatus) {
+  const set = new Set(selectedStatuses.value)
+  if (set.has(status)) {
+    set.delete(status)
+  } else {
+    set.add(status)
+  }
+
+  const nextStatuses = Array.from(set)
+  if (nextStatuses.length === 0) {
+    updateFilters({ status: undefined, statuses: undefined })
+    return
+  }
+
+  updateFilters({
+    status: nextStatuses.length === 1 ? nextStatuses[0] : undefined,
+    statuses: nextStatuses
+  })
+}
+
+function clearStatusFilters() {
+  updateFilters({ status: undefined, statuses: undefined })
+}
+
+function statusLabel() {
+  if (selectedStatuses.value.length === 0) return 'All statuses'
+  if (selectedStatuses.value.length === 1) return getStatusLabel(selectedStatuses.value[0])
+  return `${selectedStatuses.value.length} statuses`
 }
 
 function getPriorityLabel(priority?: IssuePriority) {
@@ -117,18 +164,27 @@ function triggerClass(active: boolean) {
     <Dropdown align="left" width="w-48">
       <template #trigger>
         <button 
-          :class="triggerClass(filters.status !== undefined)"
+          :class="triggerClass(selectedStatuses.length > 0)"
         >
           <Circle class="w-4 h-4" />
-          {{ getStatusLabel(filters.status) }}
+          {{ statusLabel() }}
         </button>
       </template>
       <template #default="{ close }">
         <DropdownItem
-          v-for="status in statuses"
-          :key="status.value || 'all'"
-          @click="updateFilter('status', status.value); close()"
+          @click="clearStatusFilters(); close()"
         >
+          <Circle class="w-4 h-4 text-[var(--linear-muted)]" />
+          All statuses
+        </DropdownItem>
+        <DropdownItem
+          v-for="status in statuses.filter((item) => item.value !== undefined)"
+          :key="status.value"
+          @click="toggleStatus(status.value as IssueStatus)"
+        >
+          <span class="w-3.5 h-3.5 rounded-sm border border-[var(--linear-border)] flex items-center justify-center text-[10px]">
+            <span v-if="selectedStatuses.includes(status.value as IssueStatus)">✓</span>
+          </span>
           <component :is="status.icon" :class="cn('w-4 h-4', status.color)" />
           {{ status.label }}
         </DropdownItem>
