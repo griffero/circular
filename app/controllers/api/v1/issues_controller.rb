@@ -171,12 +171,7 @@ module Api
             id: :asc
           )
         else
-          scope.order(
-            Arel.sql("CASE WHEN issues.sort_order IS NULL THEN 1 ELSE 0 END ASC"),
-            sort_order: :asc,
-            created_at: :desc,
-            id: :asc
-          )
+          scope.order(updated_at: :desc, created_at: :desc, id: :asc)
         end
       end
 

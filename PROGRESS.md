@@ -1,5 +1,32 @@
 # Circular -> Linear Parity Progress
 
+## Completed in this slice (2026-03-03, parity slice: Tier-1 default-order parity + Tier-2 team sub-view discoverability)
+
+### 1) Tier-2 sub-view parity improvement (team issue-shell navigation)
+- Updated `client/src/components/pages/TeamPage.vue` issue-shell tabs to expose missing shared sub-views:
+  - Added `Triage` tab (`/team/:key/triage`).
+  - Added `Board` tab (`/team/:key/board`).
+- Refined tab active-state logic so each sub-view route maps to its own active tab, removing the prior implicit `Active`/`Triage` coupling.
+
+### 2) Tier-1 data/order parity hardening (default ordering fallback)
+- Updated `app/controllers/api/v1/issues_controller.rb` default sorting path (`apply_sort` fallback):
+  - Removed legacy fallback ordering tied to `sort_order`.
+  - Default now consistently returns issues in `updated_at desc` order with deterministic tie-breakers (`created_at desc`, `id asc`), matching Tier-1 issue-list expectations when no explicit sort is provided.
+
+### 3) Tier-1 regression coverage expansion (request spec)
+- Extended `spec/requests/issues_spec.rb` with a new ordering example:
+  - Verifies `GET /api/v1/issues` defaults to `updated_at desc` when `sort` is omitted.
+
+## Validation run (this slice)
+- ✅ `cd client && npm run type-check`
+- ✅ `cd client && npm run build`
+- ✅ `eval "$(rbenv init - zsh)" && rbenv shell 3.2.2 && bundle exec rspec spec/requests/issues_spec.rb`
+
+## Measurable deltas (this slice)
+- Tier-2 sub-view discoverability: `+2` explicit team sub-views surfaced in primary issue-shell navigation (`Triage`, `Board`).
+- Tier-1 data/order parity: `+1` API-level default ordering now aligned to `updated_at desc` behavior when clients omit explicit sort.
+- Tier-1 no-regression contract: maintained (all Tier-1 dimension deltas non-negative in `parity/SCORE_HISTORY.md`).
+
 ## Completed in this slice (2026-03-03, parity slice: Tier-1 shared-list ordering + assignee filter parity)
 
 ### 1) Tier-1 data/order parity fix (shared list now honors per-view default sort)

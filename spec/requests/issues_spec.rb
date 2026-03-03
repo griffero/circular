@@ -216,6 +216,19 @@ RSpec.describe "Issues API" do
       expect(ids.index(upcoming.id)).to be < ids.index(undated.id)
     end
 
+    it "defaults to updated_at desc ordering when sort is omitted" do
+      stale = create(:issue, team: team_a, creator: user, updated_at: 3.days.ago, title: "Stale")
+      fresh = create(:issue, team: team_a, creator: user, updated_at: 2.hours.ago, title: "Fresh")
+      newest = create(:issue, team: team_a, creator: user, updated_at: 5.minutes.ago, title: "Newest")
+
+      get "/api/v1/issues", params: { team_id: team_a.id }
+
+      expect(response).to have_http_status(:ok)
+      ids = json_response[:issues].map { |item| item[:id] }
+      expect(ids.index(newest.id)).to be < ids.index(fresh.id)
+      expect(ids.index(fresh.id)).to be < ids.index(stale.id)
+    end
+
     it "filters by my_issues flag for current user" do
       mine = create(:issue, team: team_a, creator: user, assignee: user, title: "Mine")
       other_user = create(:user, email: "other-user@fintoc.com")

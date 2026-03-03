@@ -44,7 +44,9 @@ const tabs = computed<Tab[]>(() => {
   return [
     { name: 'All Issues', to: `${base}/issues`, routeName: 'team-issues' },
     { name: 'Active', to: `${base}/active`, routeName: 'team-active' },
+    { name: 'Triage', to: `${base}/triage`, routeName: 'team-triage' },
     { name: 'Backlog', to: `${base}/backlog`, routeName: 'team-backlog' },
+    { name: 'Board', to: `${base}/board`, routeName: 'team-board' },
     { name: 'Cycles', to: `${base}/cycles/current`, routeName: 'team-cycles-current' },
   ]
 })
@@ -67,9 +69,6 @@ function hasEmoji(icon?: string | null): boolean {
 function isTabActive(routeName: string) {
   if (routeName === 'team-cycles-current') {
     return route.name === 'team-cycles-current' || route.name === 'team-cycles-upcoming'
-  }
-  if (routeName === 'team-active') {
-    return route.name === 'team-active' || route.name === 'team-triage'
   }
   return route.name === routeName
 }

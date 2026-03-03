@@ -21,14 +21,15 @@ Tracks accepted slice scores and enforces no-regression for Tier 1 dimensions.
 | 2026-03-03 | tier1 multi-status filter interaction parity pass | 74 | 86 | 85 | 79 | 88 | 88 | Added shared multi-status filter selection + active filter chips in IssueList and request-spec coverage for `statuses` precedence behavior |
 | 2026-03-03 | tier1 create-assignee + tier2 inbox-theme parity pass | 74 | 87 | 85 | 79 | 88 | 89 | Create Issue now supports full workspace assignee selection (with lazy user load); Inbox migrated to shared theme tokens/buttons for light/dark parity |
 | 2026-03-03 | tier1 shared-list default-sort + assignee-filter parity pass | 74 | 88 | 87 | 79 | 90 | 90 | Fixed shared IssueList to honor per-view base sort defaults (`updated_at desc`) and expanded shared assignee filter to workspace users with resolved labels/chips |
+| 2026-03-03 | tier1 default-order + tier2 team-subviews parity pass | 74 | 88 | 87 | 82 | 91 | 91 | Exposed Team `Triage` + `Board` sub-views in issue-shell navigation and set API default list ordering fallback to `updated_at desc` with request-spec coverage |
 
 ## No-Regression Check (Tier 1)
 
 Latest accepted slice vs previous:
 - Visual parity: +0
-- Functional parity: +1
-- Filter parity: +2
-- Sub-view parity: +0
-- Data/order parity: +2
+- Functional parity: +0
+- Filter parity: +0
+- Sub-view parity: +3
+- Data/order parity: +1
 
 Result: pass (no Tier 1 dimension decreased)
