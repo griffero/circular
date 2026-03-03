@@ -35,6 +35,7 @@ const issuesStore = useIssuesStore()
 
 const teams = computed(() => appStore.teams)
 const projects = computed(() => appStore.projects)
+const users = computed(() => appStore.users)
 const currentUser = computed(() => authStore.user)
 
 const title = ref('')
@@ -60,7 +61,22 @@ watch(() => props.open, (open) => {
     selectedProjectId.value = undefined
     dueDate.value = undefined
     error.value = ''
+
+    if (users.value.length === 0) {
+      appStore.fetchUsers()
+    }
   }
+})
+
+const assigneeOptions = computed(() => {
+  const currentUserId = currentUser.value?.id
+  if (!currentUserId) return users.value
+
+  return [...users.value].sort((a, b) => {
+    if (a.id === currentUserId) return -1
+    if (b.id === currentUserId) return 1
+    return a.name.localeCompare(b.name)
+  })
 })
 
 const statuses: { value: IssueStatus; label: string; icon: typeof Circle; color: string }[] = [
@@ -188,7 +204,13 @@ async function handleSubmit() {
             class="w-full px-3 py-2 text-sm rounded-md border border-[var(--linear-border)] bg-[var(--linear-elevated)] text-[var(--linear-text)]"
           >
             <option :value="undefined">Unassigned</option>
-            <option v-if="currentUser" :value="currentUser.id">{{ currentUser.name }} (me)</option>
+            <option
+              v-for="user in assigneeOptions"
+              :key="user.id"
+              :value="user.id"
+            >
+              {{ user.id === currentUser?.id ? `${user.name} (me)` : user.name }}
+            </option>
           </select>
         </div>
 

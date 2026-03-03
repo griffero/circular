@@ -1,5 +1,28 @@
 # Circular -> Linear Parity Progress
 
+## Completed in this slice (2026-03-03, parity slice: Tier-1 create-flow assignee parity + Tier-2 Inbox theme parity)
+
+### 1) Tier-1 create issue functional parity improvement (assignee selection)
+- Updated `client/src/components/issues/CreateIssueModal.vue` to support full workspace assignee selection instead of only `(me)`/unassigned:
+  - Assignee dropdown now lists all fetched users and keeps current user pinned/suffixed as `(me)`.
+  - Modal now lazily calls `appStore.fetchUsers()` when opened and users are not yet present, preventing empty assignee menus in create flow contexts outside Issue Detail.
+
+### 2) Tier-2 Inbox visual/action-shell parity improvement (theme consistency)
+- Updated `client/src/components/pages/InboxPage.vue`:
+  - Replaced hardcoded dark-only colors with shared `--linear-*` theme tokens across header, tabs, empty state, and list dividers.
+  - Switched header actions (`Mark all read`, `Archive all`) to shared `Button` component usage for consistent interaction styling with the rest of the app shell.
+  - Added tab-aware `filteredNotifications` computed wiring so empty-state rendering aligns with current tab selection scaffold.
+
+## Validation run (this slice)
+- ✅ `cd client && npm run type-check`
+- ✅ `cd client && npm run build`
+- ✅ `eval "$(rbenv init - zsh)" && rbenv shell 3.2.2 && bundle exec rspec spec/requests/issues_spec.rb`
+
+## Measurable deltas (this slice)
+- Tier-1 create-flow functional parity: `+1` (full assignee selection in Create Issue modal).
+- Tier-2 Inbox theme parity: `+1` surface migrated from hardcoded dark palette to shared theme tokens.
+- Runnable backend regression check restored in this environment via project Ruby (`rbenv` 3.2.2 + Bundler 2.6.4).
+
 ## Completed in this slice (2026-03-03, parity slice: Tier-1 multi-status filter interaction parity)
 
 ### 1) Tier-1 filter parity improvement (shared multi-status selection)

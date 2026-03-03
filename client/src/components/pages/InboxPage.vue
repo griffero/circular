@@ -1,14 +1,20 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { Inbox, CheckCheck, Archive, Bell } from 'lucide-vue-next'
+import { Inbox, CheckCheck, Archive } from 'lucide-vue-next'
+import Button from '@/components/ui/Button.vue'
 
 // Placeholder notifications
 const notifications = ref<unknown[]>([])
 const loading = ref(false)
 
+const activeTab = ref<'all' | 'unread' | 'archived'>('all')
 const hasNotifications = computed(() => notifications.value.length > 0)
 
-const activeTab = ref<'all' | 'unread' | 'archived'>('all')
+const filteredNotifications = computed(() => {
+  if (activeTab.value === 'all') return notifications.value
+  // Placeholder data does not include unread/archive flags yet.
+  return notifications.value
+})
 
 function markAllRead() {
   // TODO: Implement when notifications backend is ready
@@ -23,17 +29,17 @@ function archiveAll() {
 </script>
 
 <template>
-  <div class="h-full flex flex-col bg-[#0d0d0d]">
+  <div class="h-full flex flex-col bg-[var(--linear-bg)]">
     <!-- Header -->
-    <div class="flex items-center justify-between px-4 py-2 border-b border-[#1f1f1f]">
+    <div class="flex items-center justify-between px-4 py-2 border-b border-[var(--linear-border)]">
       <div class="flex items-center gap-1">
         <button 
           @click="activeTab = 'all'"
           :class="[
             'px-3 py-1.5 text-sm rounded-md transition-colors',
             activeTab === 'all' 
-              ? 'bg-[#1a1a1a] text-white' 
-              : 'text-gray-400 hover:text-white hover:bg-[#1a1a1a]'
+              ? 'bg-[var(--linear-elevated)] text-[var(--linear-text)]' 
+              : 'text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-elevated)]'
           ]"
         >
           All
@@ -43,8 +49,8 @@ function archiveAll() {
           :class="[
             'px-3 py-1.5 text-sm rounded-md transition-colors',
             activeTab === 'unread' 
-              ? 'bg-[#1a1a1a] text-white' 
-              : 'text-gray-400 hover:text-white hover:bg-[#1a1a1a]'
+              ? 'bg-[var(--linear-elevated)] text-[var(--linear-text)]' 
+              : 'text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-elevated)]'
           ]"
         >
           Unread
@@ -54,8 +60,8 @@ function archiveAll() {
           :class="[
             'px-3 py-1.5 text-sm rounded-md transition-colors',
             activeTab === 'archived' 
-              ? 'bg-[#1a1a1a] text-white' 
-              : 'text-gray-400 hover:text-white hover:bg-[#1a1a1a]'
+              ? 'bg-[var(--linear-elevated)] text-[var(--linear-text)]' 
+              : 'text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-elevated)]'
           ]"
         >
           Archived
@@ -63,32 +69,24 @@ function archiveAll() {
       </div>
       
       <div class="flex items-center gap-2">
-        <button 
+        <Button
+          size="sm"
+          variant="ghost"
           @click="markAllRead"
           :disabled="!hasNotifications"
-          :class="[
-            'flex items-center gap-1.5 px-3 py-1.5 text-sm rounded transition-colors',
-            hasNotifications 
-              ? 'text-gray-400 hover:text-white hover:bg-[#1a1a1a]' 
-              : 'text-gray-600 cursor-not-allowed'
-          ]"
         >
           <CheckCheck class="w-4 h-4" />
           Mark all read
-        </button>
-        <button 
+        </Button>
+        <Button
+          size="sm"
+          variant="ghost"
           @click="archiveAll"
           :disabled="!hasNotifications"
-          :class="[
-            'flex items-center gap-1.5 px-3 py-1.5 text-sm rounded transition-colors',
-            hasNotifications 
-              ? 'text-gray-400 hover:text-white hover:bg-[#1a1a1a]' 
-              : 'text-gray-600 cursor-not-allowed'
-          ]"
         >
           <Archive class="w-4 h-4" />
           Archive all
-        </button>
+        </Button>
       </div>
     </div>
 
@@ -98,19 +96,19 @@ function archiveAll() {
         <div class="animate-spin rounded-full h-8 w-8 border-2 border-indigo-500 border-t-transparent"></div>
       </div>
 
-      <div v-else-if="!hasNotifications" class="flex flex-col items-center justify-center py-16">
-        <div class="w-16 h-16 rounded-full bg-[#1a1a1a] flex items-center justify-center mb-4">
-          <Inbox class="h-8 w-8 text-gray-500" />
+      <div v-else-if="filteredNotifications.length === 0" class="flex flex-col items-center justify-center py-16 px-6 text-center">
+        <div class="w-16 h-16 rounded-full bg-[var(--linear-elevated)] flex items-center justify-center mb-4">
+          <Inbox class="h-8 w-8 text-[var(--linear-muted)]" />
         </div>
-        <h3 class="text-lg font-medium text-white mb-1">
+        <h3 class="text-lg font-medium text-[var(--linear-text)] mb-1">
           All caught up!
         </h3>
-        <p class="text-sm text-gray-500 text-center max-w-sm">
+        <p class="text-sm text-[var(--linear-muted)] max-w-sm">
           You have no notifications. We'll let you know when there's something new.
         </p>
       </div>
 
-      <div v-else class="divide-y divide-[#1f1f1f]">
+      <div v-else class="divide-y divide-[var(--linear-border)]">
         <!-- Notification items will go here -->
       </div>
     </div>
