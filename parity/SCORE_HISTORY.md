@@ -27,14 +27,15 @@ Tracks accepted slice scores and enforces no-regression for Tier 1 dimensions.
 | 2026-03-03 | tier1 issue-detail delete-confirm parity pass | 75 | 89 | 87 | 83 | 91 | 94 | Replaced browser-native delete confirm with in-app Issue Detail confirmation modal state, including cancel/delete actions and in-flight lockout |
 | 2026-03-03 | tier2 settings-profile persisted-edit parity pass | 75 | 90 | 87 | 83 | 91 | 95 | Wired Settings > Profile to persisted user updates with reactive auth-state refresh, added self-update authorization + payload-shape compatibility in users API, and added request-spec coverage for member/admin update paths |
 | 2026-03-03 | tier1 critical-flow coverage + DoD tracker pass | 75 | 90 | 87 | 83 | 91 | 95 | Added Tier-1 assign/unassign + key-field edit request coverage and introduced explicit `parity/DOD_STATUS.md` tracking for final visual/performance gaps |
+| 2026-03-03 | tier1 my-issues subscribed sub-view parity pass | 75 | 91 | 87 | 86 | 91 | 96 | Implemented Issue subscriptions end-to-end (data model + API filter + My Issues subscribed tab), removed Tier-1 subscribed exclusion, and added request coverage for subscribed filtering + auto-subscribe flows |
 
 ## No-Regression Check (Tier 1)
 
 Latest accepted slice vs previous:
 - Visual parity: +0
-- Functional parity: +0
+- Functional parity: +1
 - Filter parity: +0
-- Sub-view parity: +0
+- Sub-view parity: +3
 - Data/order parity: +0
 
 Result: pass (no Tier 1 dimension decreased)

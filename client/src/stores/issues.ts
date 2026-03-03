@@ -10,6 +10,7 @@ export interface IssueFilters {
   assigneeId?: string
   creatorId?: string
   myIssues?: boolean
+  subscribed?: boolean
   cycleId?: string
   workflowStateId?: string
   workflowStateType?: WorkflowStateType
@@ -111,6 +112,7 @@ export const useIssuesStore = defineStore('issues', () => {
       if (filters.assigneeId) params.append('assignee_id', filters.assigneeId)
       if (filters.creatorId) params.append('creator_id', filters.creatorId)
       if (filters.myIssues) params.append('my_issues', 'true')
+      if (filters.subscribed) params.append('subscribed', 'true')
       if (filters.cycleId) params.append('cycle_id', filters.cycleId)
       if (filters.workflowStateId) params.append('workflow_state_id', filters.workflowStateId)
       if (filters.workflowStateType) params.append('workflow_state_type', filters.workflowStateType)

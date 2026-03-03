@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_27_231906) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_03_103000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -137,6 +137,16 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_27_231906) do
     t.index ["linear_id"], name: "index_issue_relations_on_linear_id", unique: true, where: "(linear_id IS NOT NULL)"
     t.index ["related_issue_id"], name: "index_issue_relations_on_related_issue_id"
     t.index ["relation_type"], name: "index_issue_relations_on_relation_type"
+  end
+
+  create_table "issue_subscriptions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "issue_id", null: false
+    t.uuid "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["issue_id", "user_id"], name: "index_issue_subscriptions_on_issue_id_and_user_id", unique: true
+    t.index ["issue_id"], name: "index_issue_subscriptions_on_issue_id"
+    t.index ["user_id"], name: "index_issue_subscriptions_on_user_id"
   end
 
   create_table "issues", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -398,6 +408,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_27_231906) do
   add_foreign_key "issue_labels", "labels"
   add_foreign_key "issue_relations", "issues"
   add_foreign_key "issue_relations", "issues", column: "related_issue_id"
+  add_foreign_key "issue_subscriptions", "issues"
+  add_foreign_key "issue_subscriptions", "users"
   add_foreign_key "issues", "cycles"
   add_foreign_key "issues", "issues", column: "parent_id"
   add_foreign_key "issues", "projects"

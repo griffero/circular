@@ -1,5 +1,43 @@
 # Circular -> Linear Parity Progress
 
+## Completed in this slice (2026-03-03, parity slice: Tier-1 My Issues subscribed sub-view parity)
+
+### 1) Tier-1 sub-view/functional parity fix (My Issues > Subscribed is now real)
+- Added subscription persistence model:
+  - `db/migrate/20260303103000_create_issue_subscriptions.rb`
+  - `app/models/issue_subscription.rb`
+- Wired issue/user associations and automatic subscription behavior:
+  - `app/models/issue.rb`: auto-subscribe creator on create and new assignee on assignee change.
+  - `app/models/user.rb`: subscribed-issues association.
+- Added API filter support:
+  - `app/controllers/api/v1/issues_controller.rb` now supports `subscribed=true` for current-user subscriptions.
+
+### 2) Tier-1 UI parity improvement (Subscribed tab no longer placeholder)
+- Updated `client/src/components/pages/MyIssuesPage.vue`:
+  - Replaced placeholder "Subscribed not available yet" state with real shared `IssueList` rendering.
+  - Added `baseFilters.subscribed=true` for the Subscribed tab with `updated_at desc` ordering.
+  - Added subscribed-specific empty state text.
+- Updated `client/src/stores/issues.ts`:
+  - Added typed `subscribed` filter and request serialization (`subscribed=true`).
+
+### 3) Regression coverage expansion (request specs)
+- Updated `spec/requests/issues_spec.rb`:
+  - Verifies issue creator is auto-subscribed on create.
+  - Verifies assignee is auto-subscribed on assignment.
+  - Verifies `GET /api/v1/issues?subscribed=true` returns only current-user subscribed issues.
+- Added `spec/factories/issue_subscriptions.rb`.
+
+## Validation run (this slice)
+- ✅ `cd client && npm run type-check`
+- ✅ `cd client && npm run build`
+- ✅ `eval "$(rbenv init - zsh)" && rbenv shell 3.2.2 && bundle exec rspec spec/requests/issues_spec.rb spec/requests/users_spec.rb`
+
+## Measurable deltas (this slice)
+- Tier-1 sub-view parity: `+3` (My Issues `Subscribed` moved from excluded placeholder to functional list behavior).
+- Tier-1 functional parity: `+1` (subscription behavior now persisted and queryable in core issue API flows).
+- Tier-1 no-regression contract: maintained (all Tier-1 dimensions held or improved in `parity/SCORE_HISTORY.md`).
+- Global parity score: `95 -> 96`.
+
 ## Completed in this slice (2026-03-03, parity slice: Tier-1 critical-flow coverage + DoD gap tracker)
 
 ### 1) Tier-1 critical flow regression coverage expansion

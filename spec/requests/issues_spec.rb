@@ -31,6 +31,7 @@ RSpec.describe "Issues API" do
       expect(created_issue.team_id).to eq(team.id)
       expect(created_issue.title).to eq("Fix auth race condition")
       expect(created_issue.priority).to eq(2)
+      expect(IssueSubscription.exists?(issue_id: created_issue.id, user_id: user.id)).to be(true)
     end
   end
 
@@ -92,6 +93,7 @@ RSpec.describe "Issues API" do
       expect(response).to have_http_status(:ok)
       issue.reload
       expect(issue.assignee_id).to eq(assignee.id)
+      expect(IssueSubscription.exists?(issue_id: issue.id, user_id: assignee.id)).to be(true)
 
       patch "/api/v1/issues/#{issue.id}",
             params: {
@@ -306,6 +308,23 @@ RSpec.describe "Issues API" do
       expect(response).to have_http_status(:ok)
       ids = json_response[:issues].map { |item| item[:id] }
       expect(ids).to contain_exactly(mine.id)
+    end
+
+    it "filters by subscribed flag for current user" do
+      subscribed_by_creator = create(:issue, team: team_a, creator: user, title: "Subscribed as creator")
+      other_creator = create(:user, email: "subscribed-other@fintoc.com")
+      subscribed_explicitly = create(:issue, team: team_a, creator: other_creator, title: "Subscribed explicitly")
+      not_subscribed = create(:issue, team: team_a, creator: other_creator, title: "Not subscribed")
+
+      create(:issue_subscription, issue: subscribed_explicitly, user: user)
+
+      get "/api/v1/issues",
+          params: { team_id: team_a.id, subscribed: "true" }
+
+      expect(response).to have_http_status(:ok)
+      ids = json_response[:issues].map { |item| item[:id] }
+      expect(ids).to contain_exactly(subscribed_by_creator.id, subscribed_explicitly.id)
+      expect(ids).not_to include(not_subscribed.id)
     end
 
     it "combines my_issues with statuses filter" do

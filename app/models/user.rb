@@ -11,6 +11,8 @@ class User < ApplicationRecord
   has_many :led_projects, class_name: "Project", foreign_key: :lead_id, dependent: :nullify, inverse_of: :lead
   has_many :created_issues, class_name: "Issue", foreign_key: :creator_id, dependent: :nullify, inverse_of: :creator
   has_many :assigned_issues, class_name: "Issue", foreign_key: :assignee_id, dependent: :nullify, inverse_of: :assignee
+  has_many :issue_subscriptions, dependent: :destroy
+  has_many :subscribed_issues, through: :issue_subscriptions, source: :issue
   has_many :comments, dependent: :destroy
   has_many :issue_activities, dependent: :destroy
 

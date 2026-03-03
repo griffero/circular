@@ -48,6 +48,11 @@ module Api
         # Filter for my issues
         issues = issues.by_assignee(current_user.id) if params[:my_issues] == "true"
 
+        # Filter for issues subscribed by current user
+        if params[:subscribed] == "true"
+          issues = issues.joins(:issue_subscriptions).where(issue_subscriptions: { user_id: current_user.id }).distinct
+        end
+
         # Search
         issues = issues.search(params[:q]) if params[:q].present?
 

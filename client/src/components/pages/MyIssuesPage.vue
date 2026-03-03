@@ -29,6 +29,14 @@ const baseFilters = computed(() => {
     }
   }
 
+  if (activeTab.value === 'subscribed') {
+    return {
+      subscribed: true,
+      sort: 'updated_at' as const,
+      direction: 'desc' as const,
+    }
+  }
+
   return {
     sort: 'updated_at' as const,
     direction: 'desc' as const,
@@ -40,6 +48,13 @@ const emptyState = computed(() => {
     return {
       title: 'No assigned issues',
       description: 'Issues assigned to you will appear here.',
+    }
+  }
+
+  if (activeTab.value === 'subscribed') {
+    return {
+      title: 'No subscribed issues',
+      description: 'Issues you follow will appear here.',
     }
   }
 
@@ -96,15 +111,7 @@ function handleCreateIssue() {
       </button>
     </div>
 
-    <div v-if="activeTab === 'subscribed'" class="flex-1 flex items-center justify-center p-6 text-center">
-      <div>
-        <h3 class="text-sm font-medium text-[var(--linear-text)] mb-1">Subscribed issues are not available yet</h3>
-        <p class="text-xs text-[var(--linear-muted)]">Issue subscriptions are excluded from this slice and tracked in parity exclusions.</p>
-      </div>
-    </div>
-
     <IssueList
-      v-else
       :key="activeTab"
       :base-filters="baseFilters"
       :show-filters="true"

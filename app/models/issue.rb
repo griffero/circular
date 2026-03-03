@@ -17,6 +17,8 @@ class Issue < ApplicationRecord
   has_many :comments, dependent: :destroy
   has_many :activities, class_name: "IssueActivity", dependent: :destroy
   has_many :attachments, dependent: :destroy
+  has_many :issue_subscriptions, dependent: :destroy
+  has_many :subscribers, through: :issue_subscriptions, source: :user
 
   # Issue relations
   has_many :issue_relations, dependent: :destroy
@@ -41,7 +43,9 @@ class Issue < ApplicationRecord
 
   before_validation :set_identifier, on: :create
   after_create :record_created_activity
+  after_create :subscribe_creator
   after_update :record_update_activity
+  after_save :subscribe_assignee, if: :saved_change_to_assignee_id?
 
   enum :status, {
     backlog: "backlog",
@@ -134,6 +138,16 @@ class Issue < ApplicationRecord
         new_value: new_value.to_s
       )
     end
+  end
+
+  def subscribe_creator
+    issue_subscriptions.find_or_create_by!(user_id: creator_id)
+  end
+
+  def subscribe_assignee
+    return if assignee_id.blank?
+
+    issue_subscriptions.find_or_create_by!(user_id: assignee_id)
   end
 
   # Sync legacy status from workflow_state for backwards compatibility
