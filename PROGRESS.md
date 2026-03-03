@@ -1,5 +1,32 @@
 # Circular -> Linear Parity Progress
 
+## Completed in this slice (2026-03-03, parity slice: Tier-2 settings labels CRUD parity)
+
+### 1) Tier-2 functional parity improvement (Settings > Labels now API-backed)
+- Reworked `client/src/components/pages/settings/LabelsSettings.vue` from placeholder local data to live backend CRUD:
+  - Added real `GET /api/v1/labels` loading on page mount.
+  - Wired create flow to `POST /api/v1/labels`.
+  - Added edit flow (new modal) wired to `PATCH /api/v1/labels/:id`.
+  - Added delete flow wired to `DELETE /api/v1/labels/:id` with confirmation and in-flight disable state.
+- Added first-class loading/error surface so labels settings behavior matches production-backed settings patterns.
+
+### 2) Tier-2 interaction parity hardening (admin label management actions)
+- Enabled previously non-functional action controls in label rows:
+  - Edit icon now opens populated edit form.
+  - Delete icon now executes persisted deletion and updates UI state.
+- Retained admin-only mutation controls while preserving read visibility for non-admin users.
+
+## Validation run (this slice)
+- ✅ `cd client && npm run type-check`
+- ✅ `cd client && npm run build`
+- ✅ `eval "$(rbenv init - zsh)" && rbenv shell 3.2.2 && bundle exec rspec spec/requests/issues_spec.rb`
+
+## Measurable deltas (this slice)
+- Tier-2 Settings functional parity: `+1` (`Labels` moved from placeholder-only UI to persisted CRUD against existing labels API).
+- Tier-2 interaction parity: `+1` row-level label edit/delete actions now functional.
+- Tier-1 no-regression contract: maintained (all Tier-1 dimensions held in `parity/SCORE_HISTORY.md`).
+- Global parity score: `92 -> 93`.
+
 ## Completed in this slice (2026-03-03, parity slice: Tier-2 triage/backlog workflow-state parity)
 
 ### 1) Tier-2 sub-view parity fix (triage vs backlog no longer duplicates)

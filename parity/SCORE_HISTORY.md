@@ -23,6 +23,7 @@ Tracks accepted slice scores and enforces no-regression for Tier 1 dimensions.
 | 2026-03-03 | tier1 shared-list default-sort + assignee-filter parity pass | 74 | 88 | 87 | 79 | 90 | 90 | Fixed shared IssueList to honor per-view base sort defaults (`updated_at desc`) and expanded shared assignee filter to workspace users with resolved labels/chips |
 | 2026-03-03 | tier1 default-order + tier2 team-subviews parity pass | 74 | 88 | 87 | 82 | 91 | 91 | Exposed Team `Triage` + `Board` sub-views in issue-shell navigation and set API default list ordering fallback to `updated_at desc` with request-spec coverage |
 | 2026-03-03 | tier2 triage-vs-backlog workflow-state parity pass | 74 | 88 | 87 | 82 | 91 | 92 | Added `workflow_state_type` filtering and wired Team Triage/Backlog to distinct state-type filters (with legacy backlog fallback + request-spec coverage) |
+| 2026-03-03 | tier2 settings-labels CRUD parity pass | 74 | 88 | 87 | 82 | 91 | 93 | Replaced placeholder Settings > Labels data with API-backed load/create/update/delete flows and wired row action buttons to persisted mutations |
 
 ## No-Regression Check (Tier 1)
 
