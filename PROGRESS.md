@@ -1,5 +1,26 @@
 # Circular -> Linear Parity Progress
 
+## Completed in this slice (2026-03-03, parity slice: Tier-1 issue-detail inline editing parity)
+
+### 1) Tier-1 Issue Detail functional parity improvement (edit key fields)
+- Updated `client/src/components/pages/IssuePage.vue` to add inline edit flows for:
+  - Issue title
+  - Issue description
+- Added explicit save/cancel behavior with keyboard support:
+  - Title: `Enter` to save, `Escape` to cancel.
+  - Description: `Cmd/Ctrl+Enter` to save, `Escape` to cancel.
+- Editing is now wired to `issuesStore.updateIssue(...)`, matching the existing optimistic update + server reconciliation path used by other editable issue fields.
+
+## Validation run (this slice)
+- ✅ `cd client && npm run type-check`
+- ✅ `cd client && npm run build`
+- ⚠️ `bundle exec rspec spec/requests/issues_spec.rb` blocked in this environment:
+  - Missing Bundler version required by lockfile: `bundler 2.6.4`.
+
+## Measurable deltas (this slice)
+- Tier-1 issue-detail key-field editing parity: `+2` editable fields (`title`, `description`) moved from read-only display to persisted inline edit.
+- Tier-1 Functional parity score contribution improved by closing a direct user-flow gap in the issue detail screen.
+
 ## Completed in this slice (2026-03-03, parity slice: Tier-1 team-issues ordering + Tier-2 board interaction parity)
 
 ### 1) Tier-1 Team Issues data/order parity improvement

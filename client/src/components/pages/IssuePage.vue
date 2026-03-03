@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, onMounted, watch } from 'vue'
+import { computed, ref, onMounted, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useIssuesStore } from '@/stores/issues'
@@ -55,6 +55,15 @@ const projects = computed(() => appStore.projects)
 // Project search
 const projectSearch = ref('')
 const deleting = ref(false)
+const editingTitle = ref(false)
+const titleDraft = ref('')
+const titleSaving = ref(false)
+const titleInputRef = ref<HTMLInputElement | null>(null)
+const editingDescription = ref(false)
+const descriptionDraft = ref('')
+const descriptionSaving = ref(false)
+const descriptionInputRef = ref<HTMLTextAreaElement | null>(null)
+
 const filteredProjects = computed(() => {
   if (!projectSearch.value) return projects.value
   const search = projectSearch.value.toLowerCase()
@@ -117,6 +126,76 @@ async function updateDueDate(date: string | null) {
   await issuesStore.updateIssue(issue.value.id, { dueDate: date })
 }
 
+function syncEditorDrafts() {
+  titleDraft.value = issue.value?.title || ''
+  descriptionDraft.value = issue.value?.description || ''
+}
+
+async function startTitleEdit() {
+  if (!issue.value) return
+  titleDraft.value = issue.value.title
+  editingTitle.value = true
+  await nextTick()
+  titleInputRef.value?.focus()
+  titleInputRef.value?.select()
+}
+
+function cancelTitleEdit() {
+  editingTitle.value = false
+  titleDraft.value = issue.value?.title || ''
+}
+
+async function saveTitleEdit() {
+  if (!issue.value || titleSaving.value) return
+
+  const nextTitle = titleDraft.value.trim()
+  if (!nextTitle) {
+    cancelTitleEdit()
+    return
+  }
+  if (nextTitle === issue.value.title) {
+    cancelTitleEdit()
+    return
+  }
+
+  titleSaving.value = true
+  try {
+    await issuesStore.updateIssue(issue.value.id, { title: nextTitle })
+    editingTitle.value = false
+  } finally {
+    titleSaving.value = false
+  }
+}
+
+async function startDescriptionEdit() {
+  if (!issue.value) return
+  descriptionDraft.value = issue.value.description || ''
+  editingDescription.value = true
+  await nextTick()
+  descriptionInputRef.value?.focus()
+}
+
+function cancelDescriptionEdit() {
+  editingDescription.value = false
+  descriptionDraft.value = issue.value?.description || ''
+}
+
+async function saveDescriptionEdit() {
+  if (!issue.value || descriptionSaving.value) return
+  if (descriptionDraft.value === (issue.value.description || '')) {
+    cancelDescriptionEdit()
+    return
+  }
+
+  descriptionSaving.value = true
+  try {
+    await issuesStore.updateIssue(issue.value.id, { description: descriptionDraft.value })
+    editingDescription.value = false
+  } finally {
+    descriptionSaving.value = false
+  }
+}
+
 function copyIdentifier() {
   if (!issue.value) return
   navigator.clipboard.writeText(issue.value.identifier)
@@ -174,6 +253,7 @@ async function loadIssue() {
 // Load users and projects
 onMounted(async () => {
   await loadIssue()
+  syncEditorDrafts()
   if (users.value.length === 0) {
     await appStore.fetchUsers()
   }
@@ -183,6 +263,11 @@ onMounted(async () => {
 })
 
 watch(issueId, loadIssue)
+watch(issue, () => {
+  if (!editingTitle.value && !editingDescription.value) {
+    syncEditorDrafts()
+  }
+})
 
 // Format date for display
 function formatDate(dateString?: string | null) {
@@ -237,18 +322,100 @@ function formatDate(dateString?: string | null) {
       </div>
 
       <div v-else-if="issue" class="flex-1 overflow-auto p-6">
-        <h1 class="text-2xl font-semibold text-[var(--linear-text)] mb-4">
-          {{ issue.title }}
-        </h1>
+        <div class="mb-4">
+          <div v-if="editingTitle" class="space-y-2">
+            <input
+              ref="titleInputRef"
+              v-model="titleDraft"
+              type="text"
+              class="w-full text-2xl font-semibold text-[var(--linear-text)] bg-[var(--linear-surface)] border border-[var(--linear-border)] rounded px-3 py-2 outline-none focus:border-[var(--linear-accent)]"
+              placeholder="Issue title"
+              @keydown.enter.prevent="saveTitleEdit"
+              @keydown.esc.prevent="cancelTitleEdit"
+            />
+            <div class="flex items-center gap-2">
+              <button
+                class="px-2 py-1 text-xs rounded border border-[var(--linear-border)] text-[var(--linear-text)] hover:bg-[var(--linear-surface)] transition-colors disabled:opacity-60"
+                :disabled="titleSaving"
+                @click="saveTitleEdit"
+              >
+                Save
+              </button>
+              <button
+                class="px-2 py-1 text-xs rounded text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-surface)] transition-colors"
+                :disabled="titleSaving"
+                @click="cancelTitleEdit"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+
+          <div v-else class="group flex items-start gap-3">
+            <h1 class="text-2xl font-semibold text-[var(--linear-text)] flex-1">
+              {{ issue.title }}
+            </h1>
+            <button
+              class="px-2 py-1 text-xs rounded text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-surface)] transition-colors opacity-0 group-hover:opacity-100"
+              @click="startTitleEdit"
+            >
+              Edit
+            </button>
+          </div>
+        </div>
+
+        <div v-if="editingDescription" class="space-y-2 mb-8">
+          <textarea
+            ref="descriptionInputRef"
+            v-model="descriptionDraft"
+            rows="6"
+            class="w-full text-sm text-[var(--linear-text)] bg-[var(--linear-surface)] border border-[var(--linear-border)] rounded px-3 py-2 outline-none focus:border-[var(--linear-accent)] resize-y"
+            placeholder="Add description"
+            @keydown.meta.enter.prevent="saveDescriptionEdit"
+            @keydown.ctrl.enter.prevent="saveDescriptionEdit"
+            @keydown.esc.prevent="cancelDescriptionEdit"
+          />
+          <div class="flex items-center gap-2">
+            <button
+              class="px-2 py-1 text-xs rounded border border-[var(--linear-border)] text-[var(--linear-text)] hover:bg-[var(--linear-surface)] transition-colors disabled:opacity-60"
+              :disabled="descriptionSaving"
+              @click="saveDescriptionEdit"
+            >
+              Save
+            </button>
+            <button
+              class="px-2 py-1 text-xs rounded text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-surface)] transition-colors"
+              :disabled="descriptionSaving"
+              @click="cancelDescriptionEdit"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
 
         <div
-          v-if="issue.description"
-          class="text-sm text-[var(--linear-text)] whitespace-pre-wrap mb-8"
+          v-else-if="issue.description"
+          class="group text-sm text-[var(--linear-text)] whitespace-pre-wrap mb-8"
         >
-          <EmojiText :text="issue.description" />
+          <div class="flex items-start gap-3">
+            <div class="flex-1">
+              <EmojiText :text="issue.description" />
+            </div>
+            <button
+              class="px-2 py-1 text-xs rounded text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-surface)] transition-colors opacity-0 group-hover:opacity-100"
+              @click="startDescriptionEdit"
+            >
+              Edit
+            </button>
+          </div>
         </div>
-        <div v-else class="text-sm text-[var(--linear-muted)] mb-8">
-          No description
+        <div v-else class="mb-8">
+          <button
+            class="text-sm text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-surface)] rounded px-2 py-1 transition-colors"
+            @click="startDescriptionEdit"
+          >
+            Add description
+          </button>
         </div>
 
         <!-- Comments section placeholder -->
