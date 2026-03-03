@@ -43,7 +43,7 @@ const issuesStore = useIssuesStore()
 const userFilters = ref<IssueFilters>({})
 
 const resolvedSort = computed<IssueFilters['sort']>(() => (
-  userFilters.value.sort || props.baseFilters?.sort || 'created_at'
+  userFilters.value.sort || props.baseFilters?.sort || 'updated_at'
 ))
 
 const resolvedDirection = computed<IssueFilters['direction']>(() => (
@@ -236,6 +236,17 @@ const activeFilterChips = computed(() => {
     })
   }
 
+  if (userFilters.value.q && userFilters.value.q.trim().length > 0) {
+    const query = userFilters.value.q.trim()
+    chips.push({
+      key: 'q',
+      label: `Search: ${query}`,
+      clear: () => {
+        userFilters.value = { ...userFilters.value, q: undefined }
+      }
+    })
+  }
+
   return chips
 })
 
@@ -246,6 +257,7 @@ function clearAllUserFilters() {
     statuses: undefined,
     priority: undefined,
     assigneeId: undefined,
+    q: undefined,
   }
 }
 

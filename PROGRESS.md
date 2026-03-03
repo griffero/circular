@@ -1,5 +1,53 @@
 # Circular -> Linear Parity Progress
 
+## Completed in this slice (2026-03-03, parity slice: Tier-1 issue-activity + shared-search-filter parity)
+
+### 1) Tier-1 Issue Detail functional/sub-view parity fix (Activity is now real)
+- Fixed `app/controllers/api/v1/comments_controller.rb` for the current single-tenant API shape:
+  - Removed stale workspace-scoped lookup/callbacks that were incompatible with `/api/v1/issues/:issue_id/comments`.
+  - Bound comments to `Issue.find(params[:issue_id])`, so Issue Detail activity API calls now resolve correctly.
+- Updated `client/src/components/pages/IssuePage.vue`:
+  - Replaced placeholder-only `Activity` section with real comments list rendering.
+  - Added create-comment flow wired to existing `issuesStore.createComment(...)`.
+  - Added activity loading state and kept empty-state behavior when no comments exist.
+
+### 2) Tier-1 shared-list filter parity improvement (search filter + clear path)
+- Updated `client/src/components/issues/IssueFilters.vue`:
+  - Added shared text search input (`q`) to filter bar.
+  - Integrated `q` into active-filter detection and clear action behavior.
+- Updated `client/src/components/issues/IssueList.vue`:
+  - Added active filter chip for search query (`Search: ...`) with one-click removal.
+  - Included `q` in `Clear all` reset behavior.
+
+### 3) Tier-1 data/order parity hardening (fallback sort semantics)
+- Updated `client/src/components/issues/IssueList.vue` fallback sorting to `updated_at desc` when no explicit per-view sort is provided.
+- Updated `client/src/components/issues/IssueFilters.vue` default sort label fallback to `Updated` for UI/query consistency.
+
+### 4) Regression coverage expansion (request specs)
+- Updated `spec/requests/issues_spec.rb`:
+  - Added `GET /api/v1/issues/:issue_id/comments` coverage.
+  - Added `POST /api/v1/issues/:issue_id/comments` coverage.
+
+## Validation run (this slice)
+- ✅ `cd client && npm run type-check`
+- ✅ `cd client && npm run build`
+- ✅ `eval "$(rbenv init - zsh)" && rbenv shell 3.2.2 && bundle exec rspec spec/requests/issues_spec.rb spec/requests/users_spec.rb`
+
+## Measurable deltas (this slice)
+- Tier-1 visual parity: `+1` (Issue Detail activity moved from static placeholder to app-native rendered interaction surface).
+- Tier-1 functional parity: `+2` (Issue Detail activity API path is now routable in single-tenant mode + comment create flow is operational in-page).
+- Tier-1 filter parity: `+2` (shared `q` search filter plus query-specific active chip/reset behavior across shared list contexts).
+- Tier-1 sub-view parity: `+2` (Issue Detail activity sub-view now has loading/empty/populated/comment-compose states instead of a single placeholder state).
+- Tier-1 data/order parity: `+1` (shared IssueList default fallback ordering now aligns to `updated_at desc`).
+- Global parity score: `96 -> 97`.
+
+## Gap-to-target snapshot (Tier-1 threshold target: `95` each)
+- Visual: `76/95` (`gap: 19`)
+- Functional: `93/95` (`gap: 2`)
+- Filter: `89/95` (`gap: 6`)
+- Sub-view: `88/95` (`gap: 7`)
+- Data/order: `92/95` (`gap: 3`)
+
 ## Completed in this slice (2026-03-03, parity slice: Tier-1 My Issues subscribed sub-view parity)
 
 ### 1) Tier-1 sub-view/functional parity fix (My Issues > Subscribed is now real)

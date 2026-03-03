@@ -27,6 +27,7 @@ import {
   FolderKanban,
   Calendar,
   MessageSquare,
+  Send,
   ChevronDown,
   Minus,
   AlertCircle,
@@ -53,6 +54,7 @@ const workflowStates = computed(() => issuesStore.workflowStates)
 const labels = computed(() => issuesStore.labels)
 const users = computed(() => appStore.users)
 const projects = computed(() => appStore.projects)
+const comments = computed(() => issuesStore.comments)
 
 // Project search
 const projectSearch = ref('')
@@ -66,6 +68,8 @@ const editingDescription = ref(false)
 const descriptionDraft = ref('')
 const descriptionSaving = ref(false)
 const descriptionInputRef = ref<HTMLTextAreaElement | null>(null)
+const newComment = ref('')
+const commentsLoading = ref(false)
 
 const filteredProjects = computed(() => {
   if (!projectSearch.value) return projects.value
@@ -251,6 +255,13 @@ async function toggleLabel(labelId: string) {
   await issuesStore.updateIssue(issue.value.id, { labelIds: newLabelIds })
 }
 
+async function submitComment() {
+  if (!issue.value || !newComment.value.trim()) return
+
+  await issuesStore.createComment(issue.value.id, newComment.value.trim())
+  newComment.value = ''
+}
+
 // Load issue when route changes
 async function loadIssue() {
   if (issueId.value) {
@@ -259,6 +270,12 @@ async function loadIssue() {
     if (issue.value?.teamId) {
       await issuesStore.fetchWorkflowStates(issue.value.teamId)
       await issuesStore.fetchLabels(issue.value.teamId)
+    }
+    commentsLoading.value = true
+    try {
+      await issuesStore.fetchComments(issueId.value)
+    } finally {
+      commentsLoading.value = false
     }
   }
 }
@@ -431,14 +448,55 @@ function formatDate(dateString?: string | null) {
           </button>
         </div>
 
-        <!-- Comments section placeholder -->
+        <!-- Activity -->
         <div class="border-t border-[var(--linear-border)] pt-6">
           <h2 class="text-sm font-medium text-[var(--linear-text)] mb-4 flex items-center gap-2">
             <MessageSquare class="h-4 w-4" />
             Activity
           </h2>
-          <div class="text-sm text-[var(--linear-muted)] text-center py-8">
+
+          <div v-if="commentsLoading" class="flex items-center justify-center py-6">
+            <div class="animate-spin rounded-full h-5 w-5 border-2 border-[var(--linear-accent)] border-t-transparent"></div>
+          </div>
+
+          <div v-else-if="comments.length === 0" class="text-sm text-[var(--linear-muted)] text-center py-4">
             No activity yet
+          </div>
+
+          <div v-else class="space-y-3 mb-4">
+            <div
+              v-for="comment in comments"
+              :key="comment.id"
+              class="flex gap-3"
+            >
+              <Avatar :name="comment.user?.name || 'U'" size="sm" />
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="text-sm font-medium text-[var(--linear-text)]">
+                    {{ comment.user?.name }}
+                  </span>
+                  <span class="text-xs text-[var(--linear-muted)]">
+                    {{ formatDate(comment.createdAt) }}
+                  </span>
+                </div>
+                <p class="text-sm text-[var(--linear-muted)] whitespace-pre-wrap">
+                  {{ comment.body }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex gap-2 mt-3">
+            <input
+              v-model="newComment"
+              @keydown.enter.prevent="submitComment"
+              type="text"
+              placeholder="Write a comment..."
+              class="flex-1 text-sm px-3 py-2 border border-[var(--linear-border)] rounded-md bg-[var(--linear-bg)] text-[var(--linear-text)] focus:outline-none focus:ring-2 focus:ring-primary-500"
+            />
+            <Button size="sm" @click="submitComment" :disabled="!newComment.trim()">
+              <Send class="h-4 w-4" />
+            </Button>
           </div>
         </div>
       </div>

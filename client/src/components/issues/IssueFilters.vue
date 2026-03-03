@@ -18,6 +18,7 @@ import {
   ArrowDown,
   Minus,
   User,
+  Search,
   SortAsc,
   SortDesc
 } from 'lucide-vue-next'
@@ -27,6 +28,7 @@ interface Filters {
   statuses?: IssueStatus[]
   priority?: IssuePriority
   assigneeId?: string
+  q?: string
   sort?: 'created_at' | 'updated_at' | 'priority' | 'due_date'
   direction?: 'asc' | 'desc'
 }
@@ -92,7 +94,8 @@ const hasActiveFilters = computed(() => {
   return (props.filters.statuses?.length ?? 0) > 0 ||
          props.filters.status !== undefined ||
          props.filters.priority !== undefined || 
-         props.filters.assigneeId !== undefined
+         props.filters.assigneeId !== undefined ||
+         !!props.filters.q?.trim()
 })
 
 function updateFilter<K extends keyof Filters>(key: K, value: Filters[K]) {
@@ -109,6 +112,7 @@ function clearFilters() {
     statuses: undefined,
     priority: undefined,
     assigneeId: undefined,
+    q: undefined,
     sort: props.filters.sort,
     direction: props.filters.direction
   })
@@ -165,7 +169,7 @@ function getPriorityLabel(priority?: IssuePriority) {
 }
 
 function getSortLabel(sort?: string) {
-  return sortOptions.find(s => s.value === sort)?.label || 'Created'
+  return sortOptions.find(s => s.value === sort)?.label || 'Updated'
 }
 
 function getAssigneeLabel(assigneeId?: string) {
@@ -187,6 +191,18 @@ function triggerClass(active: boolean) {
 
 <template>
   <div class="flex items-center gap-2 flex-wrap">
+    <!-- Search filter -->
+    <div class="relative min-w-[220px]">
+      <Search class="w-4 h-4 text-[var(--linear-muted)] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+      <input
+        :value="filters.q || ''"
+        type="text"
+        placeholder="Search issues..."
+        class="w-full h-8 pl-8 pr-2 rounded border border-[var(--linear-border)] bg-[var(--linear-surface)] text-[13px] text-[var(--linear-text)] placeholder:text-[var(--linear-muted)] focus:outline-none focus:ring-2 focus:ring-primary-500"
+        @input="updateFilter('q', ($event.target as HTMLInputElement).value || undefined)"
+      />
+    </div>
+
     <!-- Status filter -->
     <Dropdown align="left" width="w-48">
       <template #trigger>

@@ -120,6 +120,39 @@ RSpec.describe "Issues API" do
     end
   end
 
+  describe "Issue detail activity comments" do
+    let(:team) { create(:team, key: "CMT") }
+    let(:issue) { create(:issue, team: team, creator: user, title: "Comment target") }
+
+    it "returns comments for an issue" do
+      older = create(:comment, issue: issue, user: user, body: "First note", created_at: 2.minutes.ago)
+      newer = create(:comment, issue: issue, user: user, body: "Second note", created_at: 1.minute.ago)
+
+      get "/api/v1/issues/#{issue.id}/comments"
+
+      expect(response).to have_http_status(:ok)
+      ids = json_response[:comments].map { |item| item[:id] }
+      expect(ids).to eq([older.id, newer.id])
+    end
+
+    it "creates a comment for an issue" do
+      expect do
+        post "/api/v1/issues/#{issue.id}/comments",
+             params: {
+               comment: {
+                 body: "This needs follow-up"
+               }
+             }
+      end.to change(Comment, :count).by(1)
+
+      expect(response).to have_http_status(:created)
+      created = Comment.order(:created_at).last
+      expect(created.issue_id).to eq(issue.id)
+      expect(created.user_id).to eq(user.id)
+      expect(created.body).to eq("This needs follow-up")
+    end
+  end
+
   describe "GET /api/v1/issues" do
     let(:team_a) { create(:team, key: "TMA") }
     let(:team_b) { create(:team, key: "TMB") }

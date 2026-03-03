@@ -3,9 +3,7 @@
 module Api
   module V1
     class CommentsController < BaseController
-      before_action :set_workspace
       before_action :set_issue
-      before_action :authorize_workspace_access!
       before_action :set_comment, only: %i[show update destroy]
 
       def index
@@ -62,12 +60,8 @@ module Api
 
       private
 
-      def set_workspace
-        @workspace = Workspace.find_by!(slug: params[:workspace_slug])
-      end
-
       def set_issue
-        @issue = @workspace.issues.find(params[:issue_id])
+        @issue = Issue.find(params[:issue_id])
       end
 
       def set_comment
@@ -76,10 +70,6 @@ module Api
 
       def comment_params
         params.require(:comment).permit(:body, :body_html, :parent_id)
-      end
-
-      def current_workspace
-        @workspace
       end
 
       # Realtime broadcasts

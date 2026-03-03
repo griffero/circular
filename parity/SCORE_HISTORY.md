@@ -28,14 +28,24 @@ Tracks accepted slice scores and enforces no-regression for Tier 1 dimensions.
 | 2026-03-03 | tier2 settings-profile persisted-edit parity pass | 75 | 90 | 87 | 83 | 91 | 95 | Wired Settings > Profile to persisted user updates with reactive auth-state refresh, added self-update authorization + payload-shape compatibility in users API, and added request-spec coverage for member/admin update paths |
 | 2026-03-03 | tier1 critical-flow coverage + DoD tracker pass | 75 | 90 | 87 | 83 | 91 | 95 | Added Tier-1 assign/unassign + key-field edit request coverage and introduced explicit `parity/DOD_STATUS.md` tracking for final visual/performance gaps |
 | 2026-03-03 | tier1 my-issues subscribed sub-view parity pass | 75 | 91 | 87 | 86 | 91 | 96 | Implemented Issue subscriptions end-to-end (data model + API filter + My Issues subscribed tab), removed Tier-1 subscribed exclusion, and added request coverage for subscribed filtering + auto-subscribe flows |
+| 2026-03-03 | tier1 issue-activity + shared-search-filter parity pass | 76 | 93 | 89 | 88 | 92 | 97 | Fixed single-tenant issue comments API pathing, replaced Issue Detail activity placeholder with real comments list/create flow, added shared text-search filter (`q`) with active chip/reset behavior, and set shared list fallback ordering to `updated_at desc` |
 
 ## No-Regression Check (Tier 1)
 
 Latest accepted slice vs previous:
-- Visual parity: +0
-- Functional parity: +1
-- Filter parity: +0
-- Sub-view parity: +3
-- Data/order parity: +0
+- Visual parity: +1
+- Functional parity: +2
+- Filter parity: +2
+- Sub-view parity: +2
+- Data/order parity: +1
 
 Result: pass (no Tier 1 dimension decreased)
+
+## Gap To Tier-1 Score Target (>=95 each)
+
+Latest accepted slice (`2026-03-03`, `tier1 issue-activity + shared-search-filter parity pass`):
+- Visual parity: `76/95` (gap: `19`)
+- Functional parity: `93/95` (gap: `2`)
+- Filter parity: `89/95` (gap: `6`)
+- Sub-view parity: `88/95` (gap: `7`)
+- Data/order parity: `92/95` (gap: `3`)
