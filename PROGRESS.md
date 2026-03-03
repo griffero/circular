@@ -1,5 +1,63 @@
 # Circular -> Linear Parity Progress
 
+## Completed in this slice (2026-03-03, parity slice: visual/p95/browser-e2e evidence pipeline + blocker capture)
+
+### 1) Unified parity evidence tooling shipped (visual + performance + browser E2E)
+- Added `client/scripts/parity-evidence.mjs`:
+  - Runs a single parity evidence pipeline and writes versioned artifacts to `parity/evidence/<run-id>/`.
+  - Captures/report sections for:
+    - visual baseline/diff evidence (`visual/report.md`, `visual/results.json`)
+    - Tier-1 p95 performance budgets (`performance/report.md`, `performance/results.json`)
+    - browser E2E critical-flow evidence (`e2e/report.md`, `e2e/results.json`)
+  - Writes `parity/evidence/latest.json` as a stable pointer to the latest run.
+  - Records explicit `BLOCKED` reasons instead of failing silently when environment prerequisites are missing.
+
+### 2) Tooling/docs wiring for repeatable parity evidence runs
+- Updated `client/package.json` scripts:
+  - `npm --prefix client run parity:evidence`
+  - `npm --prefix client run parity:evidence:baseline` (enables baseline capture mode)
+- Added `parity/EVIDENCE.md`:
+  - documents commands, artifact contract, prerequisites, and env overrides.
+- Added parity evidence scaffold directory:
+  - `parity/evidence/.gitkeep`
+
+### 3) First evidence run captured in this environment
+- Executed: `npm --prefix client run parity:evidence`
+- Generated:
+  - `parity/evidence/2026-03-03_02-28-58-900/SUMMARY.md`
+  - `parity/evidence/2026-03-03_02-28-58-900/visual/report.md`
+  - `parity/evidence/2026-03-03_02-28-58-900/performance/report.md`
+  - `parity/evidence/2026-03-03_02-28-58-900/e2e/report.md`
+  - `parity/evidence/latest.json`
+- Evidence outcome:
+  - Visual baseline/diff: `BLOCKED`
+  - p95 performance budgets: `BLOCKED`
+  - Browser E2E evidence: `BLOCKED`
+  - Captured blocker reasons: Circular unreachable at `http://127.0.0.1:5173`, Playwright launch failure, missing storage-state files.
+
+## Validation run (this slice)
+- ✅ `npm --prefix client run parity:evidence`
+- ✅ `node --check client/scripts/parity-evidence.mjs`
+- ✅ `npm --prefix client run build`
+- ⚠️ `npm --prefix client run lint:check -- scripts/parity-evidence.mjs`
+  - Fails due to broad pre-existing repo lint debt (many existing `no-undef` / unused-var violations across unrelated files); not introduced by this slice.
+
+## Measurable deltas (this slice)
+- Tier-1 visual parity: `+0` (measurement harness added; runtime evidence still blocked in this environment).
+- Tier-1 functional parity: `+0` (held at target).
+- Tier-1 filter parity: `+0` (held at target).
+- Tier-1 sub-view parity: `+0` (held at target).
+- Tier-1 data/order parity: `+0` (held at target).
+- Tier-1 no-regression contract: maintained (no Tier-1 dimension decreased).
+- Global parity score: `99 -> 99`.
+
+## Explicit completion gate decision
+- Objective status: `INCOMPLETE`.
+- Evidence:
+  - Visual diff average gate remains blocked pending reachable app + baseline capture run.
+  - p95 budget gate now has an implemented runner but remains blocked pending reachable app/browser runtime.
+  - Browser E2E gate now has an implemented runner but remains blocked pending reachable app/browser runtime.
+
 ## Completed in this slice (2026-03-03, parity slice: Tier-1 sort-reset parity + due-date-desc order evidence)
 
 ### 1) Tier-1 filter/sub-view parity fix (explicit sort/direction are now clearable active filters)

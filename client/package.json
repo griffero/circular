@@ -9,7 +9,9 @@
     "preview": "vite preview",
     "type-check": "vue-tsc --noEmit",
     "lint": "eslint . --fix",
-    "lint:check": "eslint ."
+    "lint:check": "eslint .",
+    "parity:evidence": "node scripts/parity-evidence.mjs",
+    "parity:evidence:baseline": "PARITY_CAPTURE_BASELINE=1 node scripts/parity-evidence.mjs"
   },
   "dependencies": {
     "@rails/actioncable": "^7.2.300",

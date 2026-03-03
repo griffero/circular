@@ -35,21 +35,22 @@ Tracks accepted slice scores and enforces no-regression for Tier 1 dimensions.
 | 2026-03-03 | tier1 team-board filter-url + subview carryover parity pass | 76 | 95 | 93 | 93 | 93 | 99 | Added Team issue-shell tab query carryover (`q/statuses/priority/assignee/sort/direction`) and Team Board route-query filter hydration/persistence; expanded request coverage for `q` filtering and explicit `updated_at asc` ordering |
 | 2026-03-03 | tier1 board active-filter parity + priority-desc ordering pass | 77 | 95 | 94 | 94 | 94 | 99 | Added Team Board active filter chips with per-filter remove + clear-all, and fixed API priority-desc sorting so no-priority issues remain last; added request coverage for `sort=priority&direction=desc` |
 | 2026-03-03 | tier1 sort-reset parity + due-date-desc evidence pass | 77 | 95 | 95 | 95 | 95 | 99 | Treated explicit `sort/direction` as clearable active filters in shared IssueList + Team Board (`Clear` and `Clear all` now reset ordering to per-view defaults), and expanded request coverage for `sort=due_date&direction=desc` with undated issues consistently last |
+| 2026-03-03 | parity evidence pipeline + blocker capture pass | 77 | 95 | 95 | 95 | 95 | 99 | Added unified parity evidence tooling (`client/scripts/parity-evidence.mjs`) + documented contract (`parity/EVIDENCE.md`), generated first artifact run under `parity/evidence/2026-03-03_02-28-58-900`, and recorded environment blockers for visual/p95/browser E2E gates |
 
 ## No-Regression Check (Tier 1)
 
 Latest accepted slice vs previous:
 - Visual parity: +0
 - Functional parity: +0
-- Filter parity: +1
-- Sub-view parity: +1
-- Data/order parity: +1
+- Filter parity: +0
+- Sub-view parity: +0
+- Data/order parity: +0
 
 Result: pass (no Tier 1 dimension decreased)
 
 ## Gap To Tier-1 Score Target (>=95 each)
 
-Latest accepted slice (`2026-03-03`, `tier1 sort-reset parity + due-date-desc evidence pass`):
+Latest accepted slice (`2026-03-03`, `parity evidence pipeline + blocker capture pass`):
 - Visual parity: `77/95` (gap: `18`)
 - Functional parity: `95/95` (gap: `0`)
 - Filter parity: `95/95` (gap: `0`)

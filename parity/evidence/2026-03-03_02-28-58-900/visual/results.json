@@ -1,0 +1,45 @@
+{
+  "generatedAt": "2026-03-03T02:28:59.035Z",
+  "captureBaseline": false,
+  "targetDiffPercent": 2,
+  "summary": {
+    "total": 2,
+    "compared": 0,
+    "pass": 0,
+    "fail": 0,
+    "blocked": 2,
+    "averageDiffPercent": null
+  },
+  "scenarios": [
+    {
+      "key": "team-issues__default-list",
+      "view": "team-issues",
+      "state": "default-list",
+      "circularPath": "/team/ONB/issues",
+      "linearPath": "/team/ONB/all",
+      "baselinePath": "parity/baseline/linear/team-issues/default-list.png",
+      "actualPath": "parity/evidence/2026-03-03_02-28-58-900/visual/team-issues__default-list__circular.png",
+      "diffPath": "parity/evidence/2026-03-03_02-28-58-900/visual/team-issues__default-list__diff.png",
+      "status": "BLOCKED",
+      "diffPercent": null,
+      "reason": "Playwright browser launch failed; Circular is unreachable at http://127.0.0.1:5173"
+    },
+    {
+      "key": "my-issues__assigned",
+      "view": "my-issues",
+      "state": "assigned",
+      "circularPath": "/my-issues?view=assigned",
+      "linearPath": "/my-issues/assigned",
+      "baselinePath": "parity/baseline/linear/my-issues/assigned.png",
+      "actualPath": "parity/evidence/2026-03-03_02-28-58-900/visual/my-issues__assigned__circular.png",
+      "diffPath": "parity/evidence/2026-03-03_02-28-58-900/visual/my-issues__assigned__diff.png",
+      "status": "BLOCKED",
+      "diffPercent": null,
+      "reason": "Playwright browser launch failed; Circular is unreachable at http://127.0.0.1:5173"
+    }
+  ],
+  "blockers": [
+    "Playwright browser launch failed",
+    "Circular is unreachable at http://127.0.0.1:5173"
+  ]
+}
