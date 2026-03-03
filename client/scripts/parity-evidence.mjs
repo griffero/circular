@@ -142,16 +142,16 @@ async function disableMotion(page) {
     .catch(() => {})
 }
 
-async function waitForCircularReady(page) {
+async function waitForCircularReady(page, settleMs = 250) {
   await page.waitForSelector('[data-testid="app-shell-ready"]', { timeout: 45000 })
   await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {})
-  await page.waitForTimeout(400)
+  await page.waitForTimeout(settleMs)
 }
 
-async function gotoCircular(page, routePath) {
+async function gotoCircular(page, routePath, settleMs = 250) {
   await page.goto(`${circularBase}${routePath}`, { waitUntil: 'domcontentloaded', timeout: 30000 })
   await disableMotion(page)
-  await waitForCircularReady(page)
+  await waitForCircularReady(page, settleMs)
 }
 
 async function gotoLinear(page, routePath) {
@@ -225,6 +225,44 @@ async function openIssueFromList(page, issueTitle) {
   }, issueTitle)
 }
 
+async function openDeleteIssueMenu(page) {
+  const isDeleteVisible = async () =>
+    page
+      .getByText('Delete issue')
+      .first()
+      .isVisible({ timeout: 600 })
+      .catch(() => false)
+
+  // Strategy 1: labeled "More" action in issue detail sidebar.
+  const moreButton = page.getByRole('button', { name: 'More' }).first()
+  if (await moreButton.isVisible({ timeout: 1200 }).catch(() => false)) {
+    await moreButton.click({ timeout: 4000 })
+    if (await isDeleteVisible()) return true
+    await page.keyboard.press('Escape').catch(() => {})
+  }
+
+  // Strategy 2: action button adjacent to copy-identifier control.
+  const siblingAction = page.locator('button[title="Copy identifier"]').locator('xpath=following::button[1]').first()
+  if (await siblingAction.isVisible({ timeout: 1200 }).catch(() => false)) {
+    await siblingAction.click({ timeout: 4000 })
+    if (await isDeleteVisible()) return true
+    await page.keyboard.press('Escape').catch(() => {})
+  }
+
+  // Strategy 3: probe icon-only buttons until delete action appears.
+  const iconButtons = page.locator('button').filter({ hasNotText: /\S/ })
+  const count = Math.min(await iconButtons.count(), 18)
+  for (let i = 0; i < count; i += 1) {
+    const button = iconButtons.nth(i)
+    if (!(await button.isVisible().catch(() => false))) continue
+    await button.click({ timeout: 3000 }).catch(() => {})
+    if (await isDeleteVisible()) return true
+    await page.keyboard.press('Escape').catch(() => {})
+  }
+
+  return false
+}
+
 async function captureVisualEvidence(prereq, browser, circularContextRef) {
   await ensureDir(visualDir)
   const scenarios = visualScenarios(circularContextRef.teamKey)
@@ -296,7 +334,7 @@ async function captureVisualEvidence(prereq, browser, circularContextRef) {
     }
 
     try {
-      await gotoCircular(circularPage, scenario.circularPath)
+      await gotoCircular(circularPage, scenario.circularPath, 400)
       await circularPage.screenshot({ path: actualPath, fullPage: false })
 
       if (captureBaseline && linearPage) {
@@ -517,6 +555,7 @@ async function captureE2EEvidence(prereq, browser, circularContextRef) {
 
     let created = false
     let opened = false
+    let issuePath = null
 
     try {
       await createIssueViaModal(page, teamIssuesPath, issueTitle)
@@ -536,6 +575,7 @@ async function captureE2EEvidence(prereq, browser, circularContextRef) {
 
       await page.waitForURL(/\/issue\//, { timeout: 10000 })
       opened = true
+      issuePath = new URL(page.url()).pathname
       await page.getByRole('button', { name: 'Edit' }).first().click({ timeout: 6000 })
       await page.getByPlaceholder('Issue title').fill(`${issueTitle} Updated`)
       await page.getByRole('button', { name: 'Save' }).first().click({ timeout: 6000 })
@@ -573,17 +613,13 @@ async function captureE2EEvidence(prereq, browser, circularContextRef) {
 
     try {
       if (!opened) throw new Error('Issue detail page was not opened')
-      await page.evaluate(() => {
-        const trigger = document.querySelector('svg.lucide-more-horizontal')?.closest('button')
-        if (trigger) {
-          trigger.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
-        }
-      })
-      if (!(await page.getByText('Delete issue').first().isVisible({ timeout: 1000 }).catch(() => false))) {
-        await page.locator('button[title="Copy identifier"]').locator('xpath=following::button[1]').first().click({ timeout: 4000 })
-      }
-      await page.getByText('Delete issue').first().click({ timeout: 4000 })
-      await page.getByRole('button', { name: 'Delete issue' }).click({ timeout: 6000 })
+      if (!issuePath) throw new Error('Issue path unavailable for delete flow')
+      await gotoCircular(page, issuePath)
+      const menuOpened = await openDeleteIssueMenu(page)
+      if (!menuOpened) throw new Error('Could not open actions menu containing Delete issue')
+      await page.locator('button').filter({ hasText: 'Delete issue' }).first().click({ timeout: 4000 })
+      await page.getByRole('heading', { name: 'Delete issue' }).waitFor({ timeout: 6000 })
+      await page.locator('button').filter({ hasText: 'Delete issue' }).last().click({ timeout: 6000 })
       report.flows.push({ key: 'delete_issue', label: 'Delete issue', status: 'PASS', evidence: 'Delete confirmation modal action completed', reason: null })
     } catch (error) {
       report.flows.push({ key: 'delete_issue', label: 'Delete issue', status: 'BLOCKED', evidence: null, reason: String(error) })

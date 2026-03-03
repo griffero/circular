@@ -1,0 +1,22 @@
+{
+  "generatedAt": "2026-03-03T04:03:16.656Z",
+  "runId": "2026-03-03_04-02-37-395",
+  "runDir": "parity/evidence/2026-03-03_04-02-37-395",
+  "prereq": {
+    "generatedAt": "2026-03-03T04:02:37.396Z",
+    "circularReachable": true,
+    "linearReachable": true,
+    "circularStorageExists": true,
+    "linearStorageExists": false
+  },
+  "overall": {
+    "visual": "PASS",
+    "performance": "PASS",
+    "browser_e2e": "PASS"
+  },
+  "files": {
+    "visual": "parity/evidence/2026-03-03_04-02-37-395/visual/results.json",
+    "performance": "parity/evidence/2026-03-03_04-02-37-395/performance/results.json",
+    "e2e": "parity/evidence/2026-03-03_04-02-37-395/e2e/results.json"
+  }
+}

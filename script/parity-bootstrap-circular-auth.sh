@@ -81,6 +81,9 @@ TOKEN="$(
       )
     end
 
+    # Keep fixture state stable for evidence captures by removing probe issues from prior runs.
+    team.issues.where(%q{title ILIKE 'Parity %' OR title ILIKE 'Delete %'}).where.not(title: 'Parity Seed Issue').find_each(&:destroy!)
+
     puts user.magic_link_token.to_s
   "
 )"

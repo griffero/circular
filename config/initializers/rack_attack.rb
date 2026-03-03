@@ -1,5 +1,10 @@
 # frozen_string_literal: true
 
+if Rails.env.development? && ENV.fetch("RACK_ATTACK_DEV_ENABLED", "0") != "1"
+  Rack::Attack.enabled = false
+  return
+end
+
 class Rack::Attack
   # Throttle all requests by IP (60rpm)
   throttle("req/ip", limit: 300, period: 5.minutes) do |req|

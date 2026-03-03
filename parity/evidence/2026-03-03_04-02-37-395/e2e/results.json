@@ -1,0 +1,45 @@
+{
+  "generatedAt": "2026-03-03T04:03:10.654Z",
+  "flows": [
+    {
+      "key": "create_issue",
+      "label": "Create issue",
+      "status": "PASS",
+      "evidence": "Modal submit + close observed",
+      "reason": null
+    },
+    {
+      "key": "edit_issue_key_fields",
+      "label": "Edit issue key fields",
+      "status": "PASS",
+      "evidence": "Title edit + save completed",
+      "reason": null
+    },
+    {
+      "key": "move_or_assign",
+      "label": "Move workflow/state + assign/unassign",
+      "status": "PASS",
+      "evidence": "Assignee dropdown interaction completed",
+      "reason": null
+    },
+    {
+      "key": "filter_and_switch_subviews",
+      "label": "Filter + switch sub-views",
+      "status": "PASS",
+      "evidence": "statuses query persisted across issue-shell sub-view switch",
+      "reason": null
+    },
+    {
+      "key": "delete_issue",
+      "label": "Delete issue",
+      "status": "PASS",
+      "evidence": "Delete confirmation modal action completed",
+      "reason": null
+    }
+  ],
+  "blockers": [],
+  "summary": {
+    "pass": 5,
+    "blocked": 0
+  }
+}

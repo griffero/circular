@@ -1,0 +1,74 @@
+{
+  "generatedAt": "2026-03-03T04:03:20.664Z",
+  "samples": 5,
+  "budgetsMs": {
+    "initial_list_render": 1800,
+    "issue_detail_open": 1200,
+    "filter_apply_stable_list": 1000,
+    "cud_feedback": 1000
+  },
+  "metrics": [
+    {
+      "key": "initial_list_render",
+      "budgetMs": 1800,
+      "p95Ms": 907,
+      "samplesMs": [
+        907,
+        881,
+        863,
+        869,
+        864
+      ],
+      "status": "PASS",
+      "reason": null
+    },
+    {
+      "key": "issue_detail_open",
+      "budgetMs": 1200,
+      "p95Ms": 262,
+      "samplesMs": [
+        256,
+        257,
+        259,
+        262,
+        259
+      ],
+      "status": "PASS",
+      "reason": null
+    },
+    {
+      "key": "filter_apply_stable_list",
+      "budgetMs": 1000,
+      "p95Ms": 868,
+      "samplesMs": [
+        868,
+        864,
+        845,
+        857,
+        858
+      ],
+      "status": "PASS",
+      "reason": null
+    },
+    {
+      "key": "cud_feedback",
+      "budgetMs": 1000,
+      "p95Ms": 580,
+      "samplesMs": [
+        571,
+        561,
+        573,
+        580,
+        574
+      ],
+      "status": "PASS",
+      "reason": null
+    }
+  ],
+  "blockers": [],
+  "summary": {
+    "pass": 4,
+    "fail": 0,
+    "blocked": 0
+  }
+}
