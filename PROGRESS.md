@@ -1,5 +1,31 @@
 # Circular -> Linear Parity Progress
 
+## Completed in this slice (2026-03-03, parity slice: icon/SVG capture pipeline + manifest/report wiring)
+
+### 1) Added dedicated icon/SVG capture pipeline
+- Added `client/scripts/icon-svg-parity.mjs`:
+  - Reads capture targets from a manifest file.
+  - Captures per-target screenshots and normalized SVG snapshots.
+  - Computes deterministic `sha256` hashes per captured SVG.
+  - Writes run artifacts under `parity/reports/icon-svg/<run-id>/`.
+  - Emits explicit blocker reports instead of hard-failing when prerequisites are missing.
+
+### 2) Added manifest + report contract files
+- Added target manifest: `parity/manifests/icon-svg-targets.json`.
+- Added report contract doc: `parity/reports/icon-svg/README.md`.
+- Added latest run pointer: `parity/reports/icon-svg/latest.json`.
+- Updated command/docs wiring:
+  - `client/package.json`: `parity:icons:capture`
+  - `parity/EVIDENCE.md`: icon/SVG capture command + `ICON_PARITY_MANIFEST` env var.
+
+### 3) Execution result and blocker capture
+- Executed: `npm --prefix client run parity:icons:capture`
+- Latest icon report run: `parity/reports/icon-svg/2026-03-03_04-19-51-838`
+- Outcome:
+  - Status: `blocked`
+  - Blocker: Circular app unreachable at `http://127.0.0.1:5173`
+  - Report: `parity/reports/icon-svg/2026-03-03_04-19-51-838/report.md`
+
 ## Completed in this slice (2026-03-03, parity slice: final DoD evidence unblock automation + authenticated fixture path)
 
 ### 1) Added reproducible auth/evidence automation for final blockers

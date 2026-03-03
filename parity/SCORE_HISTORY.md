@@ -39,6 +39,7 @@ Tracks accepted slice scores and enforces no-regression for Tier 1 dimensions.
 | 2026-03-03 | parity evidence rerun + Playwright runtime unblock pass | 77 | 95 | 95 | 95 | 95 | 99 | Installed missing Playwright Chromium runtime, re-ran `parity:evidence:baseline` + `parity:evidence` (`2026-03-03_02-36-04-130`, `2026-03-03_02-36-04-129`), and narrowed blockers to Circular unreachable (`127.0.0.1:5173`) with storage states still missing |
 | 2026-03-03 | final DoD evidence auth-fixture unblock pass | 95 | 95 | 95 | 95 | 95 | 99 | Added magic-link auth bootstrap + full evidence pipeline scripts, seeded deterministic ONB fixture data for `cristobal@fintoc.com`, and captured visual gate pass with partially unblocked performance/E2E evidence (`2026-03-03_03-35-05-813`). |
 | 2026-03-03 | final DoD evidence all-gates green pass | 95 | 95 | 95 | 95 | 95 | 99 | Hardened parity evidence runner (dev rack-attack bypass, stable fixture cleanup, delete-flow selector/path handling, timing settle split), then captured full baseline+standard evidence with all three final gates PASS (`2026-03-03_04-02-37-395`, `2026-03-03_04-03-16-972`). |
+| 2026-03-03 | icon/svg capture pipeline + blocker-reporting pass | 95 | 95 | 95 | 95 | 95 | 99 | Added dedicated icon/SVG capture script + target manifest/report contract (`parity:icons:capture`), and captured blocker-aware run report (`parity/reports/icon-svg/2026-03-03_04-19-51-838`) while `http://127.0.0.1:5173` was unreachable. |
 
 ## No-Regression Check (Tier 1)
 
@@ -53,7 +54,7 @@ Result: pass (no Tier 1 dimension decreased)
 
 ## Gap To Tier-1 Score Target (>=95 each)
 
-Latest accepted slice (`2026-03-03`, `final DoD evidence all-gates green pass`):
+Latest accepted slice (`2026-03-03`, `icon/svg capture pipeline + blocker-reporting pass`):
 - Visual parity: `95/95` (gap: `0`)
 - Functional parity: `95/95` (gap: `0`)
 - Filter parity: `95/95` (gap: `0`)

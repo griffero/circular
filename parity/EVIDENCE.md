@@ -26,6 +26,12 @@ Bootstrap authenticated Circular storage state (magic-link flow for `cristobal@f
 ./script/parity-bootstrap-circular-auth.sh
 ```
 
+Capture icon/SVG parity artifacts and resolved hash manifest:
+
+```bash
+npm --prefix client run parity:icons:capture
+```
+
 Run the full unblock pipeline (auth bootstrap + baseline + standard evidence):
 
 ```bash
@@ -68,3 +74,4 @@ If prerequisites are missing, the runner does not crash the parity process; it r
 - `LINEAR_STORAGE_STATE`
 - `PARITY_CAPTURE_BASELINE` (`1` enables baseline capture)
 - `PARITY_PERF_SAMPLES` (default `5`, min `3`)
+- `ICON_PARITY_MANIFEST` (optional manifest override for icon/SVG capture)

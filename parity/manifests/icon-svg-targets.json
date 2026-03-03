@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "description": "Capture targets for Circular icon/SVG parity snapshots.",
+  "targets": [
+    {
+      "id": "sidebar-home",
+      "route": "/",
+      "selector": "aside nav a[href='/']",
+      "svgSelector": "svg",
+      "description": "Primary Home nav icon in sidebar"
+    },
+    {
+      "id": "sidebar-my-issues",
+      "route": "/my-issues",
+      "selector": "aside nav a[href='/my-issues']",
+      "svgSelector": "svg",
+      "description": "My Issues nav icon in sidebar"
+    },
+    {
+      "id": "sidebar-inbox",
+      "route": "/inbox",
+      "selector": "aside nav a[href='/inbox']",
+      "svgSelector": "svg",
+      "description": "Inbox nav icon in sidebar"
+    },
+    {
+      "id": "sidebar-projects",
+      "route": "/projects",
+      "selector": "aside nav a[href='/projects']",
+      "svgSelector": "svg",
+      "description": "Projects nav icon in sidebar"
+    },
+    {
+      "id": "issue-filter-button",
+      "route": "/team/ONB/issues",
+      "selector": "button:has-text('Filter')",
+      "svgSelector": "svg",
+      "description": "Filter button icon in Team Issues"
+    },
+    {
+      "id": "issue-new-button",
+      "route": "/team/ONB/issues",
+      "selector": "button:has-text('New issue')",
+      "svgSelector": "svg",
+      "description": "New issue button icon in Team Issues"
+    }
+  ]
+}

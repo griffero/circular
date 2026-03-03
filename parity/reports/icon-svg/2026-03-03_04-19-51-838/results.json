@@ -1,0 +1,17 @@
+{
+  "generatedAt": "2026-03-03T04:19:51.844Z",
+  "runId": "2026-03-03_04-19-51-838",
+  "manifestPath": "parity/manifests/icon-svg-targets.json",
+  "circularBase": "http://127.0.0.1:5173",
+  "blockers": [
+    "Circular app is unreachable at http://127.0.0.1:5173"
+  ],
+  "targets": [],
+  "summary": {
+    "total": 6,
+    "captured": 0,
+    "missingSvg": 0,
+    "errors": 0,
+    "uniqueHashes": 0
+  }
+}
