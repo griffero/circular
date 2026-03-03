@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { useAppStore } from '@/stores/app'
 import type { IssueStatus, IssuePriority } from '@/types'
 import { cn } from '@/utils/cn'
 import Dropdown from '@/components/ui/Dropdown.vue'
@@ -39,8 +40,27 @@ const emit = defineEmits<{
 }>()
 
 const authStore = useAuthStore()
+const appStore = useAppStore()
 
 const currentUser = computed(() => authStore.user)
+const users = computed(() => appStore.users)
+
+onMounted(() => {
+  if (users.value.length === 0) {
+    appStore.fetchUsers()
+  }
+})
+
+const assigneeOptions = computed(() => {
+  const currentUserId = currentUser.value?.id
+  if (!currentUserId) return users.value
+
+  return [...users.value].sort((a, b) => {
+    if (a.id === currentUserId) return -1
+    if (b.id === currentUserId) return 1
+    return a.name.localeCompare(b.name)
+  })
+})
 
 const statuses: { value: IssueStatus | undefined; label: string; icon: typeof Circle; color: string }[] = [
   { value: undefined, label: 'All statuses', icon: Circle, color: 'text-gray-400' },
@@ -148,6 +168,13 @@ function getSortLabel(sort?: string) {
   return sortOptions.find(s => s.value === sort)?.label || 'Created'
 }
 
+function getAssigneeLabel(assigneeId?: string) {
+  if (!assigneeId) return 'Assignee'
+  if (assigneeId === 'unassigned') return 'Unassigned'
+  if (assigneeId === currentUser.value?.id) return 'Assigned to me'
+  return users.value.find((user) => user.id === assigneeId)?.name || 'Assignee'
+}
+
 function triggerClass(active: boolean) {
   return cn(
     'flex items-center gap-1.5 px-2.5 py-1.5 rounded text-[13px] border transition-colors',
@@ -220,7 +247,7 @@ function triggerClass(active: boolean) {
           :class="triggerClass(filters.assigneeId !== undefined)"
         >
           <User class="w-4 h-4" />
-          {{ filters.assigneeId === currentUser?.id ? 'Assigned to me' : filters.assigneeId === 'unassigned' ? 'Unassigned' : 'Assignee' }}
+          {{ getAssigneeLabel(filters.assigneeId) }}
         </button>
       </template>
       <template #default="{ close }">
@@ -235,6 +262,15 @@ function triggerClass(active: boolean) {
         <DropdownItem @click="updateFilter('assigneeId', 'unassigned'); close()">
           <User class="w-4 h-4 text-[var(--linear-muted)]" />
           Unassigned
+        </DropdownItem>
+        <div v-if="assigneeOptions.length > 0" class="border-t border-[var(--linear-border)] my-1" />
+        <DropdownItem
+          v-for="user in assigneeOptions"
+          :key="user.id"
+          @click="updateFilter('assigneeId', user.id); close()"
+        >
+          <User class="w-4 h-4 text-[var(--linear-muted)]" />
+          {{ user.id === currentUser?.id ? `${user.name} (me)` : user.name }}
         </DropdownItem>
       </template>
     </Dropdown>

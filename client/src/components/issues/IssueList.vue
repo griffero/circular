@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useIssuesStore, type IssueFilters } from '@/stores/issues'
 import { useUiStore } from '@/stores/ui'
+import { useAppStore } from '@/stores/app'
 import { cn } from '@/utils/cn'
 import Avatar from '@/components/ui/Avatar.vue'
 import Button from '@/components/ui/Button.vue'
@@ -30,6 +31,7 @@ const props = defineProps<{
 }>()
 
 const uiStore = useUiStore()
+const appStore = useAppStore()
 
 const emit = defineEmits<{
   (e: 'issueClick', issue: Issue): void
@@ -38,16 +40,29 @@ const emit = defineEmits<{
 
 const issuesStore = useIssuesStore()
 
-const userFilters = ref<IssueFilters>({
-  sort: 'created_at',
-  direction: 'desc'
-})
+const userFilters = ref<IssueFilters>({})
+
+const resolvedSort = computed<IssueFilters['sort']>(() => (
+  userFilters.value.sort || props.baseFilters?.sort || 'created_at'
+))
+
+const resolvedDirection = computed<IssueFilters['direction']>(() => (
+  userFilters.value.direction || props.baseFilters?.direction || 'desc'
+))
 
 const effectiveFilters = computed<IssueFilters>(() => ({
   ...props.baseFilters,
   ...userFilters.value,
+  sort: resolvedSort.value,
+  direction: resolvedDirection.value,
   teamId: props.teamId,
   projectId: props.projectId,
+}))
+
+const visibleFilters = computed<IssueFilters>(() => ({
+  ...userFilters.value,
+  sort: resolvedSort.value,
+  direction: resolvedDirection.value,
 }))
 
 const loading = computed(() => issuesStore.loading)
@@ -155,6 +170,12 @@ watch(
   { deep: true, immediate: true }
 )
 
+onMounted(() => {
+  if (appStore.users.length === 0) {
+    appStore.fetchUsers()
+  }
+})
+
 function handleIssueClick(issue: Issue) {
   emit('issueClick', issue)
 }
@@ -202,9 +223,13 @@ const activeFilterChips = computed(() => {
   }
 
   if (userFilters.value.assigneeId) {
+    const assigneeName = appStore.users.find((user) => user.id === userFilters.value.assigneeId)?.name
     chips.push({
       key: 'assignee',
-      label: userFilters.value.assigneeId === 'unassigned' ? 'Assignee: Unassigned' : 'Assignee: Assigned to me',
+      label:
+        userFilters.value.assigneeId === 'unassigned'
+          ? 'Assignee: Unassigned'
+          : `Assignee: ${assigneeName || 'Assigned'}`,
       clear: () => {
         userFilters.value = { ...userFilters.value, assigneeId: undefined }
       }
@@ -262,7 +287,7 @@ function getEffectiveStatus(issue: Issue): IssueStatus {
       class="px-4 py-3 border-b border-[var(--linear-border)] bg-[var(--linear-bg)]"
     >
       <IssueFiltersComponent
-        :filters="userFilters"
+        :filters="visibleFilters"
         @update:filters="handleFilterUpdate"
       />
       <div v-if="activeFilterChips.length > 0" class="mt-2 flex flex-wrap items-center gap-2">

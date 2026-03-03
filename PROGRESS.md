@@ -1,5 +1,31 @@
 # Circular -> Linear Parity Progress
 
+## Completed in this slice (2026-03-03, parity slice: Tier-1 shared-list ordering + assignee filter parity)
+
+### 1) Tier-1 data/order parity fix (shared list now honors per-view default sort)
+- Updated `client/src/components/issues/IssueList.vue` to stop overriding `baseFilters` ordering defaults:
+  - Removed hardcoded local default `sort=created_at` from shared list state.
+  - Added resolved sort/direction merge so each view's base ordering (for example `updated_at desc`) is used until a user explicitly changes sort.
+  - Wired the filter panel input to the resolved filter model so sort UI matches the actual query ordering.
+
+### 2) Tier-1/Tier-2 filter parity improvement (full assignee filtering in shared filters)
+- Updated `client/src/components/issues/IssueFilters.vue`:
+  - Expanded assignee filter from only `(me)`/unassigned to full workspace user selection.
+  - Added lazy user fetch for filter contexts that do not already load workspace users.
+  - Added selected-assignee label resolution (including `(me)` suffix) in the filter trigger.
+- Updated `client/src/components/issues/IssueList.vue` active chips:
+  - Assignee chip now resolves selected user name when available instead of generic "Assigned to me" text for all non-unassigned cases.
+
+## Validation run (this slice)
+- ✅ `cd client && npm run type-check`
+- ✅ `cd client && npm run build`
+- ✅ `eval "$(rbenv init - zsh)" && rbenv shell 3.2.2 && bundle exec rspec spec/requests/issues_spec.rb`
+
+## Measurable deltas (this slice)
+- Tier-1 data/order parity: `+2` (shared list now respects per-view default ordering instead of forcing created-date order).
+- Tier-1 filter parity: `+2` (assignee filter now supports full workspace user set across shared issue-list surfaces).
+- Tier-1 functional parity: `+1` (filter state labels/chips now reflect chosen assignee identities more accurately).
+
 ## Completed in this slice (2026-03-03, parity slice: Tier-1 create-flow assignee parity + Tier-2 Inbox theme parity)
 
 ### 1) Tier-1 create issue functional parity improvement (assignee selection)
