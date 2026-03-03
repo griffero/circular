@@ -1,5 +1,47 @@
 # Circular -> Linear Parity Progress
 
+## Completed in this slice (2026-03-03, parity slice: icon/SVG dual-surface sweep capture follow-up)
+
+### 1) Expanded icon capture pipeline to maximize surfaced assets
+- Updated `client/scripts/icon-svg-parity.mjs`:
+  - Captures both `Circular` and `Linear` in one run.
+  - Added route-level `sweep` mode to collect all visible SVGs (deduped by hash) per target view.
+  - Added selector fallback arrays for `single` mode targets.
+  - Added per-target `requiresAuth` handling to convert auth-precondition misses into explicit `blocked` outcomes.
+  - Added support for `{TEAM_KEY}` route placeholders and team-key resolution from authenticated Circular context.
+
+### 2) Broadened target manifest coverage across Tier-1/Tier-2 views
+- Updated `parity/manifests/icon-svg-targets.json`:
+  - Added sweep targets: home, team issues, my issues (assigned), inbox, projects, team active, team backlog.
+  - Kept high-value single-icon targets (`sidebar-home`, `new issue`, `filter`) with auth-required semantics.
+- Updated docs:
+  - `parity/reports/icon-svg/README.md` (dual-surface + sweep contract)
+  - `parity/EVIDENCE.md` (`ICON_PARITY_TEAM_KEY`, `ICON_PARITY_SWEEP_LIMIT`, `ICON_PARITY_SWEEP_SCREENSHOT_LIMIT`)
+
+### 3) Auth bootstrap + capture execution results
+- Ensured local services reachable (`Rails` on `127.0.0.1:3000`, `Vite` on `127.0.0.1:5173`).
+- Executed authenticated Circular bootstrap:
+  - `./script/parity-bootstrap-circular-auth.sh cristobal@fintoc.com`
+- Executed icon capture:
+  - `npm --prefix client run parity:icons:capture`
+- Latest run:
+  - `parity/reports/icon-svg/2026-03-03_04-36-39-662/report.md`
+  - `parity/reports/icon-svg/2026-03-03_04-36-39-662/results.json`
+  - `parity/reports/icon-svg/latest.json`
+
+### 4) Outcome and external blocker (with exact remediation)
+- Outcome summary (`2026-03-03_04-36-39-662`):
+  - status: `ok`
+  - targets: `10`
+  - captured SVGs: `Circular=142`, `Linear=7`, `Unique=48`
+  - errors: `0`
+- Remaining truly external blocker:
+  - Missing Linear authenticated storage state: `/tmp/linear-storage-state.json`
+- Exact remediation:
+  1. Create authenticated Linear Playwright storage state at `/tmp/linear-storage-state.json` for workspace `fintoc`.
+  2. Re-run `npm --prefix client run parity:icons:capture`.
+  3. Expect currently `blocked` Linear single-icon targets (`sidebar-home-icon`, `new-issue-button-icon`, `filter-button-icon`) to become capturable under authenticated shell DOM.
+
 ## Completed in this slice (2026-03-03, parity slice: icon/SVG capture pipeline + manifest/report wiring)
 
 ### 1) Added dedicated icon/SVG capture pipeline

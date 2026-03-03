@@ -1,48 +1,119 @@
 {
   "version": 1,
-  "description": "Capture targets for Circular icon/SVG parity snapshots.",
+  "description": "Capture targets for Circular + Linear icon/SVG parity snapshots.",
   "targets": [
     {
-      "id": "sidebar-home",
+      "id": "home-shell-sweep",
+      "mode": "sweep",
       "route": "/",
-      "selector": "aside nav a[href='/']",
-      "svgSelector": "svg",
-      "description": "Primary Home nav icon in sidebar"
+      "maxSvg": 180,
+      "description": "Home shell icon sweep"
     },
     {
-      "id": "sidebar-my-issues",
-      "route": "/my-issues",
-      "selector": "aside nav a[href='/my-issues']",
-      "svgSelector": "svg",
-      "description": "My Issues nav icon in sidebar"
+      "id": "team-issues-sweep",
+      "mode": "sweep",
+      "circular": {
+        "route": "/team/{TEAM_KEY}/issues"
+      },
+      "linear": {
+        "route": "/team/{TEAM_KEY}/all"
+      },
+      "maxSvg": 220,
+      "description": "Main team issues list icon sweep"
     },
     {
-      "id": "sidebar-inbox",
+      "id": "my-issues-assigned-sweep",
+      "mode": "sweep",
+      "circular": {
+        "route": "/my-issues?view=assigned"
+      },
+      "linear": {
+        "route": "/my-issues/assigned"
+      },
+      "maxSvg": 200,
+      "description": "My issues assigned view icon sweep"
+    },
+    {
+      "id": "inbox-sweep",
+      "mode": "sweep",
       "route": "/inbox",
-      "selector": "aside nav a[href='/inbox']",
-      "svgSelector": "svg",
-      "description": "Inbox nav icon in sidebar"
+      "maxSvg": 180,
+      "description": "Inbox icon sweep"
     },
     {
-      "id": "sidebar-projects",
+      "id": "projects-sweep",
+      "mode": "sweep",
       "route": "/projects",
-      "selector": "aside nav a[href='/projects']",
-      "svgSelector": "svg",
-      "description": "Projects nav icon in sidebar"
+      "maxSvg": 180,
+      "description": "Projects index icon sweep"
     },
     {
-      "id": "issue-filter-button",
-      "route": "/team/ONB/issues",
-      "selector": "button:has-text('Filter')",
-      "svgSelector": "svg",
-      "description": "Filter button icon in Team Issues"
+      "id": "team-active-sweep",
+      "mode": "sweep",
+      "route": "/team/{TEAM_KEY}/active",
+      "maxSvg": 220,
+      "description": "Team active board icon sweep"
     },
     {
-      "id": "issue-new-button",
-      "route": "/team/ONB/issues",
-      "selector": "button:has-text('New issue')",
+      "id": "team-backlog-sweep",
+      "mode": "sweep",
+      "route": "/team/{TEAM_KEY}/backlog",
+      "maxSvg": 220,
+      "description": "Team backlog icon sweep"
+    },
+    {
+      "id": "sidebar-home-icon",
+      "requiresAuth": true,
+      "route": "/",
+      "selector": [
+        "aside nav a[href='/']",
+        "a[href='/']"
+      ],
+      "svgSelector": [
+        "svg",
+        "self"
+      ],
+      "description": "Home navigation icon"
+    },
+    {
+      "id": "new-issue-button-icon",
+      "requiresAuth": true,
+      "circular": {
+        "route": "/team/{TEAM_KEY}/issues",
+        "selector": [
+          "button:has-text('New issue')",
+          "button:has-text('Create issue')"
+        ]
+      },
+      "linear": {
+        "route": "/team/{TEAM_KEY}/all",
+        "selector": [
+          "button:has-text('New issue')",
+          "button:has-text('Create issue')"
+        ]
+      },
       "svgSelector": "svg",
-      "description": "New issue button icon in Team Issues"
+      "description": "Create/new issue button icon"
+    },
+    {
+      "id": "filter-button-icon",
+      "requiresAuth": true,
+      "circular": {
+        "route": "/team/{TEAM_KEY}/issues",
+        "selector": [
+          "button:has-text('Filter')",
+          "button[aria-label*='Filter']"
+        ]
+      },
+      "linear": {
+        "route": "/team/{TEAM_KEY}/all",
+        "selector": [
+          "button:has-text('Filter')",
+          "button[aria-label*='Filter']"
+        ]
+      },
+      "svgSelector": "svg",
+      "description": "Filter button icon"
     }
   ]
 }

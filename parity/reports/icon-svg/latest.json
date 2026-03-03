@@ -1,6 +1,8 @@
 {
-  "runId": "2026-03-03_04-19-51-838",
-  "generatedAt": "2026-03-03T04:19:51.844Z",
-  "status": "blocked",
-  "runDir": "parity/reports/icon-svg/2026-03-03_04-19-51-838"
+  "runId": "2026-03-03_04-36-39-662",
+  "generatedAt": "2026-03-03T04:36:39.750Z",
+  "status": "ok",
+  "runDir": "parity/reports/icon-svg/2026-03-03_04-36-39-662",
+  "reportFile": "parity/reports/icon-svg/2026-03-03_04-36-39-662/report.md",
+  "resultsFile": "parity/reports/icon-svg/2026-03-03_04-36-39-662/results.json"
 }

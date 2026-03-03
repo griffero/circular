@@ -1,0 +1,857 @@
+{
+  "generatedAt": "2026-03-03T04:36:39.750Z",
+  "runId": "2026-03-03_04-36-39-662",
+  "manifestPath": "parity/manifests/icon-svg-targets.json",
+  "circularBase": "http://127.0.0.1:5173",
+  "linearBase": "https://linear.app/fintoc",
+  "teamKey": "ONB",
+  "prereq": {
+    "circularReachable": true,
+    "linearReachable": true,
+    "circularStorageExists": true,
+    "linearStorageExists": false
+  },
+  "blockers": [
+    "Missing Linear storage state file at /tmp/linear-storage-state.json"
+  ],
+  "targets": [
+    {
+      "id": "home-shell-sweep",
+      "description": "Home shell icon sweep",
+      "circular": {
+        "route": "/",
+        "mode": "sweep",
+        "status": "ok",
+        "error": null,
+        "selectorUsed": null,
+        "svgSelectorUsed": "svg:visible",
+        "svgHashes": [
+          "cf7847f282f8a92422138884bd7a07378ba606e42658baff6635ec796b783a0f",
+          "3f3a52c7ae5b35a5ad7de73d73c1a6e2f48895ce68384f9981d0acb83c52939e",
+          "bd418fe3190b579e272a5cb8e6d8a104e3877ead20e956a4d20ff0d8a991438a",
+          "c7c116dde34f7ee4f115923e66ccae01666646c1bb9bd0f3120224642e0718de",
+          "544733e6a300032c18ce525dc8e41a507c389dcdff2d73599b213abf5eda036b",
+          "218c3bf7303e611fc2b5dfb98dfacc418ceffe300c5b343ea221dedc92482b32",
+          "fedf1895cd74bb8ee64c07b99f534e67e33b1bee30fadf1ef022c70c7c20a333",
+          "021ccff2284ab28711e5cad1d09f714be1d16d25216c1c9c00c5b6937caf563c",
+          "9c8b1894695457353e96e76be5b91c3985b0aec408e1229af0d1a1b29bc996f8",
+          "cdc2cf11962672808d87c45abaf83231c32c6229c583a1fcbbd9bdcde8aafc65",
+          "939e0821dd6f7e1b6d9bed442550d70b749769389ce823bc23493be7e0008fae",
+          "19784ba49db08c3584bc116fcbeada9c8d16d3d9afd3c86cec4574885b9641d3",
+          "68802bba35409ac4fc94d9e15fde447fe9814cc522929973354e4238b505036b",
+          "2b18055756b3a068a6214dda34fa99463ccf0bd094aff45769f57b76fb2ef5de"
+        ],
+        "files": {
+          "screenshots": [
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/home-shell-sweep__circular__cf7847f282f8.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/home-shell-sweep__circular__3f3a52c7ae5b.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/home-shell-sweep__circular__bd418fe3190b.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/home-shell-sweep__circular__c7c116dde34f.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/home-shell-sweep__circular__544733e6a300.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/home-shell-sweep__circular__218c3bf7303e.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/home-shell-sweep__circular__fedf1895cd74.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/home-shell-sweep__circular__021ccff2284a.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/home-shell-sweep__circular__9c8b18946954.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/home-shell-sweep__circular__cdc2cf119626.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/home-shell-sweep__circular__939e0821dd6f.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/home-shell-sweep__circular__19784ba49db0.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/home-shell-sweep__circular__68802bba3540.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/home-shell-sweep__circular__2b18055756b3.png"
+          ],
+          "svgs": [
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/home-shell-sweep__circular__cf7847f282f8.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/home-shell-sweep__circular__3f3a52c7ae5b.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/home-shell-sweep__circular__bd418fe3190b.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/home-shell-sweep__circular__c7c116dde34f.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/home-shell-sweep__circular__544733e6a300.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/home-shell-sweep__circular__218c3bf7303e.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/home-shell-sweep__circular__fedf1895cd74.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/home-shell-sweep__circular__021ccff2284a.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/home-shell-sweep__circular__9c8b18946954.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/home-shell-sweep__circular__cdc2cf119626.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/home-shell-sweep__circular__939e0821dd6f.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/home-shell-sweep__circular__19784ba49db0.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/home-shell-sweep__circular__68802bba3540.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/home-shell-sweep__circular__2b18055756b3.svg"
+          ]
+        }
+      },
+      "linear": {
+        "route": "/",
+        "mode": "sweep",
+        "status": "ok",
+        "error": null,
+        "selectorUsed": null,
+        "svgSelectorUsed": "svg:visible",
+        "svgHashes": [
+          "e49a8d0a2a99931703992b5d5feb889a3bdeae0045f860f25a316c24f8f25e75"
+        ],
+        "files": {
+          "screenshots": [
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/home-shell-sweep__linear__e49a8d0a2a99.png"
+          ],
+          "svgs": [
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/home-shell-sweep__linear__e49a8d0a2a99.svg"
+          ]
+        }
+      },
+      "hashOverlap": {
+        "count": 0,
+        "sample": []
+      }
+    },
+    {
+      "id": "team-issues-sweep",
+      "description": "Main team issues list icon sweep",
+      "circular": {
+        "route": "/team/ONB/issues",
+        "mode": "sweep",
+        "status": "ok",
+        "error": null,
+        "selectorUsed": null,
+        "svgSelectorUsed": "svg:visible",
+        "svgHashes": [
+          "cf7847f282f8a92422138884bd7a07378ba606e42658baff6635ec796b783a0f",
+          "3f3a52c7ae5b35a5ad7de73d73c1a6e2f48895ce68384f9981d0acb83c52939e",
+          "bd418fe3190b579e272a5cb8e6d8a104e3877ead20e956a4d20ff0d8a991438a",
+          "c7c116dde34f7ee4f115923e66ccae01666646c1bb9bd0f3120224642e0718de",
+          "544733e6a300032c18ce525dc8e41a507c389dcdff2d73599b213abf5eda036b",
+          "218c3bf7303e611fc2b5dfb98dfacc418ceffe300c5b343ea221dedc92482b32",
+          "fedf1895cd74bb8ee64c07b99f534e67e33b1bee30fadf1ef022c70c7c20a333",
+          "021ccff2284ab28711e5cad1d09f714be1d16d25216c1c9c00c5b6937caf563c",
+          "9c8b1894695457353e96e76be5b91c3985b0aec408e1229af0d1a1b29bc996f8",
+          "cdc2cf11962672808d87c45abaf83231c32c6229c583a1fcbbd9bdcde8aafc65",
+          "939e0821dd6f7e1b6d9bed442550d70b749769389ce823bc23493be7e0008fae",
+          "fd8f69085e295c663b3a21e7224f0bbd3780ec9059e20f3f6d5a77b3b018dba3",
+          "3dff422889965dcd182e5926e94efe3fc847e156365ce53e99d0e28017409d07",
+          "77cd10f2e1ba7a36b63a18d8f3f21f6dee0b8b3729a21653cef9be5b4430a122",
+          "475d7f194f87eeddd9077a7c86c584e114009ee28fb72124717e6179ccaa53a5",
+          "43376e431bc0b8fbf1d51d7130df912329316db2e670fb1472d7bea6709dbb7f",
+          "052bb41672e6e9d0084ad71f58de4dc16e482a9dd58cb38595d4eff0d1114492",
+          "e8c9b7f5a6e36880ded300424222e2adc1971f274f2e3d11100bfb1d3155be6c",
+          "95c8372342eccf8fa0176baaa0b3140f7cc79345777ecef5f2699a4a6e8a7ba1",
+          "851cc05ca7ab1971cbce6e0183bf10fe139745163724047390059ce25439ef20",
+          "3cc3d72fdce5f1b34b0734626c3f0c4e2a20cdd0763742b13166b404355cd531",
+          "9716116b90eed468ec836de21136e1f30946d060092c29c499c00da66a688d6a",
+          "e5d962f2db189e118f11d3c7ce173ae425cbbbbcc4ef720e985f09e2305baaa3",
+          "26454c57fcec3ad03af44e5342ab89c53c88701bb6cf8cef8afcdd855db93bed"
+        ],
+        "files": {
+          "screenshots": [
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-issues-sweep__circular__cf7847f282f8.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-issues-sweep__circular__3f3a52c7ae5b.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-issues-sweep__circular__bd418fe3190b.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-issues-sweep__circular__c7c116dde34f.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-issues-sweep__circular__544733e6a300.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-issues-sweep__circular__218c3bf7303e.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-issues-sweep__circular__fedf1895cd74.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-issues-sweep__circular__021ccff2284a.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-issues-sweep__circular__9c8b18946954.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-issues-sweep__circular__cdc2cf119626.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-issues-sweep__circular__939e0821dd6f.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-issues-sweep__circular__fd8f69085e29.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-issues-sweep__circular__3dff42288996.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-issues-sweep__circular__77cd10f2e1ba.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-issues-sweep__circular__475d7f194f87.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-issues-sweep__circular__43376e431bc0.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-issues-sweep__circular__052bb41672e6.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-issues-sweep__circular__e8c9b7f5a6e3.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-issues-sweep__circular__95c8372342ec.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-issues-sweep__circular__851cc05ca7ab.png"
+          ],
+          "svgs": [
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-issues-sweep__circular__cf7847f282f8.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-issues-sweep__circular__3f3a52c7ae5b.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-issues-sweep__circular__bd418fe3190b.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-issues-sweep__circular__c7c116dde34f.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-issues-sweep__circular__544733e6a300.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-issues-sweep__circular__218c3bf7303e.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-issues-sweep__circular__fedf1895cd74.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-issues-sweep__circular__021ccff2284a.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-issues-sweep__circular__9c8b18946954.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-issues-sweep__circular__cdc2cf119626.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-issues-sweep__circular__939e0821dd6f.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-issues-sweep__circular__fd8f69085e29.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-issues-sweep__circular__3dff42288996.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-issues-sweep__circular__77cd10f2e1ba.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-issues-sweep__circular__475d7f194f87.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-issues-sweep__circular__43376e431bc0.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-issues-sweep__circular__052bb41672e6.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-issues-sweep__circular__e8c9b7f5a6e3.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-issues-sweep__circular__95c8372342ec.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-issues-sweep__circular__851cc05ca7ab.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-issues-sweep__circular__3cc3d72fdce5.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-issues-sweep__circular__9716116b90ee.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-issues-sweep__circular__e5d962f2db18.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-issues-sweep__circular__26454c57fcec.svg"
+          ]
+        }
+      },
+      "linear": {
+        "route": "/team/ONB/all",
+        "mode": "sweep",
+        "status": "ok",
+        "error": null,
+        "selectorUsed": null,
+        "svgSelectorUsed": "svg:visible",
+        "svgHashes": [
+          "1bb7ce1ed1bb0262be76a42848f5ad3958f4cb7888ff56021712e63eb262f7fb"
+        ],
+        "files": {
+          "screenshots": [
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-issues-sweep__linear__1bb7ce1ed1bb.png"
+          ],
+          "svgs": [
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-issues-sweep__linear__1bb7ce1ed1bb.svg"
+          ]
+        }
+      },
+      "hashOverlap": {
+        "count": 0,
+        "sample": []
+      }
+    },
+    {
+      "id": "my-issues-assigned-sweep",
+      "description": "My issues assigned view icon sweep",
+      "circular": {
+        "route": "/my-issues?view=assigned",
+        "mode": "sweep",
+        "status": "ok",
+        "error": null,
+        "selectorUsed": null,
+        "svgSelectorUsed": "svg:visible",
+        "svgHashes": [
+          "cf7847f282f8a92422138884bd7a07378ba606e42658baff6635ec796b783a0f",
+          "3f3a52c7ae5b35a5ad7de73d73c1a6e2f48895ce68384f9981d0acb83c52939e",
+          "bd418fe3190b579e272a5cb8e6d8a104e3877ead20e956a4d20ff0d8a991438a",
+          "c7c116dde34f7ee4f115923e66ccae01666646c1bb9bd0f3120224642e0718de",
+          "544733e6a300032c18ce525dc8e41a507c389dcdff2d73599b213abf5eda036b",
+          "218c3bf7303e611fc2b5dfb98dfacc418ceffe300c5b343ea221dedc92482b32",
+          "fedf1895cd74bb8ee64c07b99f534e67e33b1bee30fadf1ef022c70c7c20a333",
+          "021ccff2284ab28711e5cad1d09f714be1d16d25216c1c9c00c5b6937caf563c",
+          "9c8b1894695457353e96e76be5b91c3985b0aec408e1229af0d1a1b29bc996f8",
+          "cdc2cf11962672808d87c45abaf83231c32c6229c583a1fcbbd9bdcde8aafc65",
+          "939e0821dd6f7e1b6d9bed442550d70b749769389ce823bc23493be7e0008fae",
+          "19784ba49db08c3584bc116fcbeada9c8d16d3d9afd3c86cec4574885b9641d3",
+          "fd8f69085e295c663b3a21e7224f0bbd3780ec9059e20f3f6d5a77b3b018dba3",
+          "60c2628f74c484e88d30a99e38bfe6280bd22a779107fbad52ed968ca1f553ab",
+          "e5d962f2db189e118f11d3c7ce173ae425cbbbbcc4ef720e985f09e2305baaa3",
+          "26454c57fcec3ad03af44e5342ab89c53c88701bb6cf8cef8afcdd855db93bed"
+        ],
+        "files": {
+          "screenshots": [
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/my-issues-assigned-sweep__circular__cf7847f282f8.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/my-issues-assigned-sweep__circular__3f3a52c7ae5b.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/my-issues-assigned-sweep__circular__bd418fe3190b.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/my-issues-assigned-sweep__circular__c7c116dde34f.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/my-issues-assigned-sweep__circular__544733e6a300.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/my-issues-assigned-sweep__circular__218c3bf7303e.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/my-issues-assigned-sweep__circular__fedf1895cd74.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/my-issues-assigned-sweep__circular__021ccff2284a.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/my-issues-assigned-sweep__circular__9c8b18946954.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/my-issues-assigned-sweep__circular__cdc2cf119626.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/my-issues-assigned-sweep__circular__939e0821dd6f.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/my-issues-assigned-sweep__circular__19784ba49db0.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/my-issues-assigned-sweep__circular__fd8f69085e29.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/my-issues-assigned-sweep__circular__60c2628f74c4.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/my-issues-assigned-sweep__circular__e5d962f2db18.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/my-issues-assigned-sweep__circular__26454c57fcec.png"
+          ],
+          "svgs": [
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/my-issues-assigned-sweep__circular__cf7847f282f8.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/my-issues-assigned-sweep__circular__3f3a52c7ae5b.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/my-issues-assigned-sweep__circular__bd418fe3190b.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/my-issues-assigned-sweep__circular__c7c116dde34f.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/my-issues-assigned-sweep__circular__544733e6a300.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/my-issues-assigned-sweep__circular__218c3bf7303e.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/my-issues-assigned-sweep__circular__fedf1895cd74.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/my-issues-assigned-sweep__circular__021ccff2284a.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/my-issues-assigned-sweep__circular__9c8b18946954.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/my-issues-assigned-sweep__circular__cdc2cf119626.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/my-issues-assigned-sweep__circular__939e0821dd6f.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/my-issues-assigned-sweep__circular__19784ba49db0.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/my-issues-assigned-sweep__circular__fd8f69085e29.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/my-issues-assigned-sweep__circular__60c2628f74c4.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/my-issues-assigned-sweep__circular__e5d962f2db18.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/my-issues-assigned-sweep__circular__26454c57fcec.svg"
+          ]
+        }
+      },
+      "linear": {
+        "route": "/my-issues/assigned",
+        "mode": "sweep",
+        "status": "ok",
+        "error": null,
+        "selectorUsed": null,
+        "svgSelectorUsed": "svg:visible",
+        "svgHashes": [
+          "2ed32bbfba716e952335654b43b094dba1edd47a7c537a3350f6190bba77bd6d"
+        ],
+        "files": {
+          "screenshots": [
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/my-issues-assigned-sweep__linear__2ed32bbfba71.png"
+          ],
+          "svgs": [
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/my-issues-assigned-sweep__linear__2ed32bbfba71.svg"
+          ]
+        }
+      },
+      "hashOverlap": {
+        "count": 0,
+        "sample": []
+      }
+    },
+    {
+      "id": "inbox-sweep",
+      "description": "Inbox icon sweep",
+      "circular": {
+        "route": "/inbox",
+        "mode": "sweep",
+        "status": "ok",
+        "error": null,
+        "selectorUsed": null,
+        "svgSelectorUsed": "svg:visible",
+        "svgHashes": [
+          "cf7847f282f8a92422138884bd7a07378ba606e42658baff6635ec796b783a0f",
+          "3f3a52c7ae5b35a5ad7de73d73c1a6e2f48895ce68384f9981d0acb83c52939e",
+          "bd418fe3190b579e272a5cb8e6d8a104e3877ead20e956a4d20ff0d8a991438a",
+          "c7c116dde34f7ee4f115923e66ccae01666646c1bb9bd0f3120224642e0718de",
+          "544733e6a300032c18ce525dc8e41a507c389dcdff2d73599b213abf5eda036b",
+          "218c3bf7303e611fc2b5dfb98dfacc418ceffe300c5b343ea221dedc92482b32",
+          "fedf1895cd74bb8ee64c07b99f534e67e33b1bee30fadf1ef022c70c7c20a333",
+          "021ccff2284ab28711e5cad1d09f714be1d16d25216c1c9c00c5b6937caf563c",
+          "9c8b1894695457353e96e76be5b91c3985b0aec408e1229af0d1a1b29bc996f8",
+          "cdc2cf11962672808d87c45abaf83231c32c6229c583a1fcbbd9bdcde8aafc65",
+          "939e0821dd6f7e1b6d9bed442550d70b749769389ce823bc23493be7e0008fae",
+          "19784ba49db08c3584bc116fcbeada9c8d16d3d9afd3c86cec4574885b9641d3",
+          "8befec044747989d516c1607eec18ec6c63668251a056ab04a29998229a2b0f4",
+          "237b190cf9065ce8008b0bc1252441a3d23ae00e24afd63a01dfa4dd6de5ce83",
+          "c6915402177167833178d5bebaca30f5ff12dfce3a8b8aa509896a210228e5b2"
+        ],
+        "files": {
+          "screenshots": [
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/inbox-sweep__circular__cf7847f282f8.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/inbox-sweep__circular__3f3a52c7ae5b.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/inbox-sweep__circular__bd418fe3190b.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/inbox-sweep__circular__c7c116dde34f.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/inbox-sweep__circular__544733e6a300.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/inbox-sweep__circular__218c3bf7303e.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/inbox-sweep__circular__fedf1895cd74.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/inbox-sweep__circular__021ccff2284a.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/inbox-sweep__circular__9c8b18946954.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/inbox-sweep__circular__cdc2cf119626.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/inbox-sweep__circular__939e0821dd6f.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/inbox-sweep__circular__19784ba49db0.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/inbox-sweep__circular__8befec044747.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/inbox-sweep__circular__237b190cf906.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/inbox-sweep__circular__c69154021771.png"
+          ],
+          "svgs": [
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/inbox-sweep__circular__cf7847f282f8.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/inbox-sweep__circular__3f3a52c7ae5b.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/inbox-sweep__circular__bd418fe3190b.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/inbox-sweep__circular__c7c116dde34f.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/inbox-sweep__circular__544733e6a300.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/inbox-sweep__circular__218c3bf7303e.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/inbox-sweep__circular__fedf1895cd74.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/inbox-sweep__circular__021ccff2284a.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/inbox-sweep__circular__9c8b18946954.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/inbox-sweep__circular__cdc2cf119626.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/inbox-sweep__circular__939e0821dd6f.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/inbox-sweep__circular__19784ba49db0.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/inbox-sweep__circular__8befec044747.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/inbox-sweep__circular__237b190cf906.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/inbox-sweep__circular__c69154021771.svg"
+          ]
+        }
+      },
+      "linear": {
+        "route": "/inbox",
+        "mode": "sweep",
+        "status": "ok",
+        "error": null,
+        "selectorUsed": null,
+        "svgSelectorUsed": "svg:visible",
+        "svgHashes": [
+          "89f08fcb7f7e9e6d1840dde19d15f79b5150a8fe2b8d3217bb3c4553c1b0f00f"
+        ],
+        "files": {
+          "screenshots": [
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/inbox-sweep__linear__89f08fcb7f7e.png"
+          ],
+          "svgs": [
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/inbox-sweep__linear__89f08fcb7f7e.svg"
+          ]
+        }
+      },
+      "hashOverlap": {
+        "count": 0,
+        "sample": []
+      }
+    },
+    {
+      "id": "projects-sweep",
+      "description": "Projects index icon sweep",
+      "circular": {
+        "route": "/projects",
+        "mode": "sweep",
+        "status": "ok",
+        "error": null,
+        "selectorUsed": null,
+        "svgSelectorUsed": "svg:visible",
+        "svgHashes": [
+          "cf7847f282f8a92422138884bd7a07378ba606e42658baff6635ec796b783a0f",
+          "3f3a52c7ae5b35a5ad7de73d73c1a6e2f48895ce68384f9981d0acb83c52939e",
+          "bd418fe3190b579e272a5cb8e6d8a104e3877ead20e956a4d20ff0d8a991438a",
+          "c7c116dde34f7ee4f115923e66ccae01666646c1bb9bd0f3120224642e0718de",
+          "544733e6a300032c18ce525dc8e41a507c389dcdff2d73599b213abf5eda036b",
+          "218c3bf7303e611fc2b5dfb98dfacc418ceffe300c5b343ea221dedc92482b32",
+          "fedf1895cd74bb8ee64c07b99f534e67e33b1bee30fadf1ef022c70c7c20a333",
+          "021ccff2284ab28711e5cad1d09f714be1d16d25216c1c9c00c5b6937caf563c",
+          "9c8b1894695457353e96e76be5b91c3985b0aec408e1229af0d1a1b29bc996f8",
+          "cdc2cf11962672808d87c45abaf83231c32c6229c583a1fcbbd9bdcde8aafc65",
+          "939e0821dd6f7e1b6d9bed442550d70b749769389ce823bc23493be7e0008fae",
+          "19784ba49db08c3584bc116fcbeada9c8d16d3d9afd3c86cec4574885b9641d3",
+          "426672f45853e6e9fa04cafcde7b02ffbe5878493ab46d547a8982f3c8a63ee3",
+          "87c05a313aa2ab844b1f72382e48c9b6f38a31480968f821a6b6ea43d43c6ed1",
+          "e7543c50e9bd945c76554f1d4249cc2a74b479ca41307e2486adaae6a8a5266b",
+          "37bce136d69d40c4baab27bf75eaf6294ec93894ac8622ebd439d4d99885178d",
+          "e87ce6a2e1804e1a39e2d678cb57641ed1b7a35d21b53586527c040d9f1a990b",
+          "0f34683ce9b5d44ed57e1abab294f81344295bdf6b4bd63d0f3eadd6265079a5",
+          "1b490e62dcae75e0ae301b92eb686ab7eb891e3c3ab916cdaefd476d8b37551c",
+          "b34c6311ec350cb4e1a37ac88e938b398c2067bb229ca5a31306d36829d2c82d",
+          "a74622463377ef2c1fd205fb1c00d63107b573b23d8d21781e8a6dfaa455e8af",
+          "34a51c4ac505d4afc2f375e704b8075f5a19baaa108bca1920217dc13ad17b1f"
+        ],
+        "files": {
+          "screenshots": [
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/projects-sweep__circular__cf7847f282f8.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/projects-sweep__circular__3f3a52c7ae5b.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/projects-sweep__circular__bd418fe3190b.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/projects-sweep__circular__c7c116dde34f.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/projects-sweep__circular__544733e6a300.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/projects-sweep__circular__218c3bf7303e.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/projects-sweep__circular__fedf1895cd74.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/projects-sweep__circular__021ccff2284a.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/projects-sweep__circular__9c8b18946954.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/projects-sweep__circular__cdc2cf119626.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/projects-sweep__circular__939e0821dd6f.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/projects-sweep__circular__19784ba49db0.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/projects-sweep__circular__426672f45853.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/projects-sweep__circular__87c05a313aa2.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/projects-sweep__circular__e7543c50e9bd.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/projects-sweep__circular__37bce136d69d.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/projects-sweep__circular__e87ce6a2e180.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/projects-sweep__circular__0f34683ce9b5.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/projects-sweep__circular__1b490e62dcae.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/projects-sweep__circular__b34c6311ec35.png"
+          ],
+          "svgs": [
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/projects-sweep__circular__cf7847f282f8.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/projects-sweep__circular__3f3a52c7ae5b.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/projects-sweep__circular__bd418fe3190b.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/projects-sweep__circular__c7c116dde34f.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/projects-sweep__circular__544733e6a300.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/projects-sweep__circular__218c3bf7303e.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/projects-sweep__circular__fedf1895cd74.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/projects-sweep__circular__021ccff2284a.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/projects-sweep__circular__9c8b18946954.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/projects-sweep__circular__cdc2cf119626.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/projects-sweep__circular__939e0821dd6f.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/projects-sweep__circular__19784ba49db0.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/projects-sweep__circular__426672f45853.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/projects-sweep__circular__87c05a313aa2.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/projects-sweep__circular__e7543c50e9bd.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/projects-sweep__circular__37bce136d69d.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/projects-sweep__circular__e87ce6a2e180.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/projects-sweep__circular__0f34683ce9b5.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/projects-sweep__circular__1b490e62dcae.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/projects-sweep__circular__b34c6311ec35.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/projects-sweep__circular__a74622463377.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/projects-sweep__circular__34a51c4ac505.svg"
+          ]
+        }
+      },
+      "linear": {
+        "route": "/projects",
+        "mode": "sweep",
+        "status": "ok",
+        "error": null,
+        "selectorUsed": null,
+        "svgSelectorUsed": "svg:visible",
+        "svgHashes": [
+          "337a768244d90f710184f8f3df97f0fe3c2157d1ee8e2acd71e421629af2029c"
+        ],
+        "files": {
+          "screenshots": [
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/projects-sweep__linear__337a768244d9.png"
+          ],
+          "svgs": [
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/projects-sweep__linear__337a768244d9.svg"
+          ]
+        }
+      },
+      "hashOverlap": {
+        "count": 0,
+        "sample": []
+      }
+    },
+    {
+      "id": "team-active-sweep",
+      "description": "Team active board icon sweep",
+      "circular": {
+        "route": "/team/ONB/active",
+        "mode": "sweep",
+        "status": "ok",
+        "error": null,
+        "selectorUsed": null,
+        "svgSelectorUsed": "svg:visible",
+        "svgHashes": [
+          "cf7847f282f8a92422138884bd7a07378ba606e42658baff6635ec796b783a0f",
+          "3f3a52c7ae5b35a5ad7de73d73c1a6e2f48895ce68384f9981d0acb83c52939e",
+          "bd418fe3190b579e272a5cb8e6d8a104e3877ead20e956a4d20ff0d8a991438a",
+          "c7c116dde34f7ee4f115923e66ccae01666646c1bb9bd0f3120224642e0718de",
+          "544733e6a300032c18ce525dc8e41a507c389dcdff2d73599b213abf5eda036b",
+          "218c3bf7303e611fc2b5dfb98dfacc418ceffe300c5b343ea221dedc92482b32",
+          "fedf1895cd74bb8ee64c07b99f534e67e33b1bee30fadf1ef022c70c7c20a333",
+          "021ccff2284ab28711e5cad1d09f714be1d16d25216c1c9c00c5b6937caf563c",
+          "9c8b1894695457353e96e76be5b91c3985b0aec408e1229af0d1a1b29bc996f8",
+          "cdc2cf11962672808d87c45abaf83231c32c6229c583a1fcbbd9bdcde8aafc65",
+          "939e0821dd6f7e1b6d9bed442550d70b749769389ce823bc23493be7e0008fae",
+          "fd8f69085e295c663b3a21e7224f0bbd3780ec9059e20f3f6d5a77b3b018dba3",
+          "3dff422889965dcd182e5926e94efe3fc847e156365ce53e99d0e28017409d07",
+          "77cd10f2e1ba7a36b63a18d8f3f21f6dee0b8b3729a21653cef9be5b4430a122",
+          "475d7f194f87eeddd9077a7c86c584e114009ee28fb72124717e6179ccaa53a5",
+          "43376e431bc0b8fbf1d51d7130df912329316db2e670fb1472d7bea6709dbb7f",
+          "052bb41672e6e9d0084ad71f58de4dc16e482a9dd58cb38595d4eff0d1114492",
+          "e8c9b7f5a6e36880ded300424222e2adc1971f274f2e3d11100bfb1d3155be6c",
+          "95c8372342eccf8fa0176baaa0b3140f7cc79345777ecef5f2699a4a6e8a7ba1",
+          "851cc05ca7ab1971cbce6e0183bf10fe139745163724047390059ce25439ef20",
+          "3cc3d72fdce5f1b34b0734626c3f0c4e2a20cdd0763742b13166b404355cd531",
+          "9716116b90eed468ec836de21136e1f30946d060092c29c499c00da66a688d6a",
+          "e5d962f2db189e118f11d3c7ce173ae425cbbbbcc4ef720e985f09e2305baaa3",
+          "26454c57fcec3ad03af44e5342ab89c53c88701bb6cf8cef8afcdd855db93bed"
+        ],
+        "files": {
+          "screenshots": [
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-active-sweep__circular__cf7847f282f8.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-active-sweep__circular__3f3a52c7ae5b.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-active-sweep__circular__bd418fe3190b.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-active-sweep__circular__c7c116dde34f.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-active-sweep__circular__544733e6a300.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-active-sweep__circular__218c3bf7303e.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-active-sweep__circular__fedf1895cd74.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-active-sweep__circular__021ccff2284a.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-active-sweep__circular__9c8b18946954.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-active-sweep__circular__cdc2cf119626.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-active-sweep__circular__939e0821dd6f.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-active-sweep__circular__fd8f69085e29.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-active-sweep__circular__3dff42288996.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-active-sweep__circular__77cd10f2e1ba.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-active-sweep__circular__475d7f194f87.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-active-sweep__circular__43376e431bc0.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-active-sweep__circular__052bb41672e6.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-active-sweep__circular__e8c9b7f5a6e3.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-active-sweep__circular__95c8372342ec.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-active-sweep__circular__851cc05ca7ab.png"
+          ],
+          "svgs": [
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-active-sweep__circular__cf7847f282f8.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-active-sweep__circular__3f3a52c7ae5b.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-active-sweep__circular__bd418fe3190b.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-active-sweep__circular__c7c116dde34f.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-active-sweep__circular__544733e6a300.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-active-sweep__circular__218c3bf7303e.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-active-sweep__circular__fedf1895cd74.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-active-sweep__circular__021ccff2284a.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-active-sweep__circular__9c8b18946954.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-active-sweep__circular__cdc2cf119626.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-active-sweep__circular__939e0821dd6f.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-active-sweep__circular__fd8f69085e29.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-active-sweep__circular__3dff42288996.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-active-sweep__circular__77cd10f2e1ba.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-active-sweep__circular__475d7f194f87.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-active-sweep__circular__43376e431bc0.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-active-sweep__circular__052bb41672e6.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-active-sweep__circular__e8c9b7f5a6e3.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-active-sweep__circular__95c8372342ec.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-active-sweep__circular__851cc05ca7ab.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-active-sweep__circular__3cc3d72fdce5.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-active-sweep__circular__9716116b90ee.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-active-sweep__circular__e5d962f2db18.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-active-sweep__circular__26454c57fcec.svg"
+          ]
+        }
+      },
+      "linear": {
+        "route": "/team/ONB/active",
+        "mode": "sweep",
+        "status": "ok",
+        "error": null,
+        "selectorUsed": null,
+        "svgSelectorUsed": "svg:visible",
+        "svgHashes": [
+          "d301e665797baec7c7d2895d1519384cfa9497a7f78c977eb3349fb28a0c1fd3"
+        ],
+        "files": {
+          "screenshots": [
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-active-sweep__linear__d301e665797b.png"
+          ],
+          "svgs": [
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-active-sweep__linear__d301e665797b.svg"
+          ]
+        }
+      },
+      "hashOverlap": {
+        "count": 0,
+        "sample": []
+      }
+    },
+    {
+      "id": "team-backlog-sweep",
+      "description": "Team backlog icon sweep",
+      "circular": {
+        "route": "/team/ONB/backlog",
+        "mode": "sweep",
+        "status": "ok",
+        "error": null,
+        "selectorUsed": null,
+        "svgSelectorUsed": "svg:visible",
+        "svgHashes": [
+          "cf7847f282f8a92422138884bd7a07378ba606e42658baff6635ec796b783a0f",
+          "3f3a52c7ae5b35a5ad7de73d73c1a6e2f48895ce68384f9981d0acb83c52939e",
+          "bd418fe3190b579e272a5cb8e6d8a104e3877ead20e956a4d20ff0d8a991438a",
+          "c7c116dde34f7ee4f115923e66ccae01666646c1bb9bd0f3120224642e0718de",
+          "544733e6a300032c18ce525dc8e41a507c389dcdff2d73599b213abf5eda036b",
+          "218c3bf7303e611fc2b5dfb98dfacc418ceffe300c5b343ea221dedc92482b32",
+          "fedf1895cd74bb8ee64c07b99f534e67e33b1bee30fadf1ef022c70c7c20a333",
+          "021ccff2284ab28711e5cad1d09f714be1d16d25216c1c9c00c5b6937caf563c",
+          "9c8b1894695457353e96e76be5b91c3985b0aec408e1229af0d1a1b29bc996f8",
+          "cdc2cf11962672808d87c45abaf83231c32c6229c583a1fcbbd9bdcde8aafc65",
+          "939e0821dd6f7e1b6d9bed442550d70b749769389ce823bc23493be7e0008fae",
+          "fd8f69085e295c663b3a21e7224f0bbd3780ec9059e20f3f6d5a77b3b018dba3",
+          "3dff422889965dcd182e5926e94efe3fc847e156365ce53e99d0e28017409d07",
+          "77cd10f2e1ba7a36b63a18d8f3f21f6dee0b8b3729a21653cef9be5b4430a122",
+          "475d7f194f87eeddd9077a7c86c584e114009ee28fb72124717e6179ccaa53a5",
+          "43376e431bc0b8fbf1d51d7130df912329316db2e670fb1472d7bea6709dbb7f",
+          "052bb41672e6e9d0084ad71f58de4dc16e482a9dd58cb38595d4eff0d1114492",
+          "e8c9b7f5a6e36880ded300424222e2adc1971f274f2e3d11100bfb1d3155be6c",
+          "95c8372342eccf8fa0176baaa0b3140f7cc79345777ecef5f2699a4a6e8a7ba1",
+          "851cc05ca7ab1971cbce6e0183bf10fe139745163724047390059ce25439ef20",
+          "3cc3d72fdce5f1b34b0734626c3f0c4e2a20cdd0763742b13166b404355cd531",
+          "9716116b90eed468ec836de21136e1f30946d060092c29c499c00da66a688d6a",
+          "e5d962f2db189e118f11d3c7ce173ae425cbbbbcc4ef720e985f09e2305baaa3",
+          "26454c57fcec3ad03af44e5342ab89c53c88701bb6cf8cef8afcdd855db93bed"
+        ],
+        "files": {
+          "screenshots": [
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-backlog-sweep__circular__cf7847f282f8.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-backlog-sweep__circular__3f3a52c7ae5b.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-backlog-sweep__circular__bd418fe3190b.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-backlog-sweep__circular__c7c116dde34f.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-backlog-sweep__circular__544733e6a300.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-backlog-sweep__circular__218c3bf7303e.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-backlog-sweep__circular__fedf1895cd74.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-backlog-sweep__circular__021ccff2284a.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-backlog-sweep__circular__9c8b18946954.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-backlog-sweep__circular__cdc2cf119626.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-backlog-sweep__circular__939e0821dd6f.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-backlog-sweep__circular__fd8f69085e29.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-backlog-sweep__circular__3dff42288996.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-backlog-sweep__circular__77cd10f2e1ba.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-backlog-sweep__circular__475d7f194f87.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-backlog-sweep__circular__43376e431bc0.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-backlog-sweep__circular__052bb41672e6.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-backlog-sweep__circular__e8c9b7f5a6e3.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-backlog-sweep__circular__95c8372342ec.png",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-backlog-sweep__circular__851cc05ca7ab.png"
+          ],
+          "svgs": [
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-backlog-sweep__circular__cf7847f282f8.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-backlog-sweep__circular__3f3a52c7ae5b.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-backlog-sweep__circular__bd418fe3190b.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-backlog-sweep__circular__c7c116dde34f.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-backlog-sweep__circular__544733e6a300.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-backlog-sweep__circular__218c3bf7303e.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-backlog-sweep__circular__fedf1895cd74.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-backlog-sweep__circular__021ccff2284a.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-backlog-sweep__circular__9c8b18946954.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-backlog-sweep__circular__cdc2cf119626.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-backlog-sweep__circular__939e0821dd6f.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-backlog-sweep__circular__fd8f69085e29.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-backlog-sweep__circular__3dff42288996.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-backlog-sweep__circular__77cd10f2e1ba.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-backlog-sweep__circular__475d7f194f87.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-backlog-sweep__circular__43376e431bc0.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-backlog-sweep__circular__052bb41672e6.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-backlog-sweep__circular__e8c9b7f5a6e3.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-backlog-sweep__circular__95c8372342ec.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-backlog-sweep__circular__851cc05ca7ab.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-backlog-sweep__circular__3cc3d72fdce5.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-backlog-sweep__circular__9716116b90ee.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-backlog-sweep__circular__e5d962f2db18.svg",
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-backlog-sweep__circular__26454c57fcec.svg"
+          ]
+        }
+      },
+      "linear": {
+        "route": "/team/ONB/backlog",
+        "mode": "sweep",
+        "status": "ok",
+        "error": null,
+        "selectorUsed": null,
+        "svgSelectorUsed": "svg:visible",
+        "svgHashes": [
+          "8da57eabb69ce3b9ea17dfc1c643ed5322c09391bc8f347178b951def6bfef48"
+        ],
+        "files": {
+          "screenshots": [
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/team-backlog-sweep__linear__8da57eabb69c.png"
+          ],
+          "svgs": [
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/team-backlog-sweep__linear__8da57eabb69c.svg"
+          ]
+        }
+      },
+      "hashOverlap": {
+        "count": 0,
+        "sample": []
+      }
+    },
+    {
+      "id": "sidebar-home-icon",
+      "description": "Home navigation icon",
+      "circular": {
+        "route": "/",
+        "mode": "single",
+        "status": "ok",
+        "error": null,
+        "selectorUsed": "aside nav a[href='/']",
+        "svgSelectorUsed": "svg",
+        "svgHashes": [
+          "c7c116dde34f7ee4f115923e66ccae01666646c1bb9bd0f3120224642e0718de"
+        ],
+        "files": {
+          "screenshots": [
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/sidebar-home-icon__circular.png"
+          ],
+          "svgs": [
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/sidebar-home-icon__circular__c7c116dde34f.svg"
+          ]
+        }
+      },
+      "linear": {
+        "route": "/",
+        "mode": "single",
+        "status": "blocked",
+        "error": "linear target requires auth storage-state, missing at /tmp/linear-storage-state.json",
+        "selectorUsed": null,
+        "svgSelectorUsed": null,
+        "svgHashes": [],
+        "files": {
+          "screenshots": [],
+          "svgs": []
+        }
+      },
+      "hashOverlap": {
+        "count": 0,
+        "sample": []
+      }
+    },
+    {
+      "id": "new-issue-button-icon",
+      "description": "Create/new issue button icon",
+      "circular": {
+        "route": "/team/ONB/issues",
+        "mode": "single",
+        "status": "ok",
+        "error": null,
+        "selectorUsed": "button:has-text('New issue')",
+        "svgSelectorUsed": "svg",
+        "svgHashes": [
+          "851cc05ca7ab1971cbce6e0183bf10fe139745163724047390059ce25439ef20"
+        ],
+        "files": {
+          "screenshots": [
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/new-issue-button-icon__circular.png"
+          ],
+          "svgs": [
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/new-issue-button-icon__circular__851cc05ca7ab.svg"
+          ]
+        }
+      },
+      "linear": {
+        "route": "/team/ONB/all",
+        "mode": "single",
+        "status": "blocked",
+        "error": "linear target requires auth storage-state, missing at /tmp/linear-storage-state.json",
+        "selectorUsed": null,
+        "svgSelectorUsed": null,
+        "svgHashes": [],
+        "files": {
+          "screenshots": [],
+          "svgs": []
+        }
+      },
+      "hashOverlap": {
+        "count": 0,
+        "sample": []
+      }
+    },
+    {
+      "id": "filter-button-icon",
+      "description": "Filter button icon",
+      "circular": {
+        "route": "/team/ONB/issues",
+        "mode": "single",
+        "status": "ok",
+        "error": null,
+        "selectorUsed": "button:has-text('Filter')",
+        "svgSelectorUsed": "svg",
+        "svgHashes": [
+          "95c8372342eccf8fa0176baaa0b3140f7cc79345777ecef5f2699a4a6e8a7ba1"
+        ],
+        "files": {
+          "screenshots": [
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/shots/filter-button-icon__circular.png"
+          ],
+          "svgs": [
+            "parity/reports/icon-svg/2026-03-03_04-36-39-662/svgs/filter-button-icon__circular__95c8372342ec.svg"
+          ]
+        }
+      },
+      "linear": {
+        "route": "/team/ONB/all",
+        "mode": "single",
+        "status": "blocked",
+        "error": "linear target requires auth storage-state, missing at /tmp/linear-storage-state.json",
+        "selectorUsed": null,
+        "svgSelectorUsed": null,
+        "svgHashes": [],
+        "files": {
+          "screenshots": [],
+          "svgs": []
+        }
+      },
+      "hashOverlap": {
+        "count": 0,
+        "sample": []
+      }
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "captured": {
+      "circular": 142,
+      "linear": 7
+    },
+    "missingSvg": {
+      "circular": 0,
+      "linear": 0
+    },
+    "errors": 0,
+    "uniqueHashes": 48,
+    "hashOverlapTargets": 0
+  }
+}

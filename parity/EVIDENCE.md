@@ -75,3 +75,6 @@ If prerequisites are missing, the runner does not crash the parity process; it r
 - `PARITY_CAPTURE_BASELINE` (`1` enables baseline capture)
 - `PARITY_PERF_SAMPLES` (default `5`, min `3`)
 - `ICON_PARITY_MANIFEST` (optional manifest override for icon/SVG capture)
+- `ICON_PARITY_TEAM_KEY` (default `ONB`, used for `{TEAM_KEY}` routes in icon manifest)
+- `ICON_PARITY_SWEEP_LIMIT` (default `150`, max visible SVG nodes processed per sweep target/surface)
+- `ICON_PARITY_SWEEP_SCREENSHOT_LIMIT` (default `20`, max element screenshots saved per sweep target/surface)

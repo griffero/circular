@@ -10,6 +10,14 @@ Contract:
 - Per-run artifacts: `parity/reports/icon-svg/<run-id>/`
 - Latest pointer: `parity/reports/icon-svg/latest.json`
 
+Runtime notes:
+
+- Captures both `Circular` and `Linear` surfaces in the same run when reachable.
+- Supports per-target `mode`:
+  - `single` (selector-based icon capture)
+  - `sweep` (capture all visible `svg` nodes on a route, deduplicated by hash)
+- If one surface is unreachable or missing auth storage-state, capture still proceeds for the other surface and reports blockers explicitly.
+
 Each run writes:
 
 - `results.json` with status per target and blockers (if any)
