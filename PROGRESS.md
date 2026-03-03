@@ -1,5 +1,33 @@
 # Circular -> Linear Parity Progress
 
+## Completed in this slice (2026-03-03, parity slice: Tier-2 project/triage list parity)
+
+### 1) Tier-2 Team Triage moved to shared issue list behavior
+- Refactored `client/src/components/pages/team/TeamTriagePage.vue` to use shared `IssueList` infrastructure (instead of bespoke local list rendering).
+- Triage now uses base filters aligned with shared semantics:
+  - `statuses=['backlog']`
+  - `sort=updated_at`
+  - `direction=desc`
+- This aligns triage with existing Team Issues/Active/Backlog list interactions, including shared filter panel behavior and grouped-state rendering.
+
+### 2) Tier-2 Project Issues parity pass (shared list + theme consistency)
+- Rebuilt `client/src/components/pages/ProjectPage.vue` around shared `IssueList` with `projectId` scoping:
+  - Removed bespoke local issue filtering/rendering implementation.
+  - Project issues now inherit the same filtering/sorting semantics and section rendering as other issue surfaces.
+  - Default project issue ordering now uses `updated_at desc` to match active list behavior.
+- Replaced hardcoded dark-only project page shell styles with shared theme tokens (`--linear-*`) for light/dark consistency.
+- Kept project header metadata (state, dates, description) while normalizing actions to shared `Button` usage.
+
+## Validation run (this slice)
+- ✅ `cd client && npm run type-check`
+- ✅ `cd client && npm run build`
+- ℹ️ Backend specs were not rerun in this slice (frontend-only changes).
+
+## Measurable deltas (this slice)
+- Tier-2 views moved to shared issue-list stack: `+2` (`Team Triage`, `Project Issues`).
+- Removed bespoke issue list logic from project view: `-1` custom implementation path.
+- Theme-token parity improvement: Project Issues page shell now uses shared tokens end-to-end.
+
 ## Completed in this slice (2026-03-02, parity slice: issue list/detail)
 
 ### 1) Issue list filter interaction parity + UX
