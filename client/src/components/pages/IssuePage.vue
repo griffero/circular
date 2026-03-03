@@ -7,6 +7,8 @@ import { useAppStore } from '@/stores/app'
 import type { Issue, WorkflowState } from '@/types'
 import Dropdown from '@/components/ui/Dropdown.vue'
 import DropdownItem from '@/components/ui/DropdownItem.vue'
+import Modal from '@/components/ui/Modal.vue'
+import Button from '@/components/ui/Button.vue'
 import Avatar from '@/components/ui/Avatar.vue'
 import EmojiText from '@/components/ui/EmojiText.vue'
 import EmojiIcon from '@/components/ui/EmojiIcon.vue'
@@ -55,6 +57,7 @@ const projects = computed(() => appStore.projects)
 // Project search
 const projectSearch = ref('')
 const deleting = ref(false)
+const showDeleteConfirm = ref(false)
 const editingTitle = ref(false)
 const titleDraft = ref('')
 const titleSaving = ref(false)
@@ -217,16 +220,26 @@ function goBack() {
 
 async function deleteIssue() {
   if (!issue.value || deleting.value) return
-  if (!confirm('Are you sure you want to delete this issue?')) return
 
   const redirectPath = issue.value.team?.key ? `/team/${issue.value.team.key}/issues` : '/my-issues'
   deleting.value = true
   try {
     await issuesStore.deleteIssue(issue.value.id)
+    showDeleteConfirm.value = false
     router.push(redirectPath)
   } finally {
     deleting.value = false
   }
+}
+
+function openDeleteConfirm() {
+  if (!issue.value || deleting.value) return
+  showDeleteConfirm.value = true
+}
+
+function closeDeleteConfirm() {
+  if (deleting.value) return
+  showDeleteConfirm.value = false
 }
 
 async function toggleLabel(labelId: string) {
@@ -307,7 +320,7 @@ function formatDate(dateString?: string | null) {
               </button>
             </template>
             <template #default="{ close }">
-              <DropdownItem danger @click="deleteIssue(); close()">
+              <DropdownItem danger @click="openDeleteConfirm(); close()">
                 <Trash2 class="h-4 w-4" />
                 Delete issue
               </DropdownItem>
@@ -746,4 +759,30 @@ function formatDate(dateString?: string | null) {
       </div>
     </div>
   </div>
+
+  <Modal
+    :open="showDeleteConfirm"
+    title="Delete issue"
+    description="This action cannot be undone."
+    size="sm"
+    :closable="!deleting"
+    @close="closeDeleteConfirm"
+  >
+    <div class="space-y-3">
+      <p class="text-sm text-[var(--linear-muted)]">
+        Delete
+        <span class="font-medium text-[var(--linear-text)]">{{ issue?.identifier }}</span>
+        <span v-if="issue?.title"> - {{ issue.title }}</span>
+        ?
+      </p>
+    </div>
+    <template #footer>
+      <Button variant="ghost" :disabled="deleting" @click="closeDeleteConfirm">
+        Cancel
+      </Button>
+      <Button variant="danger" :loading="deleting" @click="deleteIssue">
+        Delete issue
+      </Button>
+    </template>
+  </Modal>
 </template>

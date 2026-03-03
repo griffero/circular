@@ -24,14 +24,15 @@ Tracks accepted slice scores and enforces no-regression for Tier 1 dimensions.
 | 2026-03-03 | tier1 default-order + tier2 team-subviews parity pass | 74 | 88 | 87 | 82 | 91 | 91 | Exposed Team `Triage` + `Board` sub-views in issue-shell navigation and set API default list ordering fallback to `updated_at desc` with request-spec coverage |
 | 2026-03-03 | tier2 triage-vs-backlog workflow-state parity pass | 74 | 88 | 87 | 82 | 91 | 92 | Added `workflow_state_type` filtering and wired Team Triage/Backlog to distinct state-type filters (with legacy backlog fallback + request-spec coverage) |
 | 2026-03-03 | tier2 settings-labels CRUD parity pass | 74 | 88 | 87 | 82 | 91 | 93 | Replaced placeholder Settings > Labels data with API-backed load/create/update/delete flows and wired row action buttons to persisted mutations |
+| 2026-03-03 | tier1 issue-detail delete-confirm parity pass | 75 | 89 | 87 | 83 | 91 | 94 | Replaced browser-native delete confirm with in-app Issue Detail confirmation modal state, including cancel/delete actions and in-flight lockout |
 
 ## No-Regression Check (Tier 1)
 
 Latest accepted slice vs previous:
-- Visual parity: +0
-- Functional parity: +0
+- Visual parity: +1
+- Functional parity: +1
 - Filter parity: +0
-- Sub-view parity: +0
+- Sub-view parity: +1
 - Data/order parity: +0
 
 Result: pass (no Tier 1 dimension decreased)

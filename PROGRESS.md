@@ -1,5 +1,26 @@
 # Circular -> Linear Parity Progress
 
+## Completed in this slice (2026-03-03, parity slice: Tier-1 issue-detail delete-confirm parity)
+
+### 1) Tier-1 sub-view/functional parity fix (Issue Detail delete confirmation state)
+- Updated `client/src/components/pages/IssuePage.vue` to replace browser-native `confirm()` with an in-app themed confirmation modal:
+  - Added explicit `delete-confirm` state with `Cancel` and `Delete issue` actions.
+  - Wired modal open/close behavior from the Issue Detail overflow menu delete action.
+  - Added in-flight guards so close/dismiss is blocked while delete is executing.
+- This closes the baseline Tier-1 Issue Detail `delete-confirm` state gap and aligns behavior with app-native interaction patterns.
+
+## Validation run (this slice)
+- ✅ `cd client && npm run type-check`
+- ✅ `cd client && npm run build`
+- ✅ `eval "$(rbenv init - zsh)" && rbenv shell 3.2.2 && bundle exec rspec spec/requests/issues_spec.rb`
+
+## Measurable deltas (this slice)
+- Tier-1 sub-view parity: `+1` (Issue Detail now has an explicit in-app `delete-confirm` state).
+- Tier-1 functional parity: `+1` (delete action now follows app-native confirm/cancel flow with in-flight safety).
+- Tier-1 visual parity: `+1` (delete confirmation UI now uses shared modal/button tokens instead of browser-native confirm dialog).
+- Tier-1 no-regression contract: maintained (all Tier-1 dimensions held or improved in `parity/SCORE_HISTORY.md`).
+- Global parity score: `93 -> 94`.
+
 ## Completed in this slice (2026-03-03, parity slice: Tier-2 settings labels CRUD parity)
 
 ### 1) Tier-2 functional parity improvement (Settings > Labels now API-backed)
