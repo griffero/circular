@@ -19,8 +19,16 @@ module Api
           issues = params[:assignee_id] == "unassigned" ? issues.unassigned : issues.by_assignee(params[:assignee_id])
         end
 
+        # Filter by creator
+        issues = issues.where(creator_id: params[:creator_id]) if params[:creator_id].present?
+
         # Filter by status
-        issues = issues.where(status: params[:status]) if params[:status].present?
+        if params[:statuses].present?
+          statuses = params[:statuses].to_s.split(",").map(&:strip).reject(&:blank?)
+          issues = issues.where(status: statuses) if statuses.any?
+        elsif params[:status].present?
+          issues = issues.where(status: params[:status])
+        end
 
         # Filter by workflow_state
         issues = issues.where(workflow_state_id: params[:workflow_state_id]) if params[:workflow_state_id].present?

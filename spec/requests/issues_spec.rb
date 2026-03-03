@@ -148,6 +148,33 @@ RSpec.describe "Issues API" do
       expect(ids).to contain_exactly(matching_issue.id)
     end
 
+    it "filters by creator_id" do
+      mine = create(:issue, team: team_a, creator: user, title: "Mine by creator")
+      other_creator = create(:user, email: "creator-filter-other@fintoc.com")
+      create(:issue, team: team_a, creator: other_creator, title: "Not mine by creator")
+
+      get "/api/v1/issues",
+          params: { team_id: team_a.id, creator_id: user.id }
+
+      expect(response).to have_http_status(:ok)
+      ids = json_response[:issues].map { |item| item[:id] }
+      expect(ids).to contain_exactly(mine.id)
+    end
+
+    it "filters by statuses list for active sub-view use-cases" do
+      todo_issue = create(:issue, team: team_a, creator: user, status: "todo", title: "Todo")
+      in_progress_issue = create(:issue, team: team_a, creator: user, status: "in_progress", title: "In progress")
+      create(:issue, team: team_a, creator: user, status: "backlog", title: "Backlog")
+      create(:issue, team: team_a, creator: user, status: "done", title: "Done")
+
+      get "/api/v1/issues",
+          params: { team_id: team_a.id, statuses: "todo,in_progress,in_review" }
+
+      expect(response).to have_http_status(:ok)
+      ids = json_response[:issues].map { |item| item[:id] }
+      expect(ids).to contain_exactly(todo_issue.id, in_progress_issue.id)
+    end
+
     it "sorts by priority with no-priority issues last by default" do
       urgent = create(:issue, team: team_a, creator: user, priority: 1, updated_at: 10.minutes.ago, title: "Urgent")
       low = create(:issue, team: team_a, creator: user, priority: 4, updated_at: 8.minutes.ago, title: "Low")
@@ -187,6 +214,19 @@ RSpec.describe "Issues API" do
       expect(response).to have_http_status(:ok)
       ids = json_response[:issues].map { |item| item[:id] }
       expect(ids).to contain_exactly(mine.id)
+    end
+
+    it "combines my_issues with statuses filter" do
+      matching = create(:issue, team: team_a, creator: user, assignee: user, status: "todo", title: "My active")
+      create(:issue, team: team_a, creator: user, assignee: user, status: "done", title: "My done")
+      create(:issue, team: team_a, creator: user, assignee: assignee, status: "todo", title: "Not mine")
+
+      get "/api/v1/issues",
+          params: { team_id: team_a.id, my_issues: "true", statuses: "todo,in_progress,in_review" }
+
+      expect(response).to have_http_status(:ok)
+      ids = json_response[:issues].map { |item| item[:id] }
+      expect(ids).to contain_exactly(matching.id)
     end
   end
 end

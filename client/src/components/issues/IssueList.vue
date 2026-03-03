@@ -4,6 +4,7 @@ import { useIssuesStore, type IssueFilters } from '@/stores/issues'
 import { useUiStore } from '@/stores/ui'
 import { cn } from '@/utils/cn'
 import Avatar from '@/components/ui/Avatar.vue'
+import Button from '@/components/ui/Button.vue'
 import IssueFiltersComponent from './IssueFilters.vue'
 import { 
   Plus, 
@@ -21,6 +22,7 @@ import type { Issue, IssueStatus, WorkflowStateType, WorkflowState } from '@/typ
 const props = defineProps<{
   teamId?: string
   projectId?: string
+  baseFilters?: Partial<IssueFilters>
   showFilters?: boolean
   emptyTitle?: string
   emptyDescription?: string
@@ -35,12 +37,17 @@ const emit = defineEmits<{
 
 const issuesStore = useIssuesStore()
 
-const filters = ref<IssueFilters>({
-  teamId: props.teamId,
-  projectId: props.projectId,
+const userFilters = ref<IssueFilters>({
   sort: 'created_at',
   direction: 'desc'
 })
+
+const effectiveFilters = computed<IssueFilters>(() => ({
+  ...props.baseFilters,
+  ...userFilters.value,
+  teamId: props.teamId,
+  projectId: props.projectId,
+}))
 
 const loading = computed(() => issuesStore.loading)
 const issues = computed(() => issuesStore.issues)
@@ -136,31 +143,15 @@ async function fetchIssues() {
   if (props.teamId) {
     await issuesStore.fetchWorkflowStates(props.teamId)
   }
-  await issuesStore.fetchIssues({
-    ...filters.value,
-    teamId: props.teamId,
-    projectId: props.projectId
-  })
+  await issuesStore.fetchIssues(effectiveFilters.value)
 }
 
 watch(
-  () => [props.teamId, props.projectId],
-  () => {
-    filters.value = {
-      ...filters.value,
-      teamId: props.teamId,
-      projectId: props.projectId
-    }
-  },
-  { immediate: true }
-)
-
-watch(
-  filters,
+  effectiveFilters,
   () => {
     fetchIssues()
   },
-  { deep: true }
+  { deep: true, immediate: true }
 )
 
 function handleIssueClick(issue: Issue) {
@@ -168,11 +159,7 @@ function handleIssueClick(issue: Issue) {
 }
 
 function handleFilterUpdate(newFilters: IssueFilters) {
-  filters.value = {
-    ...newFilters,
-    teamId: props.teamId,
-    projectId: props.projectId
-  }
+  userFilters.value = { ...newFilters }
 }
 
 function formatDate(dateString: string) {
@@ -213,7 +200,7 @@ function getEffectiveStatus(issue: Issue): IssueStatus {
       class="px-4 py-3 border-b border-[var(--linear-border)] bg-[var(--linear-bg)]"
     >
       <IssueFiltersComponent
-        :filters="filters"
+        :filters="userFilters"
         @update:filters="handleFilterUpdate"
       />
     </div>
@@ -234,13 +221,13 @@ function getEffectiveStatus(issue: Issue): IssueStatus {
       <p class="text-xs text-[var(--linear-muted)] text-center max-w-xs mb-4">
         {{ emptyDescription || 'Create a new issue to get started.' }}
       </p>
-      <button 
+      <Button
+        size="sm"
         @click="emit('createIssue')"
-        class="flex items-center gap-1.5 px-3 py-1.5 rounded bg-indigo-600 hover:bg-indigo-700 text-white text-sm transition-colors"
       >
         <Plus class="w-4 h-4" />
         Create issue
-      </button>
+      </Button>
     </div>
 
     <!-- Issue list grouped by status -->

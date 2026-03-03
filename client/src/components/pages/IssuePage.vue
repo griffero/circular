@@ -122,14 +122,29 @@ function copyIdentifier() {
   navigator.clipboard.writeText(issue.value.identifier)
 }
 
+function goBack() {
+  if (window.history.length > 1) {
+    router.back()
+    return
+  }
+
+  if (issue.value?.team?.key) {
+    router.push(`/team/${issue.value.team.key}/issues`)
+    return
+  }
+
+  router.push('/')
+}
+
 async function deleteIssue() {
   if (!issue.value || deleting.value) return
   if (!confirm('Are you sure you want to delete this issue?')) return
 
+  const redirectPath = issue.value.team?.key ? `/team/${issue.value.team.key}/issues` : '/my-issues'
   deleting.value = true
   try {
     await issuesStore.deleteIssue(issue.value.id)
-    router.push('/')
+    router.push(redirectPath)
   } finally {
     deleting.value = false
   }
@@ -185,7 +200,7 @@ function formatDate(dateString?: string | null) {
       <div class="flex items-center justify-between gap-3 px-4 py-2 border-b border-[var(--linear-border)]">
         <div class="flex items-center gap-3">
           <button
-            @click="router.back()"
+            @click="goBack"
             class="p-1.5 hover:bg-[var(--linear-surface)] rounded text-[var(--linear-muted)] hover:text-[var(--linear-text)] transition-colors"
           >
             <ArrowLeft class="h-4 w-4" />

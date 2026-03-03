@@ -82,3 +82,62 @@
 ## Render CLI note
 - Render CLI was not required for this local slice.
 - If deployment debugging for workspace `365` is needed in a future slice, verify credentials/context first, then install and run Render CLI commands from a separate scoped step.
+
+## Completed in this slice (2026-03-03, parity slice: score infra + Tier-1 sub-view/filter consistency)
+
+### 1) Score infrastructure + baseline scaffolding created
+- Added required parity tracking files:
+  - `parity/EXCLUSIONS.md`
+  - `parity/SCORE_HISTORY.md`
+- Added baseline scaffolding under `parity/baseline/`:
+  - `parity/baseline/notes.md`
+  - `parity/baseline/linear/.gitkeep`
+  - `parity/baseline/linear/team-issues/.gitkeep`
+  - `parity/baseline/linear/issue-detail/.gitkeep`
+  - `parity/baseline/linear/my-issues/.gitkeep`
+  - `parity/baseline/linear/issue-flows/.gitkeep`
+
+### 2) Tier-1 parity improvements: Team sub-views + My Issues consistency
+- Refactored `My Issues` to use shared `IssueList` infrastructure in `client/src/components/pages/MyIssuesPage.vue`:
+  - `Assigned to me` now uses API-level `my_issues=true` filtering.
+  - `Created by me` now uses API-level `creator_id` filtering.
+  - Sub-views now share the same filter/sort panel and ordering behavior as Team Issues.
+  - `Subscribed` explicitly marked unavailable and tracked via exclusions.
+- Refactored team sub-views to shared list behavior:
+  - `client/src/components/pages/team/TeamActivePage.vue` now uses shared `IssueList` with active status set (`todo`, `in_progress`, `in_review`) and updated-desc ordering.
+  - `client/src/components/pages/team/TeamBacklogPage.vue` now uses shared `IssueList` with backlog defaults and updated-desc ordering.
+- Upgraded shared list infrastructure in `client/src/components/issues/IssueList.vue`:
+  - Added `baseFilters` support for sub-view defaults.
+  - Preserved user-adjustable filters separately from base filters to avoid sub-view drift.
+  - Empty-state create action now uses shared `Button` component.
+
+### 3) Tier-1 parity improvements: Issue Detail flow behavior
+- Updated `client/src/components/pages/IssuePage.vue`:
+  - Back navigation now has deterministic fallback to team issues/home when browser history is unavailable.
+  - Delete flow now redirects to team issues when possible (fallback: My Issues), improving post-delete continuity.
+
+### 4) API parity improvements for filter/sub-view semantics
+- Extended `GET /api/v1/issues` in `app/controllers/api/v1/issues_controller.rb`:
+  - Added `creator_id` filter.
+  - Added multi-status filter via `statuses=todo,in_progress,...`.
+  - Preserved existing single `status=` support for compatibility.
+- Extended client issue filters in `client/src/stores/issues.ts`:
+  - Added `creatorId`, `myIssues`, and `statuses[]` support in typed filter model and query serialization.
+
+### 5) Extended request specs for critical filter/sub-view/data-ordering cases
+- Added tests in `spec/requests/issues_spec.rb` for:
+  - `creator_id` filtering.
+  - multi-status filtering (`statuses`) for active sub-view semantics.
+  - `my_issues` + `statuses` combination behavior.
+
+## Validation run (this slice)
+- ⚠️ `bundle exec rspec spec/requests/issues_spec.rb` could not run in this environment:
+  - Missing local Bundler version required by lockfile: `bundler 2.6.4`.
+- ✅ `cd client && npm run type-check`
+- ✅ `cd client && npm run build`
+
+## Measurable deltas (this slice)
+- New parity infrastructure files: `+9` (including baseline scaffolding and score/exclusions docs).
+- Tier-1 sub-views moved onto shared issue list/filter stack: `+3` views (`My Issues`, `Team Active`, `Team Backlog`).
+- New API filter capabilities: `+2` (`creator_id`, `statuses[]`).
+- Request spec coverage additions: `+3` request examples focused on filter/sub-view consistency.

@@ -8,9 +8,12 @@ export interface IssueFilters {
   teamId?: string
   projectId?: string
   assigneeId?: string
+  creatorId?: string
+  myIssues?: boolean
   cycleId?: string
   workflowStateId?: string
   status?: IssueStatus
+  statuses?: IssueStatus[]
   priority?: IssuePriority
   q?: string
   sort?: 'created_at' | 'updated_at' | 'priority' | 'due_date'
@@ -105,9 +108,12 @@ export const useIssuesStore = defineStore('issues', () => {
       if (filters.teamId) params.append('team_id', filters.teamId)
       if (filters.projectId) params.append('project_id', filters.projectId)
       if (filters.assigneeId) params.append('assignee_id', filters.assigneeId)
+      if (filters.creatorId) params.append('creator_id', filters.creatorId)
+      if (filters.myIssues) params.append('my_issues', 'true')
       if (filters.cycleId) params.append('cycle_id', filters.cycleId)
       if (filters.workflowStateId) params.append('workflow_state_id', filters.workflowStateId)
       if (filters.status) params.append('status', filters.status)
+      if (filters.statuses && filters.statuses.length > 0) params.append('statuses', filters.statuses.join(','))
       if (filters.priority !== undefined) params.append('priority', String(filters.priority))
       if (filters.q) params.append('q', filters.q)
       if (filters.sort) params.append('sort', filters.sort)
