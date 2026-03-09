@@ -7,14 +7,14 @@
 @layer base {
   :root {
     color-scheme: light;
-    --linear-bg: #f5f6f8;
-    --linear-sidebar: #f0f2f5;
+    --linear-bg: #fcfcfd;
+    --linear-sidebar: #f6f7f8;
     --linear-elevated: #ffffff;
-    --linear-surface: #f3f4f6;
-    --linear-border: #dfe3ea;
-    --linear-border-subtle: #e8ebf1;
-    --linear-text: #14171f;
-    --linear-muted: #68707f;
+    --linear-surface: #f7f8fa;
+    --linear-border: #e0e1e6;
+    --linear-border-subtle: #ebecf0;
+    --linear-text: #1a1b21;
+    --linear-muted: #6d7280;
     --linear-accent: #5e6ad2;
     --linear-accent-hover: #6975db;
     --linear-selection: rgba(94, 106, 210, 0.12);
