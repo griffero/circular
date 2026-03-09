@@ -12,7 +12,7 @@ export const useUiStore = defineStore('ui', () => {
   const darkMode = ref(
     storedThemeVersion === themeVersion && storedDarkMode !== null
       ? storedDarkMode === 'true'
-      : true,
+      : false,
   )
 
   // Sidebar
