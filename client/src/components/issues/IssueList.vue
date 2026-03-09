@@ -150,6 +150,7 @@ const effectiveFilters = computed<IssueFilters>(() => ({
   direction: resolvedDirection.value,
   teamId: props.teamId,
   projectId: props.projectId,
+  perPage: userFilters.value.perPage || props.baseFilters?.perPage || 500,
 }))
 
 const visibleFilters = computed<IssueFilters>(() => ({
@@ -201,7 +202,23 @@ const sectionMap = computed(() => {
   const isTeamContext = !!props.teamId && issuesStore.workflowStates.length > 0
 
   if (isTeamContext) {
-    const orderedStates = [...issuesStore.workflowStates].sort((a, b) => a.position - b.position)
+    const stateWeight = (state: WorkflowState) => {
+      const name = String(state.name || '').toLowerCase()
+      if (name.includes('review') || name.includes('staging')) return 1
+      if (state.stateType === 'started' || name.includes('in progress')) return 2
+      if (state.stateType === 'unstarted' || name.includes('todo')) return 3
+      if (state.stateType === 'triage' || state.stateType === 'backlog' || name.includes('backlog')) return 4
+      if (state.stateType === 'completed') return 5
+      if (state.stateType === 'canceled') return 6
+      return 7
+    }
+
+    const orderedStates = [...issuesStore.workflowStates].sort((a, b) => {
+      const aw = stateWeight(a)
+      const bw = stateWeight(b)
+      if (aw !== bw) return aw - bw
+      return a.position - b.position
+    })
     for (const state of orderedStates) {
       map.set(state.id, {
         key: state.id,
@@ -314,7 +331,10 @@ function handleIssueClick(issue: Issue) {
 }
 
 function handleFilterUpdate(newFilters: IssueFilters) {
-  userFilters.value = { ...newFilters }
+  userFilters.value = {
+    ...newFilters,
+    perPage: newFilters.perPage || userFilters.value.perPage || props.baseFilters?.perPage || 500,
+  }
 }
 
 const activeFilterChips = computed(() => {

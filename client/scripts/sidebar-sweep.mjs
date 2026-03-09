@@ -26,6 +26,11 @@ const viewPairs = [
   { key: 'brd-views', circular: '/team/BRD/views', linear: '/team/BRD/views/issues', linearReadyText: 'Views' },
 ]
 
+const viewFilter = process.env.VIEW_FILTER
+const activeViewPairs = viewFilter
+  ? viewPairs.filter((pair) => pair.key.includes(viewFilter))
+  : viewPairs
+
 const viewports = [
   { name: 'desktop', width: 1536, height: 960 },
 ]
@@ -130,7 +135,7 @@ async function main() {
       }
     }, linearDarkMode)
 
-    for (const pair of viewPairs) {
+    for (const pair of activeViewPairs) {
       const cImg = path.join(outputDir, `${pair.key}__${viewport.name}__circular.png`)
       const lImg = path.join(outputDir, `${pair.key}__${viewport.name}__linear.png`)
       const dImg = path.join(outputDir, `${pair.key}__${viewport.name}__diff.png`)

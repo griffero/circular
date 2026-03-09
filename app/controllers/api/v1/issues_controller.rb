@@ -6,7 +6,17 @@ module Api
       before_action :set_issue, only: %i[show update destroy]
 
       def index
-        issues = Issue.includes(:creator, :assignee, :team, :project, :labels, :workflow_state)
+        issues = Issue.includes(
+          :creator,
+          :assignee,
+          :team,
+          :project,
+          :labels,
+          :workflow_state,
+          :attachments,
+          :blocked_issues,
+          :blocking_issues
+        )
 
         # Filter by team
         issues = issues.by_team(params[:team_id]) if params[:team_id].present?

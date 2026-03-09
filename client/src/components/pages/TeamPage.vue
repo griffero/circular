@@ -6,21 +6,13 @@ import { useUiStore } from '@/stores/ui'
 import { useEmojiStore } from '@/stores/emoji'
 import { useCurrentTeam } from '@/composables/useCurrentTeam'
 import EmojiIcon from '@/components/ui/EmojiIcon.vue'
-import Dropdown from '@/components/ui/Dropdown.vue'
-import DropdownItem from '@/components/ui/DropdownItem.vue'
 import Button from '@/components/ui/Button.vue'
 import {
-  LayoutList,
-  Columns3,
-  Clock,
-  CircleDot,
-  Plus,
+  Bell,
   Filter,
+  Plus,
   MoreHorizontal,
   Settings,
-  Bookmark,
-  Share2,
-  Copy
 } from 'lucide-vue-next'
 
 const route = useRoute()
@@ -57,6 +49,8 @@ const issueShellRouteNames = new Set([
   'team-active',
   'team-backlog',
   'team-board',
+  'team-cycles-current',
+  'team-cycles-upcoming',
 ])
 
 const showIssueShellHeader = computed(() => issueShellRouteNames.has(String(route.name || '')))
@@ -95,10 +89,9 @@ function tabTarget(tab: Tab) {
 
 <template>
   <div v-if="currentTeam" class="flex flex-col h-full bg-[var(--linear-bg)]">
-    <!-- Team header with tabs -->
-    <div v-if="showIssueShellHeader" class="flex items-center justify-between px-4 py-2 border-b border-[var(--linear-border)]">
-      <div class="flex items-center gap-3">
-        <div class="flex items-center gap-2">
+    <div v-if="showIssueShellHeader" class="flex items-center justify-between px-4 py-3 border-b border-[var(--linear-border)]">
+      <div class="flex items-center gap-4 min-w-0">
+        <div class="flex items-center gap-2 min-w-0">
           <div 
             class="w-5 h-5 rounded flex items-center justify-center"
             :style="hasEmoji(currentTeam.icon) ? {} : { backgroundColor: currentTeam.color || '#6366f1' }"
@@ -109,16 +102,22 @@ function tabTarget(tab: Tab) {
               size="sm"
             />
           </div>
-          <span class="text-sm font-medium text-[var(--linear-text)]">{{ currentTeam.name }}</span>
+          <span class="text-[13px] font-medium text-[var(--linear-text)]">{{ currentTeam.name }}</span>
+          <button
+            class="p-1 rounded hover:bg-[var(--linear-surface)] text-[var(--linear-muted)] hover:text-[var(--linear-text)] transition-colors"
+            title="Notifications"
+          >
+            <Bell class="w-4 h-4" />
+          </button>
         </div>
 
-        <nav class="flex items-center gap-1 ml-2">
+        <nav class="flex items-center gap-2 min-w-0">
           <router-link
             v-for="tab in tabs"
             :key="tab.name"
             :to="tabTarget(tab)"
             :class="[
-              'px-3 py-1.5 text-sm rounded-md transition-colors',
+              'px-3 py-1.5 text-[13px] rounded-xl transition-colors',
               isTabActive(tab.routeName)
                 ? 'bg-[var(--linear-elevated)] text-[var(--linear-text)]'
                 : 'text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-surface)]'
@@ -126,15 +125,14 @@ function tabTarget(tab: Tab) {
           >
             {{ tab.name }}
           </router-link>
+          <button
+            class="p-1.5 rounded text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-surface)] transition-colors"
+            @click="router.push('/settings/teams')"
+            title="Team settings"
+          >
+            <Settings class="w-4 h-4" />
+          </button>
         </nav>
-        
-        <button 
-          @click="router.push('/settings/teams')"
-          class="p-1.5 rounded hover:bg-[var(--linear-surface)] ml-1 text-[var(--linear-muted)] hover:text-[var(--linear-text)] transition-colors"
-          title="Team settings"
-        >
-          <Settings class="w-4 h-4" />
-        </button>
       </div>
 
       <div class="flex items-center gap-2">
@@ -153,27 +151,12 @@ function tabTarget(tab: Tab) {
           <Plus class="h-4 w-4" />
           New issue
         </Button>
-        <Dropdown align="right">
-          <template #trigger>
-            <button class="p-1.5 hover:bg-[var(--linear-surface)] rounded text-[var(--linear-muted)] hover:text-[var(--linear-text)] transition-colors">
-              <MoreHorizontal class="h-4 w-4" />
-            </button>
-          </template>
-          <div class="py-1 min-w-[160px]">
-            <DropdownItem @click="navigator.clipboard.writeText(window.location.href)">
-              <Copy class="w-4 h-4" />
-              Copy link
-            </DropdownItem>
-            <DropdownItem>
-              <Bookmark class="w-4 h-4" />
-              Add to favorites
-            </DropdownItem>
-            <DropdownItem @click="router.push('/settings/teams')">
-              <Settings class="w-4 h-4" />
-              Team settings
-            </DropdownItem>
-          </div>
-        </Dropdown>
+        <button
+          class="p-1.5 rounded hover:bg-[var(--linear-surface)] text-[var(--linear-muted)] hover:text-[var(--linear-text)] transition-colors"
+          title="More actions"
+        >
+          <MoreHorizontal class="w-4 h-4" />
+        </button>
       </div>
     </div>
 

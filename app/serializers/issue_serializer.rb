@@ -5,7 +5,7 @@ class IssueSerializer < Blueprinter::Base
 
   fields :identifier, :number, :title, :description, :status, :priority,
          :due_date, :estimate, :sort_order, :started_at, :completed_at,
-         :canceled_at, :archived_at, :created_at, :updated_at
+         :canceled_at, :archived_at, :created_at, :updated_at, :comments_count
 
   field :team_id do |issue|
     issue.team_id
@@ -41,6 +41,21 @@ class IssueSerializer < Blueprinter::Base
 
   field :priority_label do |issue|
     issue.priority_label
+  end
+
+  field :linked_pr_number do |issue|
+    pr_attachment = issue.attachments.find { |a| a.attachment_type == "github_pr" && a.url.present? }
+    next nil unless pr_attachment
+
+    pr_attachment.url.to_s.split("/pull/").last&.to_i
+  end
+
+  field :blocking_issue_identifiers do |issue|
+    issue.blocking_issues.first(3).map(&:identifier)
+  end
+
+  field :blocked_issue_identifiers do |issue|
+    issue.blocked_issues.first(3).map(&:identifier)
   end
 
   view :with_creator do

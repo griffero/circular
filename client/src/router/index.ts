@@ -90,7 +90,7 @@ const router = createRouter({
           path: 'team/:teamKey',
           name: 'team',
           component: () => import('@/components/pages/TeamPage.vue'),
-          redirect: to => `/team/${to.params.teamKey}/triage`,
+          redirect: to => `/team/${to.params.teamKey}/issues`,
           children: [
             {
               path: 'triage',

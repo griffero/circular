@@ -58,11 +58,15 @@ const expandedTeams = ref<Set<string>>(new Set())
 // Teams section collapse state
 const teamsCollapsed = ref(false)
 
+function expandOnlyTeam(teamId: string) {
+  expandedTeams.value = new Set([teamId])
+}
+
 function toggleTeam(teamId: string) {
   if (expandedTeams.value.has(teamId)) {
     expandedTeams.value.delete(teamId)
   } else {
-    expandedTeams.value.add(teamId)
+    expandOnlyTeam(teamId)
     fetchTriageCount(teamId)
   }
 }
@@ -80,14 +84,10 @@ async function fetchTriageCount(teamId: string) {
   if (triageCounts.value[teamId] !== undefined || loadingTriageCounts.value.has(teamId)) return
   loadingTriageCounts.value.add(teamId)
   try {
-    const data = await api.get<{ issues: Array<{ status?: string; workflowState?: { stateType?: string } }> }>(
-      `/api/v1/issues?team_id=${teamId}&per_page=500`
+    const data = await api.get<{ issues: Array<unknown> }>(
+      `/api/v1/issues?team_id=${teamId}&workflow_state_type=triage&per_page=500`
     )
-    const triageLike = data.issues.filter((issue) => {
-      const type = issue.workflowState?.stateType
-      return type === 'triage' || type === 'backlog' || issue.status === 'backlog'
-    }).length
-    triageCounts.value = { ...triageCounts.value, [teamId]: triageLike }
+    triageCounts.value = { ...triageCounts.value, [teamId]: data.issues.length }
   } catch (err) {
     console.error('Failed to fetch triage count:', err)
     triageCounts.value = { ...triageCounts.value, [teamId]: 0 }
@@ -103,11 +103,11 @@ onMounted(async () => {
   if (appStore.projects.length === 0) {
     await appStore.fetchProjects()
   }
-  // Expand the active team by default
+  // Ensure only the active team is expanded.
   if (route.params.teamKey) {
     const team = teams.value.find(t => t.key === route.params.teamKey)
     if (team) {
-      expandedTeams.value = new Set([team.id])
+      expandOnlyTeam(team.id)
     }
   }
 })
@@ -118,8 +118,8 @@ watch(
     if (!teamKey) return
     const team = teams.value.find((t) => String(t.key || '').toLowerCase() === String(teamKey).toLowerCase())
     if (!team) return
-    // Keep sidebar synchronized with current team route: expand active team only.
-    expandedTeams.value = new Set([team.id])
+    // Mirror Linear: keep focused team expanded and collapse others.
+    expandOnlyTeam(team.id)
     fetchTriageCount(team.id)
   },
   { immediate: true }
@@ -355,33 +355,42 @@ const workspaceName = computed(() => {
             )"
           >
             <!-- Team header -->
-            <button
-              @click="toggleTeam(team.id)"
+            <div
               :class="cn(
-                'w-full flex items-center gap-2 px-2 py-1.5 rounded text-[13px] transition-colors',
+                'w-full flex items-center gap-1 px-1 py-1 rounded text-[13px] transition-colors',
                 isTeamActive(team.key)
                   ? 'text-[var(--linear-text)]'
                   : 'text-[var(--linear-muted)] hover:bg-[var(--linear-elevated)] hover:text-[var(--linear-text)]'
               )"
             >
-              <div 
-                class="w-5 h-5 rounded flex items-center justify-center flex-shrink-0"
-                :style="hasEmoji(team.icon) ? {} : { backgroundColor: team.color || '#6366f1' }"
+              <router-link
+                :to="`/team/${team.key}/issues`"
+                class="flex flex-1 min-w-0 items-center gap-2 px-1 py-0.5 rounded"
               >
-                <EmojiIcon 
-                  :name="team.icon" 
-                  :fallback="team.key.substring(0, 2)" 
-                  size="xs"
+                <div 
+                  class="w-5 h-5 rounded flex items-center justify-center flex-shrink-0"
+                  :style="hasEmoji(team.icon) ? {} : { backgroundColor: team.color || '#6366f1' }"
+                >
+                  <EmojiIcon 
+                    :name="team.icon" 
+                    :fallback="team.key.substring(0, 2)" 
+                    size="xs"
+                  />
+                </div>
+                <span class="flex-1 truncate">{{ team.name }}</span>
+              </router-link>
+              <button
+                class="p-1 rounded hover:bg-[var(--linear-elevated)]"
+                @click="toggleTeam(team.id)"
+              >
+                <ChevronDown 
+                  :class="cn(
+                    'w-3.5 h-3.5 text-[var(--linear-muted)] transition-transform',
+                    !expandedTeams.has(team.id) && '-rotate-90'
+                  )" 
                 />
-              </div>
-              <span class="flex-1 text-left truncate">{{ team.name }}</span>
-              <ChevronDown 
-                :class="cn(
-                  'w-3.5 h-3.5 text-[var(--linear-muted)] transition-transform',
-                  !expandedTeams.has(team.id) && '-rotate-90'
-                )" 
-              />
-            </button>
+              </button>
+            </div>
             
             <!-- Team sub-items -->
             <div v-if="expandedTeams.has(team.id)" class="pb-1">

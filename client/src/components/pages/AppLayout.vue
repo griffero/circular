@@ -28,15 +28,29 @@ const pagesWithOwnHeader = [
 ]
 const showTopbar = computed(() => !pagesWithOwnHeader.includes(route.name as string))
 
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(`Timed out loading ${label}`)), ms)
+    ),
+  ])
+}
+
 onMounted(async () => {
   try {
     // Load critical app data first so the shell can render quickly.
-    // Project updates are heavy with production data, so fetch them in background.
-    await Promise.all([
-      appStore.fetchTeams(),
-      appStore.fetchProjects(),
-      emojiStore.fetchEmojis(),
+    // Use timeouts to avoid getting stuck forever in shell loading state.
+    const startupResults = await Promise.allSettled([
+      withTimeout(appStore.fetchTeams(), 10000, 'teams'),
+      withTimeout(appStore.fetchProjects(), 10000, 'projects'),
+      withTimeout(emojiStore.fetchEmojis(), 10000, 'emojis'),
     ])
+    for (const result of startupResults) {
+      if (result.status === 'rejected') {
+        console.error('Startup data load failed:', result.reason)
+      }
+    }
 
     appStore.fetchProjectUpdates().catch((err) => {
       console.error('Failed to load project updates:', err)

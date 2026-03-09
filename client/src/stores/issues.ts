@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import type { Issue, IssueStatus, IssuePriority, Label, Comment, WorkflowState, Cycle, WorkflowStateType } from '@/types'
 import { api } from '@/api/client'
 import { useAuthStore } from './auth'
+import { useAppStore } from './app'
 
 export interface IssueFilters {
   teamId?: string
@@ -44,6 +45,23 @@ export const useIssuesStore = defineStore('issues', () => {
   const pendingUpdates = ref<Map<string, PendingUpdate>>(new Map())
 
   const authStore = useAuthStore()
+  const appStore = useAppStore()
+
+  async function resolveTeamKey(teamIdOrKey: string): Promise<string> {
+    // Team keys in Linear-style routes are short uppercase identifiers (e.g. ONB, BRD).
+    // Most call sites pass UUID team IDs, so resolve those to keys before hitting team-key routes.
+    if (!teamIdOrKey.includes('-')) return teamIdOrKey
+
+    let team = appStore.teams.find((t) => t.id === teamIdOrKey)
+    if (!team) {
+      if (appStore.teams.length === 0) {
+        await appStore.fetchTeams()
+      }
+      team = appStore.teams.find((t) => t.id === teamIdOrKey)
+    }
+
+    return team?.key || teamIdOrKey
+  }
 
   // Helper to get effective status from workflow state
   const getEffectiveStatus = (issue: Issue): IssueStatus => {
@@ -135,20 +153,24 @@ export const useIssuesStore = defineStore('issues', () => {
   }
 
   // Fetch workflow states for a team
-  async function fetchWorkflowStates(teamId: string) {
+  async function fetchWorkflowStates(teamIdOrKey: string) {
     try {
-      const data = await api.get<{ workflow_states: WorkflowState[] }>(`/api/v1/teams/${teamId}/workflow_states`)
-      workflowStates.value = data.workflow_states
+      const teamKey = await resolveTeamKey(teamIdOrKey)
+      const data = await api.get<{ workflowStates?: WorkflowState[]; workflow_states?: WorkflowState[] }>(
+        `/api/v1/teams/${teamKey}/workflow_states`
+      )
+      workflowStates.value = data.workflowStates || data.workflow_states || []
     } catch (err) {
       console.error('Failed to fetch workflow states:', err)
     }
   }
 
   // Fetch cycles for a team  
-  async function fetchCycles(teamId: string) {
+  async function fetchCycles(teamIdOrKey: string) {
     try {
-      const data = await api.get<{ cycles: Cycle[] }>(`/api/v1/teams/${teamId}/cycles`)
-      cycles.value = data.cycles
+      const teamKey = await resolveTeamKey(teamIdOrKey)
+      const data = await api.get<{ cycles?: Cycle[] }>(`/api/v1/teams/${teamKey}/cycles`)
+      cycles.value = data.cycles || []
     } catch (err) {
       console.error('Failed to fetch cycles:', err)
     }
