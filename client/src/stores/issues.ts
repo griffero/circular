@@ -22,6 +22,7 @@ export interface IssueFilters {
   sort?: 'created_at' | 'updated_at' | 'priority' | 'due_date'
   direction?: 'asc' | 'desc'
   perPage?: number
+  fetchAllPages?: boolean
 }
 
 // Optimistic update tracking
@@ -119,32 +120,61 @@ export const useIssuesStore = defineStore('issues', () => {
     })
   )
 
+  interface IssuesResponse {
+    issues: Issue[]
+    meta?: {
+      page: number
+      per_page: number
+      total_count: number
+      total_pages: number
+    }
+  }
+
+  function buildIssueParams(filters: IssueFilters, page?: number) {
+    const params = new URLSearchParams()
+    if (filters.teamId) params.append('team_id', filters.teamId)
+    if (filters.projectId) params.append('project_id', filters.projectId)
+    if (filters.assigneeId) params.append('assignee_id', filters.assigneeId)
+    if (filters.creatorId) params.append('creator_id', filters.creatorId)
+    if (filters.myIssues) params.append('my_issues', 'true')
+    if (filters.subscribed) params.append('subscribed', 'true')
+    if (filters.cycleId) params.append('cycle_id', filters.cycleId)
+    if (filters.workflowStateId) params.append('workflow_state_id', filters.workflowStateId)
+    if (filters.workflowStateType) params.append('workflow_state_type', filters.workflowStateType)
+    if (filters.status) params.append('status', filters.status)
+    if (filters.statuses && filters.statuses.length > 0) params.append('statuses', filters.statuses.join(','))
+    if (filters.priority !== undefined) params.append('priority', String(filters.priority))
+    if (filters.q) params.append('q', filters.q)
+    if (filters.sort) params.append('sort', filters.sort)
+    if (filters.direction) params.append('direction', filters.direction)
+    if (filters.perPage) params.append('per_page', String(filters.perPage))
+    if (page && page > 1) params.append('page', String(page))
+    return params
+  }
+
   async function fetchIssues(filters: IssueFilters = {}) {
     try {
       loading.value = true
       error.value = null
 
-      const params = new URLSearchParams()
-      if (filters.teamId) params.append('team_id', filters.teamId)
-      if (filters.projectId) params.append('project_id', filters.projectId)
-      if (filters.assigneeId) params.append('assignee_id', filters.assigneeId)
-      if (filters.creatorId) params.append('creator_id', filters.creatorId)
-      if (filters.myIssues) params.append('my_issues', 'true')
-      if (filters.subscribed) params.append('subscribed', 'true')
-      if (filters.cycleId) params.append('cycle_id', filters.cycleId)
-      if (filters.workflowStateId) params.append('workflow_state_id', filters.workflowStateId)
-      if (filters.workflowStateType) params.append('workflow_state_type', filters.workflowStateType)
-      if (filters.status) params.append('status', filters.status)
-      if (filters.statuses && filters.statuses.length > 0) params.append('statuses', filters.statuses.join(','))
-      if (filters.priority !== undefined) params.append('priority', String(filters.priority))
-      if (filters.q) params.append('q', filters.q)
-      if (filters.sort) params.append('sort', filters.sort)
-      if (filters.direction) params.append('direction', filters.direction)
-      if (filters.perPage) params.append('per_page', String(filters.perPage))
-
+      const params = buildIssueParams(filters)
       const url = `/api/v1/issues?${params.toString()}`
-      const data = await api.get<{ issues: Issue[] }>(url)
-      issues.value = data.issues
+      const data = await api.get<IssuesResponse>(url)
+
+      if (!filters.fetchAllPages || !data.meta || data.meta.total_pages <= 1) {
+        issues.value = data.issues
+        return
+      }
+
+      const allIssues = [...data.issues]
+      for (let page = 2; page <= data.meta.total_pages; page += 1) {
+        const nextParams = buildIssueParams(filters, page)
+        const nextUrl = `/api/v1/issues?${nextParams.toString()}`
+        const nextData = await api.get<IssuesResponse>(nextUrl)
+        allIssues.push(...nextData.issues)
+      }
+
+      issues.value = allIssues
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to fetch issues'
     } finally {

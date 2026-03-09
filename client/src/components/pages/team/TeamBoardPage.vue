@@ -151,6 +151,7 @@ const effectiveFilters = computed<IssueFilters>(() => ({
   direction: resolvedDirection.value,
   teamId: teamId.value,
   perPage: 500,
+  fetchAllPages: true,
 }))
 
 // Dynamic workflow states ordered by position

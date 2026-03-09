@@ -14,6 +14,7 @@ const baseFilters = computed(() => ({
   statuses: ['todo', 'in_progress', 'in_review'] as const,
   sort: 'updated_at' as const,
   direction: 'desc' as const,
+  fetchAllPages: true,
 }))
 
 function handleIssueClick(issue: Issue) {
