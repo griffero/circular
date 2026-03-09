@@ -6,6 +6,19 @@ require "openssl"
 
 class LinearClient
   BASE_URL = "https://api.linear.app/graphql"
+  ISSUE_FIELDS = <<~GRAPHQL.freeze
+    id identifier number title description
+    priority estimate dueDate sortOrder
+    createdAt updatedAt startedAt completedAt canceledAt archivedAt
+    state { id }
+    team { id }
+    creator { id }
+    assignee { id }
+    project { id }
+    cycle { id }
+    parent { id }
+    labels { nodes { id } }
+  GRAPHQL
 
   class Error < StandardError; end
   class RateLimitError < Error; end
@@ -145,23 +158,25 @@ class LinearClient
       query($first: Int!, $after: String) {
         issues(first: $first, after: $after, #{filter} orderBy: updatedAt) {
           nodes {
-            id identifier number title description
-            priority estimate dueDate sortOrder
-            createdAt updatedAt startedAt completedAt canceledAt archivedAt
-            state { id }
-            team { id }
-            creator { id }
-            assignee { id }
-            project { id }
-            cycle { id }
-            parent { id }
-            labels { nodes { id } }
+            #{ISSUE_FIELDS}
           }
           pageInfo { hasNextPage endCursor }
         }
       }
     GRAPHQL
     paginate(query, { first: first, after: after }, "issues")
+  end
+
+  def issue(id)
+    query = <<~GRAPHQL
+      query($id: String!) {
+        issue(id: $id) {
+          #{ISSUE_FIELDS}
+        }
+      }
+    GRAPHQL
+
+    execute(query, { id: id }).dig("issue")
   end
 
   # Fetch comments

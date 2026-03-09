@@ -35,9 +35,7 @@ class LinearWebhookHandler
 
     case @action
     when "create", "update"
-      # For create/update, we need to fetch full data from Linear API
-      # since webhook payload may not contain all fields
-      handler_class.upsert_from_linear(@data)
+      handler_class.upsert_from_linear(resolve_payload_data(handler_class))
       { success: true, action: @action, type: @type }
     when "remove"
       handler_class.delete_from_linear(@data["id"])
@@ -50,5 +48,23 @@ class LinearWebhookHandler
     Rails.logger.error("Error processing webhook: #{e.message}")
     Rails.logger.error(e.backtrace.first(5).join("\n"))
     { success: false, error: e.message }
+  end
+
+  private
+
+  def resolve_payload_data(handler_class)
+    return @data unless handler_class == Sync::IssueSync
+
+    linear_id = @data["id"]
+    raise ArgumentError, "Missing Linear issue id in webhook payload" if linear_id.blank?
+
+    full_issue = linear_client.issue(linear_id)
+    raise LinearClient::Error, "Linear issue not found: #{linear_id}" if full_issue.blank?
+
+    full_issue
+  end
+
+  def linear_client
+    @linear_client ||= LinearClient.new
   end
 end
