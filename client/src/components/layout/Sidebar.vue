@@ -9,29 +9,17 @@ import { cn } from '@/utils/cn'
 import Dropdown from '@/components/ui/Dropdown.vue'
 import DropdownItem from '@/components/ui/DropdownItem.vue'
 import EmojiIcon from '@/components/ui/EmojiIcon.vue'
+import LinearIcon from '@/components/icons/LinearIcon.vue'
 import {
-  Inbox,
-  Search,
   Settings,
   Moon,
   Sun,
   LogOut,
-  ChevronDown,
-  Zap,
-  User,
   Users,
   UsersRound,
-  Lightbulb,
-  FolderKanban,
-  LayoutGrid,
   MoreHorizontal,
-  PenLine,
   SlidersHorizontal,
   CircleDotDashed,
-  Copy,
-  Clock3,
-  Package,
-  Layers
 } from 'lucide-vue-next'
 import { api } from '@/api/client'
 
@@ -162,7 +150,7 @@ const workspaceName = computed(() => {
               class="w-5 h-5 rounded"
             />
             <span class="text-[13px] font-medium text-[var(--linear-text)]">{{ workspaceName }}</span>
-            <ChevronDown class="w-3.5 h-3.5 text-[var(--linear-muted)]" />
+            <LinearIcon name="workspace-chevron" class="w-3.5 h-3.5 text-[var(--linear-muted)]" />
           </button>
         </template>
         <template #default="{ close }">
@@ -192,13 +180,13 @@ const workspaceName = computed(() => {
           @click="uiStore.openCommandPalette()"
           class="p-1.5 rounded hover:bg-[var(--linear-elevated)] transition-colors"
         >
-          <Search class="w-4 h-4 text-[var(--linear-muted)]" />
+          <LinearIcon name="search" class="w-4 h-4 text-[var(--linear-muted)]" />
         </button>
         <button 
           @click="uiStore.openCreateIssueModal()"
           class="p-1.5 rounded hover:bg-[var(--linear-elevated)] transition-colors"
         >
-          <PenLine class="w-4 h-4 text-[var(--linear-muted)]" />
+          <LinearIcon name="create-issue" class="w-4 h-4 text-[var(--linear-muted)]" />
         </button>
       </div>
     </div>
@@ -216,7 +204,7 @@ const workspaceName = computed(() => {
               : 'text-[var(--linear-muted)] hover:bg-[var(--linear-elevated)] hover:text-[var(--linear-text)]'
           )"
         >
-          <Zap class="w-4 h-4" />
+          <LinearIcon name="pulse" class="w-4 h-4" />
           <span>Pulse</span>
         </router-link>
 
@@ -230,7 +218,7 @@ const workspaceName = computed(() => {
           )"
         >
           <div class="flex items-center gap-2.5">
-            <Inbox class="w-4 h-4" />
+            <LinearIcon name="inbox" class="w-4 h-4" />
             <span>Inbox</span>
           </div>
           <span class="text-xs text-[var(--linear-muted)]">0</span>
@@ -245,7 +233,7 @@ const workspaceName = computed(() => {
               : 'text-[var(--linear-muted)] hover:bg-[var(--linear-elevated)] hover:text-[var(--linear-text)]'
           )"
         >
-          <User class="w-4 h-4" />
+          <LinearIcon name="my-issues" class="w-4 h-4" />
           <span>My issues</span>
         </router-link>
       </div>
@@ -265,7 +253,7 @@ const workspaceName = computed(() => {
                 : 'text-[var(--linear-muted)] hover:bg-[var(--linear-elevated)] hover:text-[var(--linear-text)]'
             )"
           >
-            <Lightbulb class="w-4 h-4" />
+            <LinearIcon name="initiatives" class="w-4 h-4" />
             <span>Initiatives</span>
           </router-link>
 
@@ -278,7 +266,7 @@ const workspaceName = computed(() => {
                 : 'text-[var(--linear-muted)] hover:bg-[var(--linear-elevated)] hover:text-[var(--linear-text)]'
             )"
           >
-            <FolderKanban class="w-4 h-4" />
+            <LinearIcon name="project" class="w-4 h-4" />
             <span>Projects</span>
           </router-link>
 
@@ -291,7 +279,7 @@ const workspaceName = computed(() => {
                 : 'text-[var(--linear-muted)] hover:bg-[var(--linear-elevated)] hover:text-[var(--linear-text)]'
             )"
           >
-            <LayoutGrid class="w-4 h-4" />
+            <LinearIcon name="views" class="w-4 h-4" />
             <span>Views</span>
           </router-link>
 
@@ -337,7 +325,7 @@ const workspaceName = computed(() => {
             @click="teamsCollapsed = !teamsCollapsed"
             class="p-0.5 rounded hover:bg-[var(--linear-elevated)]"
           >
-            <ChevronDown :class="cn('w-3 h-3 text-[var(--linear-muted)] transition-transform', teamsCollapsed && '-rotate-90')" />
+            <LinearIcon :class="cn('w-3 h-3 text-[var(--linear-muted)] transition-transform', teamsCollapsed && '-rotate-90')" name="workspace-chevron" />
           </button>
         </div>
         
@@ -383,11 +371,12 @@ const workspaceName = computed(() => {
                 class="p-1 rounded hover:bg-[var(--linear-elevated)]"
                 @click="toggleTeam(team.id)"
               >
-                <ChevronDown 
+                <LinearIcon
+                  name="workspace-chevron"
                   :class="cn(
                     'w-3.5 h-3.5 text-[var(--linear-muted)] transition-transform',
                     !expandedTeams.has(team.id) && '-rotate-90'
-                  )" 
+                  )"
                 />
               </button>
             </div>
@@ -419,7 +408,7 @@ const workspaceName = computed(() => {
                     : 'text-[var(--linear-muted)] hover:bg-[var(--linear-elevated)] hover:text-[var(--linear-text)]'
                 )"
               >
-                <Copy class="w-4 h-4" />
+                <LinearIcon name="issues" class="w-4 h-4" />
                 <span>Issues</span>
               </router-link>
 
@@ -433,7 +422,7 @@ const workspaceName = computed(() => {
                       : 'text-[var(--linear-muted)] hover:bg-[var(--linear-elevated)] hover:text-[var(--linear-text)]'
                   )"
                 >
-                  <Clock3 class="w-4 h-4" />
+                  <LinearIcon name="cycles" class="w-4 h-4" />
                   <span>Cycles</span>
                 </router-link>
                 <router-link
@@ -469,7 +458,7 @@ const workspaceName = computed(() => {
                     : 'text-[var(--linear-muted)] hover:bg-[var(--linear-elevated)] hover:text-[var(--linear-text)]'
                 )"
               >
-                <Package class="w-4 h-4" />
+                <LinearIcon name="project" class="w-4 h-4" />
                 <span>Projects</span>
               </router-link>
 
@@ -482,7 +471,7 @@ const workspaceName = computed(() => {
                     : 'text-[var(--linear-muted)] hover:bg-[var(--linear-elevated)] hover:text-[var(--linear-text)]'
                 )"
               >
-                <Layers class="w-4 h-4" />
+                <LinearIcon name="views" class="w-4 h-4" />
                 <span>Views</span>
               </router-link>
             </div>

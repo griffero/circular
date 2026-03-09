@@ -633,6 +633,7 @@ async function main() {
 
       await circularContext.addInitScript((isDarkMode) => {
         localStorage.setItem('darkMode', isDarkMode ? 'true' : 'false')
+        localStorage.setItem('themeVersion', '2')
         if (isDarkMode) {
           document.documentElement.classList.add('dark')
         } else {

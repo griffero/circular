@@ -7,10 +7,8 @@ import { useEmojiStore } from '@/stores/emoji'
 import { useCurrentTeam } from '@/composables/useCurrentTeam'
 import EmojiIcon from '@/components/ui/EmojiIcon.vue'
 import Button from '@/components/ui/Button.vue'
+import LinearIcon from '@/components/icons/LinearIcon.vue'
 import {
-  Bell,
-  Filter,
-  Plus,
   MoreHorizontal,
   Settings,
 } from 'lucide-vue-next'
@@ -107,7 +105,7 @@ function tabTarget(tab: Tab) {
             class="p-1 rounded hover:bg-[var(--linear-surface)] text-[var(--linear-muted)] hover:text-[var(--linear-text)] transition-colors"
             title="Notifications"
           >
-            <Bell class="w-4 h-4" />
+            <LinearIcon name="notifications" class="w-4 h-4" />
           </button>
         </div>
 
@@ -141,14 +139,14 @@ function tabTarget(tab: Tab) {
           :variant="uiStore.filtersOpen ? 'secondary' : 'ghost'"
           @click="uiStore.toggleFilters()"
         >
-          <Filter class="h-4 w-4" />
+          <LinearIcon name="filter" class="h-4 w-4" />
           Filter
         </Button>
         <Button
           size="sm"
           @click="uiStore.openCreateIssueModal()"
         >
-          <Plus class="h-4 w-4" />
+          <LinearIcon name="plus" class="h-4 w-4" />
           New issue
         </Button>
         <button

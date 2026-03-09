@@ -4,12 +4,10 @@ import { useRoute, useRouter } from 'vue-router'
 import { useAppStore } from '@/stores/app'
 import { useUiStore } from '@/stores/ui'
 import { cn } from '@/utils/cn'
+import LinearIcon from '@/components/icons/LinearIcon.vue'
 import {
-  Bell,
-  Filter,
   Settings,
   LayoutGrid,
-  Rows3
 } from 'lucide-vue-next'
 
 const route = useRoute()
@@ -26,7 +24,18 @@ const currentTeam = computed(() => {
 })
 
 const isTeamPage = computed(() => {
-  return ['team-active', 'team-backlog', 'team-board'].includes(route.name as string)
+  return [
+    'team-triage',
+    'team-issues',
+    'team-active',
+    'team-backlog',
+    'team-board',
+    'team-cycles',
+    'team-cycles-current',
+    'team-cycles-upcoming',
+    'team-projects',
+    'team-views',
+  ].includes(route.name as string)
 })
 
 // Get page title for non-team pages
@@ -114,7 +123,7 @@ const tabs = computed(() => {
             : 'text-[var(--linear-muted)] hover:bg-[var(--linear-elevated)] hover:text-[var(--linear-text)]'
         )"
       >
-        <Filter class="w-4 h-4" />
+        <LinearIcon name="filter" class="w-4 h-4" />
         <span>Filter</span>
       </button>
 
@@ -123,13 +132,13 @@ const tabs = computed(() => {
         v-if="isTeamPage"
         class="flex items-center gap-1.5 px-2.5 py-1.5 rounded text-[13px] text-[var(--linear-muted)] hover:bg-[var(--linear-elevated)] hover:text-[var(--linear-text)] transition-colors"
       >
-        <Rows3 class="w-4 h-4" />
+        <LinearIcon name="display" class="w-4 h-4" />
         <span>Display</span>
       </button>
 
       <!-- Notifications -->
       <button class="p-1.5 rounded hover:bg-[var(--linear-elevated)] relative ml-1">
-        <Bell class="w-4 h-4 text-[var(--linear-muted)]" />
+        <LinearIcon name="notifications" class="w-4 h-4 text-[var(--linear-muted)]" />
       </button>
 
       <!-- Board view toggle -->
