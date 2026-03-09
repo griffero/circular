@@ -202,15 +202,31 @@ const sectionMap = computed(() => {
   const isTeamContext = !!props.teamId && issuesStore.workflowStates.length > 0
 
   if (isTeamContext) {
+    const stateOrderByName: Record<string, number> = {
+      'in review': 1,
+      'in_progress': 2,
+      'in progress': 2,
+      todo: 3,
+      backlog: 4,
+      staging: 5,
+      production: 6,
+      done: 6,
+      canceled: 7,
+      cancelled: 7,
+    }
+
     const stateWeight = (state: WorkflowState) => {
       const name = String(state.name || '').toLowerCase()
-      if (name.includes('review') || name.includes('staging')) return 1
-      if (state.stateType === 'started' || name.includes('in progress')) return 2
-      if (state.stateType === 'unstarted' || name.includes('todo')) return 3
-      if (state.stateType === 'triage' || state.stateType === 'backlog' || name.includes('backlog')) return 4
-      if (state.stateType === 'completed') return 5
-      if (state.stateType === 'canceled') return 6
-      return 7
+      if (stateOrderByName[name] !== undefined) return stateOrderByName[name]
+      if (name.includes('review')) return 1
+      if (name.includes('in progress')) return 2
+      if (name.includes('todo') || name.includes('unstarted')) return 3
+      if (name.includes('backlog') || state.stateType === 'triage' || state.stateType === 'backlog') return 4
+      if (name.includes('staging')) return 5
+      if (name.includes('production')) return 6
+      if (state.stateType === 'completed') return 6
+      if (state.stateType === 'canceled') return 7
+      return 50 + state.position
     }
 
     const orderedStates = [...issuesStore.workflowStates].sort((a, b) => {
