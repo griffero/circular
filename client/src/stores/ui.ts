@@ -4,8 +4,16 @@ import { ref, watch } from 'vue'
 export type ViewMode = 'list' | 'board'
 
 export const useUiStore = defineStore('ui', () => {
+  const themeVersion = '2'
+  const storedThemeVersion = localStorage.getItem('themeVersion')
+  const storedDarkMode = localStorage.getItem('darkMode')
+
   // Dark mode
-  const darkMode = ref(localStorage.getItem('darkMode') === 'true' || window.matchMedia('(prefers-color-scheme: dark)').matches)
+  const darkMode = ref(
+    storedThemeVersion === themeVersion && storedDarkMode !== null
+      ? storedDarkMode === 'true'
+      : true,
+  )
 
   // Sidebar
   const sidebarCollapsed = ref(localStorage.getItem('sidebarCollapsed') === 'true')
@@ -37,6 +45,7 @@ export const useUiStore = defineStore('ui', () => {
   // Apply dark mode to document
   watch(darkMode, (value) => {
     localStorage.setItem('darkMode', String(value))
+    localStorage.setItem('themeVersion', themeVersion)
     if (value) {
       document.documentElement.classList.add('dark')
     } else {

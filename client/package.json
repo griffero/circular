@@ -10,6 +10,8 @@
     "type-check": "vue-tsc --noEmit",
     "lint": "eslint . --fix",
     "lint:check": "eslint .",
+    "parity:auth:capture": "node scripts/capture-storage-state.mjs",
+    "parity:color": "node scripts/color-parity.mjs",
     "parity:icons:capture": "node scripts/icon-svg-parity.mjs",
     "parity:evidence": "node scripts/parity-evidence.mjs",
     "parity:evidence:baseline": "PARITY_CAPTURE_BASELINE=1 node scripts/parity-evidence.mjs"
