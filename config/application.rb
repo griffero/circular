@@ -27,6 +27,7 @@ module LinearClone
     config.middleware.use ActionDispatch::Cookies
     config.middleware.use ActionDispatch::Session::CookieStore,
                           key: "_linear_clone_session",
+                          expire_after: 30.days,
                           same_site: Rails.env.production? ? :none : :lax,
                           secure: Rails.env.production?
 
