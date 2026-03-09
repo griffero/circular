@@ -6,6 +6,8 @@ module Api
       class SessionsController < ApplicationController
         before_action :authenticate_user!, only: %i[logout me]
 
+        SESSION_LIFETIME = 30.days
+
         # POST /api/v1/auth/magic-link
         # Send magic link to email (creates user if doesn't exist)
         def send_magic_link
@@ -70,8 +72,7 @@ module Api
           user.clear_magic_link_token!
 
           # Log in the user
-          session[:user_id] = user.id
-          cookies.encrypted[:user_id] = { value: user.id, httponly: true }
+          establish_session!(user)
 
           render json: auth_response(user)
         end
@@ -98,15 +99,14 @@ module Api
 
           mark_token_login_used(token)
 
-          session[:user_id] = user.id
-          cookies.encrypted[:user_id] = { value: user.id, httponly: true }
+          establish_session!(user)
 
           render json: auth_response(user)
         end
 
         def logout
           session.delete(:user_id)
-          cookies.delete(:user_id)
+          cookies.delete(:user_id, auth_cookie_options)
           head :no_content
         end
 
@@ -150,6 +150,22 @@ module Api
 
         def token_login_cache_key(token)
           "token-login-used:#{token}"
+        end
+
+        def establish_session!(user)
+          session[:user_id] = user.id
+          cookies.encrypted[:user_id] = auth_cookie_options.merge(
+            value: user.id,
+            expires: SESSION_LIFETIME.from_now
+          )
+        end
+
+        def auth_cookie_options
+          {
+            httponly: true,
+            same_site: Rails.env.production? ? :none : :lax,
+            secure: Rails.env.production?
+          }
         end
       end
     end
