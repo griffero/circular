@@ -22,8 +22,8 @@
 
   .dark {
     color-scheme: dark;
-    --linear-bg: #0f1115;
-    --linear-sidebar: #11151d;
+    --linear-bg: rgb(16 16 17);
+    --linear-sidebar: rgb(9 9 9);
     --linear-elevated: #161b22;
     --linear-surface: #1c212b;
     --linear-border: #272d38;
