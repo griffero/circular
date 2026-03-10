@@ -118,202 +118,204 @@ function formatTimeAgo(dateStr: string): string {
 </script>
 
 <template>
-  <div class="min-h-full flex flex-col bg-[#0d0d0d]">
-    <!-- Header with tabs -->
-    <div class="flex items-center justify-between px-4 py-2 border-b border-[#1f1f1f]">
-      <div class="flex items-center gap-1">
-        <button 
-          @click="activeTab = 'pulse'"
-          :class="[
-            'px-3 py-1.5 text-sm rounded-md transition-colors',
-            activeTab === 'pulse' 
-              ? 'bg-[#1a1a1a] text-white' 
-              : 'text-gray-400 hover:text-white hover:bg-[#1a1a1a]'
-          ]"
-        >
-          Pulse
-        </button>
-        <button 
-          @click="activeTab = 'forme'"
-          :class="[
-            'px-3 py-1.5 text-sm rounded-md transition-colors',
-            activeTab === 'forme' 
-              ? 'bg-[#1a1a1a] text-white' 
-              : 'text-gray-400 hover:text-white hover:bg-[#1a1a1a]'
-          ]"
-        >
-          For me
-        </button>
-        <button 
-          @click="activeTab = 'popular'"
-          :class="[
-            'px-3 py-1.5 text-sm rounded-md transition-colors',
-            activeTab === 'popular' 
-              ? 'bg-[#1a1a1a] text-white' 
-              : 'text-gray-400 hover:text-white hover:bg-[#1a1a1a]'
-          ]"
-        >
-          Popular
-        </button>
-        <button 
-          @click="activeTab = 'recent'"
-          :class="[
-            'px-3 py-1.5 text-sm rounded-md transition-colors',
-            activeTab === 'recent' 
-              ? 'bg-[#1a1a1a] text-white' 
-              : 'text-gray-400 hover:text-white hover:bg-[#1a1a1a]'
-          ]"
-        >
-          Recent
-        </button>
-      </div>
-      
-      <div class="flex items-center gap-2">
-        <Dropdown align="right">
-          <template #trigger>
-            <button class="flex items-center gap-1 p-1.5 text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors">
-              <span class="text-xs">{{ subscriptionType === 'all' ? 'All updates' : subscriptionType === 'following' ? 'Following' : 'Mentions only' }}</span>
-              <ChevronDown class="w-3 h-3" />
-            </button>
-          </template>
-          <div class="py-1 min-w-[160px]">
-            <DropdownItem @click="setSubscription('all')">
-              <div class="flex items-center justify-between w-full">
-                <div class="flex items-center gap-2">
-                  <Bell class="w-4 h-4" />
-                  All updates
-                </div>
-                <CheckCircle2 v-if="subscriptionType === 'all'" class="w-4 h-4 text-indigo-400" />
-              </div>
-            </DropdownItem>
-            <DropdownItem @click="setSubscription('following')">
-              <div class="flex items-center justify-between w-full">
-                <div class="flex items-center gap-2">
-                  <Bell class="w-4 h-4" />
-                  Following
-                </div>
-                <CheckCircle2 v-if="subscriptionType === 'following'" class="w-4 h-4 text-indigo-400" />
-              </div>
-            </DropdownItem>
-            <DropdownItem @click="setSubscription('mentions')">
-              <div class="flex items-center justify-between w-full">
-                <div class="flex items-center gap-2">
-                  <BellOff class="w-4 h-4" />
-                  Mentions only
-                </div>
-                <CheckCircle2 v-if="subscriptionType === 'mentions'" class="w-4 h-4 text-indigo-400" />
-              </div>
-            </DropdownItem>
-          </div>
-        </Dropdown>
-      </div>
-    </div>
-
-    <!-- Content -->
-    <div class="flex-1 overflow-y-auto">
-      <div class="max-w-3xl mx-auto px-6 py-8">
-        <!-- Welcome banner -->
-        <div class="text-center mb-8">
-          <div class="flex justify-center mb-4">
-            <Zap class="w-12 h-12 text-gray-600" />
-          </div>
-          <h1 class="text-xl font-semibold text-white mb-2">Welcome to Pulse</h1>
-          <p class="text-gray-500 text-sm max-w-md mx-auto">
-            Your feed to keep up with your company's product work, tailored to your needs and interests.
-          </p>
+  <div class="min-h-full bg-[var(--linear-bg)] p-2 md:p-2.5">
+    <div
+      class="flex min-h-[calc(100vh-1rem)] flex-col overflow-hidden rounded-[10px] border border-[var(--linear-border-subtle)] bg-[var(--linear-bg)] shadow-[inset_0_1px_0_rgba(255,255,255,0.02)] md:min-h-full"
+    >
+      <!-- Header with tabs -->
+      <div class="flex items-center justify-between px-4 py-2 border-b border-[var(--linear-border-subtle)]">
+        <div class="flex items-center gap-1">
+          <button
+            @click="activeTab = 'pulse'"
+            :class="[
+              'px-3 py-1.5 text-sm rounded-md transition-colors',
+              activeTab === 'pulse'
+                ? 'bg-[var(--linear-elevated)] text-[var(--linear-text)]'
+                : 'text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-elevated)]'
+            ]"
+          >
+            Pulse
+          </button>
+          <button
+            @click="activeTab = 'forme'"
+            :class="[
+              'px-3 py-1.5 text-sm rounded-md transition-colors',
+              activeTab === 'forme'
+                ? 'bg-[var(--linear-elevated)] text-[var(--linear-text)]'
+                : 'text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-elevated)]'
+            ]"
+          >
+            For me
+          </button>
+          <button
+            @click="activeTab = 'popular'"
+            :class="[
+              'px-3 py-1.5 text-sm rounded-md transition-colors',
+              activeTab === 'popular'
+                ? 'bg-[var(--linear-elevated)] text-[var(--linear-text)]'
+                : 'text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-elevated)]'
+            ]"
+          >
+            Popular
+          </button>
+          <button
+            @click="activeTab = 'recent'"
+            :class="[
+              'px-3 py-1.5 text-sm rounded-md transition-colors',
+              activeTab === 'recent'
+                ? 'bg-[var(--linear-elevated)] text-[var(--linear-text)]'
+                : 'text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-elevated)]'
+            ]"
+          >
+            Recent
+          </button>
         </div>
 
-        <!-- Empty state if no updates -->
-        <div v-if="projectUpdates.length === 0" class="text-center py-16">
-          <p class="text-gray-500">No project updates yet</p>
-          <p class="text-gray-600 text-sm mt-1">Updates will appear here as your team makes progress</p>
-        </div>
-
-        <!-- Project updates feed -->
-        <div v-else>
-          <!-- Today section -->
-          <div v-if="groupedUpdates.today.length > 0" class="mb-8">
-            <div class="flex items-center gap-4 mb-4">
-              <span class="text-xs text-gray-500 uppercase tracking-wide">Today</span>
-              <div class="flex-1 h-px bg-[#252525]"></div>
+        <div class="flex items-center gap-2">
+          <Dropdown align="right">
+            <template #trigger>
+              <button class="flex items-center gap-1 p-1.5 text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-elevated)] rounded transition-colors">
+                <span class="text-xs">{{ subscriptionType === 'all' ? 'All updates' : subscriptionType === 'following' ? 'Following' : 'Mentions only' }}</span>
+                <ChevronDown class="w-3 h-3" />
+              </button>
+            </template>
+            <div class="py-1 min-w-[160px]">
+              <DropdownItem @click="setSubscription('all')">
+                <div class="flex items-center justify-between w-full">
+                  <div class="flex items-center gap-2">
+                    <Bell class="w-4 h-4" />
+                    All updates
+                  </div>
+                  <CheckCircle2 v-if="subscriptionType === 'all'" class="w-4 h-4 text-indigo-400" />
+                </div>
+              </DropdownItem>
+              <DropdownItem @click="setSubscription('following')">
+                <div class="flex items-center justify-between w-full">
+                  <div class="flex items-center gap-2">
+                    <Bell class="w-4 h-4" />
+                    Following
+                  </div>
+                  <CheckCircle2 v-if="subscriptionType === 'following'" class="w-4 h-4 text-indigo-400" />
+                </div>
+              </DropdownItem>
+              <DropdownItem @click="setSubscription('mentions')">
+                <div class="flex items-center justify-between w-full">
+                  <div class="flex items-center gap-2">
+                    <BellOff class="w-4 h-4" />
+                    Mentions only
+                  </div>
+                  <CheckCircle2 v-if="subscriptionType === 'mentions'" class="w-4 h-4 text-indigo-400" />
+                </div>
+              </DropdownItem>
             </div>
-            
-            <div class="space-y-4">
-              <div 
-                v-for="update in groupedUpdates.today" 
-                :key="update.id"
-                class="bg-[#0d0d0d] border border-[#1f1f1f] rounded-lg p-5 hover:border-[#333] transition-colors"
-              >
+          </Dropdown>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="flex-1 overflow-y-auto">
+        <div class="max-w-3xl mx-auto px-6 py-8">
+        <!-- Welcome banner -->
+          <div class="text-center mb-8">
+            <div class="flex justify-center mb-4">
+              <Zap class="w-12 h-12 text-gray-600" />
+            </div>
+            <h1 class="text-xl font-semibold text-white mb-2">Welcome to Pulse</h1>
+            <p class="text-gray-500 text-sm max-w-md mx-auto">
+              Your feed to keep up with your company's product work, tailored to your needs and interests.
+            </p>
+          </div>
+
+          <!-- Empty state if no updates -->
+          <div v-if="projectUpdates.length === 0" class="text-center py-16">
+            <p class="text-gray-500">No project updates yet</p>
+            <p class="text-gray-600 text-sm mt-1">Updates will appear here as your team makes progress</p>
+          </div>
+
+          <!-- Project updates feed -->
+          <div v-else>
+            <!-- Today section -->
+            <div v-if="groupedUpdates.today.length > 0" class="mb-8">
+              <div class="flex items-center gap-4 mb-4">
+                <span class="text-xs text-gray-500 uppercase tracking-wide">Today</span>
+                <div class="flex-1 h-px bg-[#252525]"></div>
+              </div>
+
+              <div class="space-y-4">
+                <div
+                  v-for="update in groupedUpdates.today"
+                  :key="update.id"
+                  class="bg-[#0d0d0d] border border-[#1f1f1f] rounded-lg p-5 hover:border-[#333] transition-colors"
+                >
                 <!-- Update header -->
-                <div class="flex items-start justify-between mb-3">
-                  <div>
-                    <router-link 
-                      :to="`/project/${update.project.slug}`"
-                      class="text-lg font-medium text-white hover:text-indigo-400 transition-colors"
-                    >
-                      {{ update.project.name }}
-                    </router-link>
-                    <div class="flex items-center gap-2 mt-1">
-                      <span 
-                        class="flex items-center gap-1.5 text-xs px-2 py-0.5 rounded"
-                        :class="getStatusBadgeClass(update.health)"
+                  <div class="flex items-start justify-between mb-3">
+                    <div>
+                      <router-link
+                        :to="`/project/${update.project.slug}`"
+                        class="text-lg font-medium text-white hover:text-indigo-400 transition-colors"
                       >
-                        <span class="w-1.5 h-1.5 rounded-full" :class="getStatusDotClass(update.health)"></span>
-                        Project {{ getStatusLabel(update.health) }}
-                      </span>
-                      <div class="flex items-center gap-1.5 text-xs text-gray-500">
-                        <UserLink
-                          :userId="update.user.id"
-                          :name="update.user.name"
-                          :displayName="update.user.displayName"
-                          :avatarUrl="update.user.avatarUrl"
-                          avatarSize="xs"
-                          class="text-gray-400"
-                        />
-                        <span class="text-gray-600">·</span>
-                        <span>{{ formatTimeAgo(update.createdAt) }}</span>
+                        {{ update.project.name }}
+                      </router-link>
+                      <div class="flex items-center gap-2 mt-1">
+                        <span
+                          class="flex items-center gap-1.5 text-xs px-2 py-0.5 rounded"
+                          :class="getStatusBadgeClass(update.health)"
+                        >
+                          <span class="w-1.5 h-1.5 rounded-full" :class="getStatusDotClass(update.health)"></span>
+                          Project {{ getStatusLabel(update.health) }}
+                        </span>
+                        <div class="flex items-center gap-1.5 text-xs text-gray-500">
+                          <UserLink
+                            :userId="update.user.id"
+                            :name="update.user.name"
+                            :displayName="update.user.displayName"
+                            :avatarUrl="update.user.avatarUrl"
+                            avatarSize="xs"
+                            class="text-gray-400"
+                          />
+                          <span class="text-gray-600">·</span>
+                          <span>{{ formatTimeAgo(update.createdAt) }}</span>
+                        </div>
                       </div>
                     </div>
+                    <Dropdown align="right">
+                      <template #trigger>
+                        <button class="p-1 text-gray-500 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors">
+                          <MoreHorizontal class="w-4 h-4" />
+                        </button>
+                      </template>
+                      <div class="py-1 min-w-[140px]">
+                        <DropdownItem @click="copyUpdateLink(update.id)">
+                          <Copy class="w-4 h-4" />
+                          Copy link
+                        </DropdownItem>
+                        <DropdownItem>
+                          <ExternalLink class="w-4 h-4" />
+                          Open in Linear
+                        </DropdownItem>
+                      </div>
+                    </Dropdown>
                   </div>
-                  <Dropdown align="right">
-                    <template #trigger>
-                      <button class="p-1 text-gray-500 hover:text-white hover:bg-[#1a1a1a] rounded transition-colors">
-                        <MoreHorizontal class="w-4 h-4" />
-                      </button>
-                    </template>
-                    <div class="py-1 min-w-[140px]">
-                      <DropdownItem @click="copyUpdateLink(update.id)">
-                        <Copy class="w-4 h-4" />
-                        Copy link
-                      </DropdownItem>
-                      <DropdownItem>
-                        <ExternalLink class="w-4 h-4" />
-                        Open in Linear
-                      </DropdownItem>
-                    </div>
-                  </Dropdown>
-                </div>
 
                 <!-- Update content -->
-                <div class="text-sm text-gray-300 mb-4 leading-relaxed">
-                  <EmojiText :text="update.body" />
-                </div>
+                  <div class="text-sm text-gray-300 mb-4 leading-relaxed">
+                    <EmojiText :text="update.body" />
+                  </div>
 
                 <!-- Footer -->
-                <div class="flex items-center gap-3 text-xs text-gray-500">
-                  <button 
-                    @click="toggleComments(update.id)"
-                    class="flex items-center gap-1.5 hover:text-white transition-colors"
-                  >
-                    <MessageCircle class="w-3.5 h-3.5" />
-                    <span v-if="update.commentsCount > 0">{{ update.commentsCount }} comment{{ update.commentsCount !== 1 ? 's' : '' }}</span>
-                    <span v-else>Comments</span>
-                  </button>
+                  <div class="flex items-center gap-3 text-xs text-gray-500">
+                    <button
+                      @click="toggleComments(update.id)"
+                      class="flex items-center gap-1.5 hover:text-white transition-colors"
+                    >
+                      <MessageCircle class="w-3.5 h-3.5" />
+                      <span v-if="update.commentsCount > 0">{{ update.commentsCount }} comment{{ update.commentsCount !== 1 ? 's' : '' }}</span>
+                      <span v-else>Comments</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-
           <!-- This week section -->
           <div v-if="groupedUpdates.thisWeek.length > 0" class="mb-8">
             <div class="flex items-center gap-4 mb-4">
@@ -481,6 +483,7 @@ function formatTimeAgo(dateStr: string): string {
           </div>
         </div>
       </div>
+    </div>
     </div>
   </div>
 </template>
