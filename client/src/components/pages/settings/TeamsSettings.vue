@@ -2,13 +2,15 @@
 import { ref, computed, watch } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useAppStore } from '@/stores/app'
-import type { Team } from '@/types'
+import type { Team, TeamMembership } from '@/types'
 import Button from '@/components/ui/Button.vue'
 import Input from '@/components/ui/Input.vue'
 import Modal from '@/components/ui/Modal.vue'
+import Avatar from '@/components/ui/Avatar.vue'
 import OriginBadge from '@/components/ui/OriginBadge.vue'
 import { isFromLinear } from '@/composables/useOrigin'
-import { Plus, Users, Pencil, Trash2 } from 'lucide-vue-next'
+import { api } from '@/api/client'
+import { Plus, Users, Pencil, Trash2, UserPlus, X } from 'lucide-vue-next'
 
 const authStore = useAuthStore()
 const appStore = useAppStore()
@@ -119,6 +121,56 @@ async function handleDelete() {
     deleting.value = false
   }
 }
+
+// Members modal
+const showMembersModal = ref(false)
+const membersTeam = ref<Team | null>(null)
+const teamMembers = ref<TeamMembership[]>([])
+const membersLoading = ref(false)
+const allUsers = computed(() => appStore.users)
+
+const nonMembers = computed(() => {
+  const memberUserIds = new Set(teamMembers.value.map(m => m.user?.id))
+  return allUsers.value.filter(u => !memberUserIds.has(u.id))
+})
+
+async function openMembersModal(team: Team) {
+  membersTeam.value = team
+  showMembersModal.value = true
+  membersLoading.value = true
+  try {
+    if (allUsers.value.length === 0) await appStore.fetchUsers()
+    const data = await api.get<{ members: TeamMembership[] }>(`/api/v1/teams/${team.key}/members`)
+    teamMembers.value = data.members
+  } catch (err) {
+    console.error('Failed to fetch members:', err)
+  } finally {
+    membersLoading.value = false
+  }
+}
+
+async function addMember(userId: string) {
+  if (!membersTeam.value) return
+  try {
+    const data = await api.post<{ member: TeamMembership }>(`/api/v1/teams/${membersTeam.value.key}/members`, {
+      user_id: userId,
+      role: 'member'
+    })
+    teamMembers.value.push(data.member)
+  } catch (err) {
+    console.error('Failed to add member:', err)
+  }
+}
+
+async function removeMember(userId: string) {
+  if (!membersTeam.value) return
+  try {
+    await api.delete(`/api/v1/teams/${membersTeam.value.key}/members/${userId}`)
+    teamMembers.value = teamMembers.value.filter(m => m.user?.id !== userId && m.userId !== userId)
+  } catch (err) {
+    console.error('Failed to remove member:', err)
+  }
+}
 </script>
 
 <template>
@@ -174,21 +226,31 @@ async function handleDelete() {
             <p class="text-sm text-[var(--linear-muted)]">{{ team.key }}</p>
           </div>
         </div>
-        <div v-if="isAdmin && !isFromLinear(team)" class="flex items-center gap-2">
+        <div class="flex items-center gap-2">
           <button
-            @click="openEditModal(team)"
+            v-if="isAdmin"
+            @click="openMembersModal(team)"
             class="p-2 text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-surface)] rounded-md"
-            title="Edit team"
+            title="Manage members"
           >
-            <Pencil class="h-4 w-4" />
+            <Users class="h-4 w-4" />
           </button>
-          <button
-            @click="openDeleteConfirm(team)"
-            class="p-2 text-[var(--linear-muted)] hover:text-red-400 hover:bg-[var(--linear-surface)] rounded-md"
-            title="Delete team"
-          >
-            <Trash2 class="h-4 w-4" />
-          </button>
+          <template v-if="isAdmin && !isFromLinear(team)">
+            <button
+              @click="openEditModal(team)"
+              class="p-2 text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-surface)] rounded-md"
+              title="Edit team"
+            >
+              <Pencil class="h-4 w-4" />
+            </button>
+            <button
+              @click="openDeleteConfirm(team)"
+              class="p-2 text-[var(--linear-muted)] hover:text-red-400 hover:bg-[var(--linear-surface)] rounded-md"
+              title="Delete team"
+            >
+              <Trash2 class="h-4 w-4" />
+            </button>
+          </template>
         </div>
       </div>
     </div>
@@ -317,6 +379,69 @@ async function handleDelete() {
           </Button>
         </div>
       </form>
+    </Modal>
+
+    <!-- Members modal -->
+    <Modal :open="showMembersModal" @close="showMembersModal = false" :title="`Members — ${membersTeam?.name || ''}`">
+      <div class="space-y-4">
+        <!-- Add member -->
+        <div v-if="nonMembers.length > 0">
+          <label class="block text-sm font-medium text-[var(--linear-text)] mb-2">Add member</label>
+          <div class="max-h-[150px] overflow-auto space-y-1 border border-[var(--linear-border)] rounded-md p-2">
+            <button
+              v-for="user in nonMembers"
+              :key="user.id"
+              @click="addMember(user.id)"
+              class="w-full flex items-center gap-2 px-2 py-1.5 rounded hover:bg-[var(--linear-surface)] transition-colors text-left"
+            >
+              <UserPlus class="h-3.5 w-3.5 text-[var(--linear-muted)]" />
+              <span class="text-sm text-[var(--linear-text)]">{{ user.name }}</span>
+              <span class="text-xs text-[var(--linear-muted)]">{{ user.email }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Current members -->
+        <div>
+          <label class="block text-sm font-medium text-[var(--linear-text)] mb-2">
+            Current members ({{ teamMembers.length }})
+          </label>
+          <div v-if="membersLoading" class="py-4 text-center">
+            <div class="animate-spin rounded-full h-5 w-5 border-2 border-[var(--linear-accent)] border-t-transparent mx-auto"></div>
+          </div>
+          <div v-else-if="teamMembers.length === 0" class="text-sm text-[var(--linear-muted)] text-center py-4">
+            No members yet
+          </div>
+          <div v-else class="space-y-1">
+            <div
+              v-for="membership in teamMembers"
+              :key="membership.id"
+              class="flex items-center justify-between px-3 py-2 rounded-md hover:bg-[var(--linear-surface)]"
+            >
+              <div class="flex items-center gap-2">
+                <Avatar :name="membership.user?.name || ''" size="sm" />
+                <div>
+                  <span class="text-sm text-[var(--linear-text)]">{{ membership.user?.name }}</span>
+                  <span v-if="membership.role === 'lead'" class="ml-1 text-xs text-[var(--linear-accent)]">Lead</span>
+                </div>
+              </div>
+              <button
+                @click="removeMember(membership.user?.id || membership.userId)"
+                class="p-1 text-[var(--linear-muted)] hover:text-red-400 rounded transition-colors"
+                title="Remove member"
+              >
+                <X class="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <template #footer>
+        <Button variant="ghost" @click="showMembersModal = false">
+          Done
+        </Button>
+      </template>
     </Modal>
 
     <!-- Delete team confirm -->
