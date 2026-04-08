@@ -133,13 +133,19 @@ const teamMembers = ref<TeamMembership[]>([])
 const membersLoading = ref(false)
 const allUsers = computed(() => appStore.users)
 
+const memberSearch = ref('')
+
 const nonMembers = computed(() => {
   const memberUserIds = new Set(teamMembers.value.map(m => m.user?.id))
-  return allUsers.value.filter(u => !memberUserIds.has(u.id))
+  const available = allUsers.value.filter(u => !memberUserIds.has(u.id))
+  if (!memberSearch.value) return available
+  const q = memberSearch.value.toLowerCase()
+  return available.filter(u => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q))
 })
 
 async function openMembersModal(team: Team) {
   membersTeam.value = team
+  memberSearch.value = ''
   showMembersModal.value = true
   membersLoading.value = true
   try {
@@ -389,19 +395,31 @@ async function removeMember(userId: string) {
     <Modal :open="showMembersModal" @close="showMembersModal = false" :title="`Members — ${membersTeam?.name || ''}`">
       <div class="space-y-4">
         <!-- Add member -->
-        <div v-if="nonMembers.length > 0">
+        <div>
           <label class="block text-sm font-medium text-[var(--linear-text)] mb-2">Add member</label>
-          <div class="max-h-[150px] overflow-auto space-y-1 border border-[var(--linear-border)] rounded-md p-2">
+          <input
+            v-model="memberSearch"
+            type="text"
+            placeholder="Search by name or email..."
+            class="w-full text-sm px-3 py-2 mb-2 border border-[var(--linear-border)] rounded-md bg-[var(--linear-bg)] text-[var(--linear-text)] placeholder:text-[var(--linear-muted)] focus:outline-none focus:border-[var(--linear-accent)]"
+          />
+          <div class="max-h-[150px] overflow-auto space-y-0.5 border border-[var(--linear-border)] rounded-md p-1.5">
             <button
               v-for="user in nonMembers"
               :key="user.id"
-              @click="addMember(user.id)"
+              @click="addMember(user.id); memberSearch = ''"
               class="w-full flex items-center gap-2 px-2 py-1.5 rounded hover:bg-[var(--linear-surface)] transition-colors text-left"
             >
-              <UserPlus class="h-3.5 w-3.5 text-[var(--linear-muted)]" />
-              <span class="text-sm text-[var(--linear-text)]">{{ user.name }}</span>
-              <span class="text-xs text-[var(--linear-muted)]">{{ user.email }}</span>
+              <UserPlus class="h-3.5 w-3.5 text-[var(--linear-muted)] flex-shrink-0" />
+              <span class="text-sm text-[var(--linear-text)] truncate">{{ user.name }}</span>
+              <span class="text-xs text-[var(--linear-muted)] truncate">{{ user.email }}</span>
             </button>
+            <div v-if="nonMembers.length === 0 && memberSearch" class="px-2 py-3 text-sm text-[var(--linear-muted)] text-center">
+              No results for "{{ memberSearch }}"
+            </div>
+            <div v-else-if="nonMembers.length === 0" class="px-2 py-3 text-sm text-[var(--linear-muted)] text-center">
+              All users are already members
+            </div>
           </div>
         </div>
 
