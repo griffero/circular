@@ -24,6 +24,8 @@ import {
   Users,
   Check
 } from 'lucide-vue-next'
+import OriginBadge from '@/components/ui/OriginBadge.vue'
+import { isFromLinear } from '@/composables/useOrigin'
 import type { User as UserType, Team } from '@/types'
 
 const authStore = useAuthStore()
@@ -353,6 +355,7 @@ function isUserSuspended(member: UserType): boolean {
                   :showAvatar="false"
                   class="text-[14px] font-medium text-white truncate hover:text-indigo-400"
                 />
+                <OriginBadge :linear-id="member.linearId" />
                 <span
                   v-if="member.id === currentUser?.id"
                   class="text-[11px] text-gray-500 px-1.5 py-0.5 bg-[#252525] rounded flex-shrink-0"
@@ -396,7 +399,7 @@ function isUserSuspended(member: UserType): boolean {
 
           <!-- Actions -->
           <div class="flex justify-end">
-            <Dropdown v-if="isOwner && member.id !== currentUser?.id" align="right" width="w-52">
+            <Dropdown v-if="isOwner && member.id !== currentUser?.id && !isFromLinear(member)" align="right" width="w-52">
               <template #trigger>
                 <button class="p-1.5 text-gray-500 hover:text-white hover:bg-[#252525] rounded transition-colors">
                   <MoreHorizontal class="h-4 w-4" />
@@ -427,6 +430,8 @@ function isUserSuspended(member: UserType): boolean {
                 </DropdownItem>
               </template>
             </Dropdown>
+            <!-- Origin badge for Linear users -->
+            <OriginBadge v-else-if="isFromLinear(member)" :linear-id="member.linearId" />
             <!-- Placeholder for alignment when no dropdown -->
             <div v-else class="w-7 h-7"></div>
           </div>
@@ -639,22 +644,26 @@ function isUserSuspended(member: UserType): boolean {
           <button
             v-for="team in teams"
             :key="team.id"
-            @click="toggleTeam(team.id)"
-            class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-[#1a1a1a] transition-colors text-left"
-            :class="memberTeamIds.includes(team.id) && 'bg-indigo-500/10'"
+            @click="!isFromLinear(team) && toggleTeam(team.id)"
+            :class="[
+              'w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-colors text-left',
+              isFromLinear(team) ? 'opacity-50 cursor-default' : 'hover:bg-[#1a1a1a] cursor-pointer',
+              memberTeamIds.includes(team.id) && !isFromLinear(team) && 'bg-indigo-500/10'
+            ]"
           >
             <div class="flex items-center gap-3">
-              <div 
+              <div
                 class="w-7 h-7 rounded flex items-center justify-center text-xs font-medium text-white"
                 :style="{ backgroundColor: team.color || '#5e6ad2' }"
               >
                 {{ team.icon || team.name?.charAt(0).toUpperCase() }}
               </div>
               <span class="text-sm text-gray-200">{{ team.name }}</span>
+              <OriginBadge :linear-id="team.linearId" />
             </div>
-            <Check 
-              v-if="memberTeamIds.includes(team.id)" 
-              class="h-4 w-4 text-indigo-400" 
+            <Check
+              v-if="memberTeamIds.includes(team.id)"
+              class="h-4 w-4 text-indigo-400"
             />
           </button>
         </div>
