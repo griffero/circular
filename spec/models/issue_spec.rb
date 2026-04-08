@@ -19,7 +19,8 @@ RSpec.describe Issue, type: :model do
   describe "validations" do
     it { is_expected.to validate_presence_of(:title) }
     it { is_expected.to validate_length_of(:title).is_at_least(1).is_at_most(500) }
-    it { is_expected.to validate_presence_of(:status) }
+    # status is optional when using workflow_state (Linear migration)
+    it { is_expected.to allow_value(nil).for(:status) }
     it { is_expected.to validate_presence_of(:priority) }
     it { is_expected.to validate_inclusion_of(:priority).in_range(0..4) }
 

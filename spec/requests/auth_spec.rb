@@ -3,112 +3,118 @@
 require "rails_helper"
 
 RSpec.describe "Authentication" do
-  describe "POST /api/v1/auth/signup" do
-    let(:valid_params) do
-      {
-        name: "John Doe",
-        email: "john@example.com",
-        password: "password123"
-      }
-    end
+  describe "POST /api/v1/auth/magic-link" do
+    context "with a fintoc.com email" do
+      it "sends magic link for existing user" do
+        user = create(:user, email: "dev@fintoc.com")
 
-    context "with valid params" do
-      it "creates a new user" do
-        expect {
-          post "/api/v1/auth/signup", params: valid_params
-        }.to change(User, :count).by(1)
+        post "/api/v1/auth/magic-link", params: { email: "dev@fintoc.com" }
 
-        expect(response).to have_http_status(:created)
-        expect(json_response[:user][:email]).to eq("john@example.com")
+        expect(response).to have_http_status(:ok)
+        expect(json_response[:message]).to include("dev@fintoc.com")
+        expect(user.reload.magic_link_token).to be_present
       end
 
-      it "first user becomes owner" do
-        post "/api/v1/auth/signup", params: valid_params
+      it "auto-creates first user as owner when no users exist" do
+        expect {
+          post "/api/v1/auth/magic-link", params: { email: "first@fintoc.com" }
+        }.to change(User, :count).by(1)
 
-        expect(response).to have_http_status(:created)
-        user = User.find_by(email: "john@example.com")
+        expect(response).to have_http_status(:ok)
+        user = User.find_by(email: "first@fintoc.com")
         expect(user.role).to eq("owner")
       end
 
-      it "subsequent users become members" do
-        create(:user, :owner) # First user
-        post "/api/v1/auth/signup", params: valid_params
+      it "returns not_found for unknown user when other users exist" do
+        create(:user, email: "existing@fintoc.com")
 
-        expect(response).to have_http_status(:created)
-        user = User.find_by(email: "john@example.com")
-        expect(user.role).to eq("member")
-      end
+        post "/api/v1/auth/magic-link", params: { email: "unknown@fintoc.com" }
 
-      it "returns teams and projects in response" do
-        create(:team)
-        create(:project)
-
-        post "/api/v1/auth/signup", params: valid_params
-
-        expect(response).to have_http_status(:created)
-        expect(json_response).to have_key(:teams)
-        expect(json_response).to have_key(:projects)
+        expect(response).to have_http_status(:not_found)
       end
     end
 
-    context "with invalid params" do
-      it "returns errors for missing email" do
-        post "/api/v1/auth/signup", params: valid_params.except(:email)
+    context "with a non-fintoc email" do
+      it "rejects the request" do
+        expect {
+          post "/api/v1/auth/magic-link", params: { email: "user@example.com" }
+        }.not_to change(User, :count)
 
         expect(response).to have_http_status(:unprocessable_entity)
-        expect(json_response[:error]).to include(/email/i)
+        expect(json_response[:error]).to include("fintoc.com")
       end
+    end
 
-      it "returns errors for duplicate email" do
-        create(:user, email: "john@example.com")
-        post "/api/v1/auth/signup", params: valid_params
-
-        expect(response).to have_http_status(:unprocessable_entity)
-      end
-
-      it "returns errors for short password" do
-        post "/api/v1/auth/signup", params: valid_params.merge(password: "short")
+    context "with invalid email" do
+      it "rejects blank email" do
+        post "/api/v1/auth/magic-link", params: { email: "" }
 
         expect(response).to have_http_status(:unprocessable_entity)
       end
     end
   end
 
-  describe "POST /api/v1/auth/login" do
-    let!(:user) { create(:user, email: "john@example.com", password: "password123") }
-
-    context "with valid credentials" do
+  describe "POST /api/v1/auth/verify-magic-link" do
+    context "with a valid fintoc.com token" do
       it "logs in the user" do
-        post "/api/v1/auth/login", params: { email: "john@example.com", password: "password123" }
+        user = create(:user, email: "valid@fintoc.com")
+        token = user.generate_magic_link_token!
+
+        post "/api/v1/auth/verify-magic-link", params: { token: token }
 
         expect(response).to have_http_status(:ok)
-        expect(json_response[:user][:email]).to eq("john@example.com")
+        expect(json_response[:user][:email]).to eq("valid@fintoc.com")
       end
 
-      it "is case-insensitive for email" do
-        post "/api/v1/auth/login", params: { email: "JOHN@EXAMPLE.COM", password: "password123" }
+      it "clears the token after use" do
+        user = create(:user, email: "once@fintoc.com")
+        token = user.generate_magic_link_token!
+
+        post "/api/v1/auth/verify-magic-link", params: { token: token }
 
         expect(response).to have_http_status(:ok)
+        expect(user.reload.magic_link_token).to be_nil
       end
 
-      it "returns user role" do
-        post "/api/v1/auth/login", params: { email: "john@example.com", password: "password123" }
+      it "returns teams and projects" do
+        user = create(:user, email: "teams@fintoc.com")
+        token = user.generate_magic_link_token!
+        create(:team)
+        create(:project)
+
+        post "/api/v1/auth/verify-magic-link", params: { token: token }
 
         expect(response).to have_http_status(:ok)
-        expect(json_response[:user]).to have_key(:role)
+        expect(json_response).to have_key(:teams)
+        expect(json_response).to have_key(:projects)
       end
     end
 
-    context "with invalid credentials" do
-      it "returns unauthorized for wrong password" do
-        post "/api/v1/auth/login", params: { email: "john@example.com", password: "wrongpassword" }
+    context "with a non-fintoc email token" do
+      it "rejects the request" do
+        user = create(:user, email: "valid@example.com")
+        token = user.generate_magic_link_token!
 
-        expect(response).to have_http_status(:unauthorized)
-        expect(json_response[:error]).to eq("Invalid email or password")
+        post "/api/v1/auth/verify-magic-link", params: { token: token }
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(json_response[:error]).to include("fintoc.com")
+      end
+    end
+
+    context "with invalid token" do
+      it "rejects blank token" do
+        post "/api/v1/auth/verify-magic-link", params: { token: "" }
+
+        expect(response).to have_http_status(:unprocessable_entity)
       end
 
-      it "returns unauthorized for non-existent email" do
-        post "/api/v1/auth/login", params: { email: "nobody@example.com", password: "password123" }
+      it "rejects expired token" do
+        user = create(:user, email: "expired@fintoc.com")
+        token = user.generate_magic_link_token!
+        user.update_column(:magic_link_sent_at, 20.minutes.ago)
+
+        post "/api/v1/auth/verify-magic-link", params: { token: token }
 
         expect(response).to have_http_status(:unauthorized)
       end
@@ -116,10 +122,11 @@ RSpec.describe "Authentication" do
   end
 
   describe "DELETE /api/v1/auth/logout" do
-    let(:user) { create(:user) }
+    let(:user) { create(:user, email: "logout@fintoc.com") }
 
     before do
-      post "/api/v1/auth/login", params: { email: user.email, password: "password123" }
+      token = user.generate_magic_link_token!
+      post "/api/v1/auth/verify-magic-link", params: { token: token }
     end
 
     it "logs out the user" do
@@ -130,11 +137,12 @@ RSpec.describe "Authentication" do
   end
 
   describe "GET /api/v1/auth/me" do
-    let(:user) { create(:user) }
+    let(:user) { create(:user, email: "me@fintoc.com") }
 
     context "when authenticated" do
       before do
-        post "/api/v1/auth/login", params: { email: user.email, password: "password123" }
+        token = user.generate_magic_link_token!
+        post "/api/v1/auth/verify-magic-link", params: { token: token }
       end
 
       it "returns the current user" do
@@ -161,57 +169,6 @@ RSpec.describe "Authentication" do
         get "/api/v1/auth/me"
 
         expect(response).to have_http_status(:unauthorized)
-      end
-    end
-  end
-
-  describe "POST /api/v1/auth/magic-link" do
-    context "with a fintoc.com email" do
-      it "creates a user with the email as name" do
-        expect {
-          post "/api/v1/auth/magic-link", params: { email: "new.user@fintoc.com" }
-        }.to change(User, :count).by(1)
-
-        expect(response).to have_http_status(:ok)
-        user = User.find_by(email: "new.user@fintoc.com")
-        expect(user.name).to eq("new.user@fintoc.com")
-      end
-    end
-
-    context "with a non-fintoc email" do
-      it "rejects the request" do
-        expect {
-          post "/api/v1/auth/magic-link", params: { email: "new.user@example.com" }
-        }.not_to change(User, :count)
-
-        expect(response).to have_http_status(:unprocessable_entity)
-        expect(json_response[:error]).to include("fintoc.com")
-      end
-    end
-  end
-
-  describe "POST /api/v1/auth/verify-magic-link" do
-    context "with a valid fintoc.com token" do
-      it "logs in the user" do
-        user = create(:user, email: "valid@fintoc.com")
-        token = user.generate_magic_link_token!
-
-        post "/api/v1/auth/verify-magic-link", params: { token: token }
-
-        expect(response).to have_http_status(:ok)
-        expect(json_response[:user][:email]).to eq("valid@fintoc.com")
-      end
-    end
-
-    context "with a non-fintoc email token" do
-      it "rejects the request" do
-        user = create(:user, email: "valid@example.com")
-        token = user.generate_magic_link_token!
-
-        post "/api/v1/auth/verify-magic-link", params: { token: token }
-
-        expect(response).to have_http_status(:unprocessable_entity)
-        expect(json_response[:error]).to include("fintoc.com")
       end
     end
   end
