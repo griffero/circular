@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useAppStore } from '@/stores/app'
 import type { Team, TeamMembership } from '@/types'
@@ -18,6 +18,10 @@ const appStore = useAppStore()
 const teams = computed(() => appStore.teams)
 const isAdmin = computed(() => authStore.isAdmin)
 const loading = computed(() => appStore.loading)
+
+onMounted(() => {
+  if (teams.value.length === 0) appStore.fetchTeams()
+})
 
 const colors = [
   '#ef4444', '#f97316', '#f59e0b', '#eab308', '#84cc16',
@@ -174,7 +178,7 @@ async function removeMember(userId: string) {
 </script>
 
 <template>
-  <div class="p-6 max-w-4xl bg-[var(--linear-bg)] min-h-full">
+  <div class="p-6 max-w-4xl mx-auto bg-[var(--linear-bg)] min-h-full">
     <div class="flex items-center justify-between mb-6">
       <div>
         <h1 class="text-xl font-semibold text-[var(--linear-text)] mb-1">

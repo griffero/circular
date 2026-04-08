@@ -137,7 +137,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="p-6 max-w-4xl bg-[var(--linear-bg)] min-h-full">
+  <div class="p-6 max-w-4xl mx-auto bg-[var(--linear-bg)] min-h-full">
     <div class="flex items-center justify-between mb-6">
       <div>
         <h1 class="text-xl font-semibold text-[var(--linear-text)] mb-1">
