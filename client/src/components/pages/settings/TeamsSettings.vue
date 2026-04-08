@@ -5,6 +5,8 @@ import { useAppStore } from '@/stores/app'
 import Button from '@/components/ui/Button.vue'
 import Input from '@/components/ui/Input.vue'
 import Modal from '@/components/ui/Modal.vue'
+import OriginBadge from '@/components/ui/OriginBadge.vue'
+import { isFromLinear } from '@/composables/useOrigin'
 import { Plus, Users, Pencil, Trash2 } from 'lucide-vue-next'
 
 const authStore = useAuthStore()
@@ -99,21 +101,24 @@ const colors = [
       <div
         v-for="team in teams"
         :key="team.id"
-        class="flex items-center justify-between px-4 py-3 hover:bg-[var(--linear-surface)]"
+        class="group flex items-center justify-between px-4 py-3 hover:bg-[var(--linear-surface)]"
       >
         <div class="flex items-center gap-3">
-          <div 
+          <div
             class="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold"
             :style="{ backgroundColor: team.color || '#6b7280' }"
           >
             {{ team.key.substring(0, 2) }}
           </div>
           <div>
-            <h3 class="font-medium text-[var(--linear-text)]">{{ team.name }}</h3>
+            <div class="flex items-center gap-2">
+              <h3 class="font-medium text-[var(--linear-text)]">{{ team.name }}</h3>
+              <OriginBadge :linear-id="team.linearId" />
+            </div>
             <p class="text-sm text-[var(--linear-muted)]">{{ team.key }}</p>
           </div>
         </div>
-        <div v-if="isAdmin" class="flex items-center gap-2">
+        <div v-if="isAdmin && !isFromLinear(team)" class="flex items-center gap-2">
           <button class="p-2 text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-surface)] rounded-md">
             <Pencil class="h-4 w-4" />
           </button>
