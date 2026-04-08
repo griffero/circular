@@ -36,6 +36,8 @@ module Api
       end
 
       def update
+        return if reject_linear_record!(@team)
+
         if @team.update(team_params)
           render json: {
             team: TeamSerializer.render_as_hash(@team, view: :with_members)
@@ -46,6 +48,8 @@ module Api
       end
 
       def destroy
+        return if reject_linear_record!(@team)
+
         @team.destroy!
         head :no_content
       end

@@ -14,11 +14,11 @@ class LabelPolicy < ApplicationPolicy
   end
 
   def update?
-    admin?
+    native_record? && admin?
   end
 
   def destroy?
-    admin?
+    native_record? && admin?
   end
 
   class Scope < Scope

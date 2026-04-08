@@ -9,6 +9,8 @@ import Button from '@/components/ui/Button.vue'
 import Avatar from '@/components/ui/Avatar.vue'
 import Dropdown from '@/components/ui/Dropdown.vue'
 import DropdownItem from '@/components/ui/DropdownItem.vue'
+import OriginBadge from '@/components/ui/OriginBadge.vue'
+import { isFromLinear } from '@/composables/useOrigin'
 import type { Issue, IssueStatus, IssuePriority } from '@/types'
 import {
   X,
@@ -49,6 +51,8 @@ const issuesStore = useIssuesStore()
 const currentUser = computed(() => authStore.user)
 const projects = computed(() => appStore.projects)
 const comments = computed(() => issuesStore.comments)
+
+const readOnly = computed(() => props.issue ? isFromLinear(props.issue) : false)
 
 const editingTitle = ref(false)
 const editingDescription = ref(false)
@@ -230,6 +234,7 @@ function formatDate(dateString: string) {
     <!-- Header -->
     <div class="flex items-center justify-between px-4 py-3 border-b border-[var(--linear-border)]">
       <div class="flex items-center gap-2">
+        <OriginBadge :linear-id="issue.linearId" />
         <span class="text-sm font-mono text-[var(--linear-muted)]">{{ issue.identifier }}</span>
         <button 
           @click="copyIdentifier"
@@ -247,7 +252,7 @@ function formatDate(dateString: string) {
         >
           <ExternalLink class="h-4 w-4 text-[var(--linear-muted)]" />
         </button>
-        <Dropdown align="right" width="w-40">
+        <Dropdown v-if="!readOnly" align="right" width="w-40">
           <template #trigger>
             <button class="p-1.5 hover:bg-[var(--linear-surface)] rounded">
               <MoreHorizontal class="h-4 w-4 text-[var(--linear-muted)]" />
@@ -276,8 +281,11 @@ function formatDate(dateString: string) {
         <div>
           <div
             v-if="!editingTitle"
-            @click="editingTitle = true; titleInput = issue.title"
-            class="text-lg font-semibold text-[var(--linear-text)] cursor-text hover:bg-[var(--linear-surface)] rounded px-2 py-1 -mx-2"
+            @click="!readOnly && (editingTitle = true, titleInput = issue.title)"
+            :class="cn(
+              'text-lg font-semibold text-[var(--linear-text)] rounded px-2 py-1 -mx-2',
+              readOnly ? '' : 'cursor-text hover:bg-[var(--linear-surface)]'
+            )"
           >
             {{ issue.title }}
           </div>
@@ -296,15 +304,16 @@ function formatDate(dateString: string) {
         <div>
           <div
             v-if="!editingDescription"
-            @click="editingDescription = true; descriptionInput = issue.description || ''"
+            @click="!readOnly && (editingDescription = true, descriptionInput = issue.description || '')"
             :class="cn(
-              'cursor-text',
-              'hover:bg-[var(--linear-surface)] rounded px-2 py-1 -mx-2 min-h-[60px]',
+              'rounded px-2 py-1 -mx-2 min-h-[60px]',
+              readOnly ? '' : 'cursor-text hover:bg-[var(--linear-surface)]',
               issue.description ? 'prose prose-sm max-w-none prose-p:my-2 prose-ul:my-2 prose-ol:my-2' : 'text-sm text-[var(--linear-muted)]'
             )"
           >
             <div v-if="issue.description" v-html="issue.description" />
-            <div v-else>Add description...</div>
+            <div v-else-if="!readOnly">Add description...</div>
+            <div v-else class="text-sm text-[var(--linear-muted)]">No description</div>
           </div>
           <textarea
             v-else
@@ -323,7 +332,7 @@ function formatDate(dateString: string) {
           <!-- Status -->
           <div class="flex items-center gap-3">
             <span class="text-xs font-medium text-[var(--linear-muted)] w-20">Status</span>
-            <Dropdown align="left" width="w-44">
+            <Dropdown v-if="!readOnly" align="left" width="w-44">
               <template #trigger>
                 <button class="flex items-center gap-2 px-2 py-1 hover:bg-[var(--linear-surface)] rounded text-sm">
                   <component :is="getStatus(issue.status).icon" :class="cn('h-4 w-4', getStatus(issue.status).color)" />
@@ -341,12 +350,16 @@ function formatDate(dateString: string) {
                 </DropdownItem>
               </template>
             </Dropdown>
+            <div v-else class="flex items-center gap-2 px-2 py-1 text-sm">
+              <component :is="getStatus(issue.status).icon" :class="cn('h-4 w-4', getStatus(issue.status).color)" />
+              {{ getStatus(issue.status).label }}
+            </div>
           </div>
 
           <!-- Priority -->
           <div class="flex items-center gap-3">
             <span class="text-xs font-medium text-[var(--linear-muted)] w-20">Priority</span>
-            <Dropdown align="left" width="w-44">
+            <Dropdown v-if="!readOnly" align="left" width="w-44">
               <template #trigger>
                 <button class="flex items-center gap-2 px-2 py-1 hover:bg-[var(--linear-surface)] rounded text-sm">
                   <component :is="getPriority(issue.priority).icon" :class="cn('h-4 w-4', getPriority(issue.priority).color)" />
@@ -364,12 +377,16 @@ function formatDate(dateString: string) {
                 </DropdownItem>
               </template>
             </Dropdown>
+            <div v-else class="flex items-center gap-2 px-2 py-1 text-sm">
+              <component :is="getPriority(issue.priority).icon" :class="cn('h-4 w-4', getPriority(issue.priority).color)" />
+              {{ getPriority(issue.priority).label }}
+            </div>
           </div>
 
           <!-- Assignee -->
           <div class="flex items-center gap-3">
             <span class="text-xs font-medium text-[var(--linear-muted)] w-20">Assignee</span>
-            <Dropdown align="left" width="w-48">
+            <Dropdown v-if="!readOnly" align="left" width="w-48">
               <template #trigger>
                 <button class="flex items-center gap-2 px-2 py-1 hover:bg-[var(--linear-surface)] rounded text-sm">
                   <template v-if="issue.assignee">
@@ -393,12 +410,22 @@ function formatDate(dateString: string) {
                 </DropdownItem>
               </template>
             </Dropdown>
+            <div v-else class="flex items-center gap-2 px-2 py-1 text-sm">
+              <template v-if="issue.assignee">
+                <Avatar :name="issue.assignee.name" size="xs" />
+                {{ issue.assignee.name }}
+              </template>
+              <template v-else>
+                <User class="h-4 w-4 text-[var(--linear-muted)]" />
+                <span class="text-[var(--linear-muted)]">Unassigned</span>
+              </template>
+            </div>
           </div>
 
           <!-- Project -->
           <div class="flex items-center gap-3">
             <span class="text-xs font-medium text-[var(--linear-muted)] w-20">Project</span>
-            <Dropdown align="left" width="w-48">
+            <Dropdown v-if="!readOnly" align="left" width="w-48">
               <template #trigger>
                 <button class="flex items-center gap-2 px-2 py-1 hover:bg-[var(--linear-surface)] rounded text-sm">
                   <template v-if="issue.project">
@@ -431,6 +458,10 @@ function formatDate(dateString: string) {
                 </DropdownItem>
               </template>
             </Dropdown>
+            <div v-else class="flex items-center gap-2 px-2 py-1 text-sm">
+              <FolderKanban class="h-4 w-4 text-[var(--linear-muted)]" />
+              {{ issue.project?.name || 'No project' }}
+            </div>
           </div>
         </div>
 

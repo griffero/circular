@@ -60,4 +60,8 @@ class ApplicationPolicy
   def owner?
     user&.owner?
   end
+
+  def native_record?
+    record.respond_to?(:circular_native?) && record.circular_native?
+  end
 end

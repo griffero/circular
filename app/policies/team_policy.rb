@@ -14,11 +14,11 @@ class TeamPolicy < ApplicationPolicy
   end
 
   def update?
-    admin? || team_lead?
+    native_record? && (admin? || team_lead?)
   end
 
   def destroy?
-    admin?
+    native_record? && admin?
   end
 
   class Scope < Scope

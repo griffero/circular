@@ -7,6 +7,7 @@ import { useEmojiStore } from '@/stores/emoji'
 import { useCurrentTeam } from '@/composables/useCurrentTeam'
 import EmojiIcon from '@/components/ui/EmojiIcon.vue'
 import Button from '@/components/ui/Button.vue'
+import OriginBadge from '@/components/ui/OriginBadge.vue'
 import LinearIcon from '@/components/icons/LinearIcon.vue'
 import {
   MoreHorizontal,
@@ -100,6 +101,7 @@ function tabTarget(tab: Tab) {
               size="sm"
             />
           </div>
+          <OriginBadge :linear-id="currentTeam.linearId" />
           <span class="text-[13px] font-medium text-[var(--linear-text)]">{{ currentTeam.name }}</span>
           <button
             class="p-1 rounded hover:bg-[var(--linear-surface)] text-[var(--linear-muted)] hover:text-[var(--linear-text)] transition-colors"

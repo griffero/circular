@@ -36,6 +36,8 @@ module Api
       end
 
       def update
+        return if reject_linear_record!(@label)
+
         if @label.update(label_params)
           render json: {
             label: LabelSerializer.render_as_hash(@label)
@@ -46,6 +48,8 @@ module Api
       end
 
       def destroy
+        return if reject_linear_record!(@label)
+
         @label.destroy!
         head :no_content
       end

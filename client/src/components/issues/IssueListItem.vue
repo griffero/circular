@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { cn } from '@/utils/cn'
 import Avatar from '@/components/ui/Avatar.vue'
+import OriginBadge from '@/components/ui/OriginBadge.vue'
 import type { Issue, IssueStatus, IssuePriority, WorkflowStateType } from '@/types'
 import {
   Circle,
@@ -93,7 +94,7 @@ function formatDate(dateString: string) {
   <div
     @click="handleClick"
     :class="cn(
-      'flex items-center gap-3 px-4 py-2.5',
+      'group flex items-center gap-3 px-4 py-2.5',
       'hover:bg-gray-50 dark:hover:bg-gray-800/50',
       'cursor-pointer transition-colors',
       'border-b border-gray-100 dark:border-gray-800 last:border-b-0'
@@ -113,9 +114,10 @@ function formatDate(dateString: string) {
       <component :is="statusIcon" :class="cn('h-4 w-4', statusColor)" />
     </button>
 
-    <!-- Identifier -->
-    <span class="flex-shrink-0 text-xs font-mono text-gray-500 w-16">
-      {{ issue.identifier }}
+    <!-- Identifier + Origin -->
+    <span class="flex items-center gap-1 flex-shrink-0 text-xs font-mono text-gray-500">
+      <OriginBadge :linear-id="issue.linearId" />
+      <span class="w-16">{{ issue.identifier }}</span>
     </span>
 
     <!-- Title -->

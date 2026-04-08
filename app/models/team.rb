@@ -17,8 +17,18 @@ class Team < ApplicationRecord
                   uniqueness: { message: "is already taken" }
 
   before_validation :upcase_key
+  after_create :seed_default_workflow_states, if: :circular_native?
 
   scope :ordered, -> { order(:name) }
+
+  DEFAULT_WORKFLOW_STATES = [
+    { name: "Triage",      state_type: "triage",    color: "#95a2b3", position: 0 },
+    { name: "Backlog",     state_type: "backlog",   color: "#bec2c8", position: 1 },
+    { name: "Todo",        state_type: "unstarted", color: "#e2e2e2", position: 2 },
+    { name: "In Progress", state_type: "started",   color: "#f2c94c", position: 3 },
+    { name: "Done",        state_type: "completed", color: "#4cb782", position: 4 },
+    { name: "Canceled",    state_type: "canceled",  color: "#95a2b3", position: 5 }
+  ].freeze
 
   # Get next issue number for this team (with lock for concurrency)
   def next_issue_number!
@@ -39,5 +49,11 @@ class Team < ApplicationRecord
 
   def upcase_key
     self.key = key.to_s.upcase if key.present?
+  end
+
+  def seed_default_workflow_states
+    DEFAULT_WORKFLOW_STATES.each do |attrs|
+      workflow_states.create!(attrs)
+    end
   end
 end

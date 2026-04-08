@@ -7,6 +7,7 @@ import { useUiStore } from '@/stores/ui'
 import EmojiIcon from '@/components/ui/EmojiIcon.vue'
 import IssueList from '@/components/issues/IssueList.vue'
 import Button from '@/components/ui/Button.vue'
+import OriginBadge from '@/components/ui/OriginBadge.vue'
 import type { Issue } from '@/types'
 import {
   Plus,
@@ -103,7 +104,8 @@ function projectStateClass(state?: string) {
             />
           </div>
           <div class="min-w-0">
-            <h1 class="text-lg font-semibold text-[var(--linear-text)] truncate">
+            <h1 class="text-lg font-semibold text-[var(--linear-text)] truncate flex items-center gap-2">
+              <OriginBadge :linear-id="currentProject.linearId" />
               {{ currentProject.name }}
             </h1>
             <p v-if="currentProject.description" class="text-sm text-[var(--linear-muted)] mt-0.5">

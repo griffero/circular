@@ -12,6 +12,8 @@ import Button from '@/components/ui/Button.vue'
 import Avatar from '@/components/ui/Avatar.vue'
 import EmojiText from '@/components/ui/EmojiText.vue'
 import EmojiIcon from '@/components/ui/EmojiIcon.vue'
+import OriginBadge from '@/components/ui/OriginBadge.vue'
+import { isFromLinear } from '@/composables/useOrigin'
 import { useEmojiStore } from '@/stores/emoji'
 import {
   ArrowLeft,
@@ -48,6 +50,7 @@ const emojiStore = useEmojiStore()
 const issueId = computed(() => route.params.issueId as string)
 
 const issue = computed(() => issuesStore.currentIssue)
+const readOnly = computed(() => issue.value ? isFromLinear(issue.value) : false)
 const currentUser = computed(() => authStore.user)
 const loading = computed(() => issuesStore.loading)
 const workflowStates = computed(() => issuesStore.workflowStates)
@@ -320,6 +323,7 @@ function formatDate(dateString?: string | null) {
           >
             <ArrowLeft class="h-4 w-4" />
           </button>
+          <OriginBadge v-if="issue" :linear-id="issue.linearId" />
           <span class="text-sm font-mono text-[var(--linear-muted)]">{{ issue?.identifier }}</span>
         </div>
         <div v-if="issue" class="flex items-center gap-1">
@@ -330,7 +334,7 @@ function formatDate(dateString?: string | null) {
           >
             <Copy class="h-4 w-4" />
           </button>
-          <Dropdown align="right" width="w-40">
+          <Dropdown v-if="!readOnly" align="right" width="w-40">
             <template #trigger>
               <button class="p-1.5 rounded text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-surface)] transition-colors">
                 <MoreHorizontal class="h-4 w-4" />
@@ -386,6 +390,7 @@ function formatDate(dateString?: string | null) {
               {{ issue.title }}
             </h1>
             <button
+              v-if="!readOnly"
               class="px-2 py-1 text-xs rounded text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-surface)] transition-colors opacity-0 group-hover:opacity-100"
               @click="startTitleEdit"
             >
@@ -432,6 +437,7 @@ function formatDate(dateString?: string | null) {
               <EmojiText :text="issue.description" />
             </div>
             <button
+              v-if="!readOnly"
               class="px-2 py-1 text-xs rounded text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-surface)] transition-colors opacity-0 group-hover:opacity-100"
               @click="startDescriptionEdit"
             >
@@ -439,7 +445,7 @@ function formatDate(dateString?: string | null) {
             </button>
           </div>
         </div>
-        <div v-else class="mb-8">
+        <div v-else-if="!readOnly" class="mb-8">
           <button
             class="text-sm text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-surface)] rounded px-2 py-1 transition-colors"
             @click="startDescriptionEdit"
@@ -447,6 +453,7 @@ function formatDate(dateString?: string | null) {
             Add description
           </button>
         </div>
+        <div v-else class="mb-8"></div>
 
         <!-- Activity -->
         <div class="border-t border-[var(--linear-border)] pt-6">
@@ -520,13 +527,13 @@ function formatDate(dateString?: string | null) {
         <!-- Status -->
         <div>
           <label class="text-xs font-medium text-[var(--linear-muted)] uppercase tracking-wider mb-2 block">Status</label>
-          <Dropdown align="left" :full-width="true">
+          <Dropdown v-if="!readOnly" align="left" :full-width="true">
             <template #trigger>
               <button class="w-full flex items-center justify-between gap-2 px-3 py-2 bg-[var(--linear-surface)] border border-[var(--linear-border)] rounded hover:bg-[var(--linear-surface)] text-sm text-[var(--linear-text)] transition-colors">
                 <div class="flex items-center gap-2">
-                  <component 
-                    :is="getStatusIcon(issue.workflowState?.stateType).icon" 
-                    :class="['h-4 w-4', getStatusIcon(issue.workflowState?.stateType).color]" 
+                  <component
+                    :is="getStatusIcon(issue.workflowState?.stateType).icon"
+                    :class="['h-4 w-4', getStatusIcon(issue.workflowState?.stateType).color]"
                   />
                   {{ issue.workflowState?.name || 'Backlog' }}
                 </div>
@@ -534,33 +541,40 @@ function formatDate(dateString?: string | null) {
               </button>
             </template>
             <div class="py-1 min-w-[200px]">
-              <DropdownItem 
-                v-for="state in workflowStates" 
+              <DropdownItem
+                v-for="state in workflowStates"
                 :key="state.id"
                 @click="updateStatus(state)"
               >
                 <div class="flex items-center gap-2">
-                  <component 
-                    :is="getStatusIcon(state.stateType).icon" 
-                    :class="['h-4 w-4', getStatusIcon(state.stateType).color]" 
+                  <component
+                    :is="getStatusIcon(state.stateType).icon"
+                    :class="['h-4 w-4', getStatusIcon(state.stateType).color]"
                   />
                   {{ state.name }}
                 </div>
               </DropdownItem>
             </div>
           </Dropdown>
+          <div v-else class="flex items-center gap-2 px-3 py-2 bg-[var(--linear-surface)] border border-[var(--linear-border)] rounded text-sm text-[var(--linear-text)]">
+            <component
+              :is="getStatusIcon(issue.workflowState?.stateType).icon"
+              :class="['h-4 w-4', getStatusIcon(issue.workflowState?.stateType).color]"
+            />
+            {{ issue.workflowState?.name || 'Backlog' }}
+          </div>
         </div>
 
         <!-- Priority -->
         <div>
           <label class="text-xs font-medium text-[var(--linear-muted)] uppercase tracking-wider mb-2 block">Priority</label>
-          <Dropdown align="left" :full-width="true">
+          <Dropdown v-if="!readOnly" align="left" :full-width="true">
             <template #trigger>
               <button class="w-full flex items-center justify-between gap-2 px-3 py-2 bg-[var(--linear-surface)] border border-[var(--linear-border)] rounded hover:bg-[var(--linear-surface)] text-sm text-[var(--linear-text)] transition-colors">
                 <div class="flex items-center gap-2">
-                  <component 
-                    :is="getPriority(issue.priority || 0).icon" 
-                    :class="['h-4 w-4', getPriority(issue.priority || 0).color]" 
+                  <component
+                    :is="getPriority(issue.priority || 0).icon"
+                    :class="['h-4 w-4', getPriority(issue.priority || 0).color]"
                   />
                   {{ getPriority(issue.priority || 0).label }}
                 </div>
@@ -568,8 +582,8 @@ function formatDate(dateString?: string | null) {
               </button>
             </template>
             <div class="py-1 min-w-[180px]">
-              <DropdownItem 
-                v-for="p in priorities" 
+              <DropdownItem
+                v-for="p in priorities"
                 :key="p.value"
                 @click="updatePriority(p.value)"
               >
@@ -580,12 +594,19 @@ function formatDate(dateString?: string | null) {
               </DropdownItem>
             </div>
           </Dropdown>
+          <div v-else class="flex items-center gap-2 px-3 py-2 bg-[var(--linear-surface)] border border-[var(--linear-border)] rounded text-sm text-[var(--linear-text)]">
+            <component
+              :is="getPriority(issue.priority || 0).icon"
+              :class="['h-4 w-4', getPriority(issue.priority || 0).color]"
+            />
+            {{ getPriority(issue.priority || 0).label }}
+          </div>
         </div>
 
         <!-- Assignee -->
         <div>
           <label class="text-xs font-medium text-[var(--linear-muted)] uppercase tracking-wider mb-2 block">Assignee</label>
-          <Dropdown align="left" :full-width="true">
+          <Dropdown v-if="!readOnly" align="left" :full-width="true">
             <template #trigger>
               <button class="w-full flex items-center justify-between gap-2 px-3 py-2 bg-[var(--linear-surface)] border border-[var(--linear-border)] rounded hover:bg-[var(--linear-surface)] text-sm transition-colors">
                 <div class="flex items-center gap-2">
@@ -616,8 +637,8 @@ function formatDate(dateString?: string | null) {
                 </div>
               </DropdownItem>
               <div class="border-t border-[var(--linear-border)] my-1"></div>
-              <DropdownItem 
-                v-for="u in users" 
+              <DropdownItem
+                v-for="u in users"
                 :key="u.id"
                 @click="updateAssignee(u.id)"
               >
@@ -628,12 +649,22 @@ function formatDate(dateString?: string | null) {
               </DropdownItem>
             </div>
           </Dropdown>
+          <div v-else class="flex items-center gap-2 px-3 py-2 bg-[var(--linear-surface)] border border-[var(--linear-border)] rounded text-sm">
+            <template v-if="issue.assignee">
+              <Avatar :src="issue.assignee.avatarUrl" :name="issue.assignee.name" size="xs" />
+              <span class="text-[var(--linear-text)]">{{ issue.assignee.displayName || issue.assignee.name }}</span>
+            </template>
+            <template v-else>
+              <User class="h-4 w-4 text-[var(--linear-muted)]" />
+              <span class="text-[var(--linear-muted)]">Unassigned</span>
+            </template>
+          </div>
         </div>
 
         <!-- Labels -->
         <div>
           <label class="text-xs font-medium text-[var(--linear-muted)] uppercase tracking-wider mb-2 block">Labels</label>
-          <Dropdown align="left" :full-width="true">
+          <Dropdown v-if="!readOnly" align="left" :full-width="true">
             <template #trigger>
               <button class="w-full flex items-center justify-between gap-2 px-3 py-2 bg-[var(--linear-surface)] border border-[var(--linear-border)] rounded hover:bg-[var(--linear-surface)] text-sm transition-colors">
                 <div class="flex items-center gap-2 flex-wrap">
@@ -682,12 +713,25 @@ function formatDate(dateString?: string | null) {
               </div>
             </div>
           </Dropdown>
+          <div v-else class="flex items-center gap-2 flex-wrap px-3 py-2 bg-[var(--linear-surface)] border border-[var(--linear-border)] rounded text-sm">
+            <template v-if="issue.labels && issue.labels.length > 0">
+              <span
+                v-for="label in issue.labels"
+                :key="label.id"
+                class="px-2 py-0.5 rounded text-xs"
+                :style="{ backgroundColor: label.color + '20', color: label.color }"
+              >
+                {{ label.name }}
+              </span>
+            </template>
+            <span v-else class="text-[var(--linear-muted)]">No labels</span>
+          </div>
         </div>
 
         <!-- Project -->
         <div>
           <label class="text-xs font-medium text-[var(--linear-muted)] uppercase tracking-wider mb-2 block">Project</label>
-          <Dropdown align="left-side" width="w-80">
+          <Dropdown v-if="!readOnly" align="left-side" width="w-80">
             <template #trigger>
               <button class="w-full flex items-center justify-between gap-2 px-3 py-2 bg-[var(--linear-surface)] border border-[var(--linear-border)] rounded hover:bg-[var(--linear-surface)] text-sm transition-colors">
                 <div class="flex items-center gap-2">
@@ -780,12 +824,22 @@ function formatDate(dateString?: string | null) {
               </div>
             </div>
           </Dropdown>
+          <div v-else class="flex items-center gap-2 px-3 py-2 bg-[var(--linear-surface)] border border-[var(--linear-border)] rounded text-sm">
+            <template v-if="issue.project">
+              <FolderKanban class="h-4 w-4 text-[var(--linear-muted)]" />
+              <span class="text-[var(--linear-text)]">{{ issue.project.name }}</span>
+            </template>
+            <template v-else>
+              <FolderKanban class="h-4 w-4 text-[var(--linear-muted)]" />
+              <span class="text-[var(--linear-muted)]">No project</span>
+            </template>
+          </div>
         </div>
 
         <!-- Due date -->
         <div>
           <label class="text-xs font-medium text-[var(--linear-muted)] uppercase tracking-wider mb-2 block">Due date</label>
-          <Dropdown align="left" :full-width="true">
+          <Dropdown v-if="!readOnly" align="left" :full-width="true">
             <template #trigger>
               <button class="w-full flex items-center justify-between gap-2 px-3 py-2 bg-[var(--linear-surface)] border border-[var(--linear-border)] rounded hover:bg-[var(--linear-surface)] text-sm transition-colors">
                 <div class="flex items-center gap-2">
@@ -813,6 +867,12 @@ function formatDate(dateString?: string | null) {
               </button>
             </div>
           </Dropdown>
+          <div v-else class="flex items-center gap-2 px-3 py-2 bg-[var(--linear-surface)] border border-[var(--linear-border)] rounded text-sm">
+            <Calendar class="h-4 w-4" :class="issue.dueDate ? 'text-[var(--linear-accent)]' : 'text-[var(--linear-muted)]'" />
+            <span :class="issue.dueDate ? 'text-[var(--linear-text)]' : 'text-[var(--linear-muted)]'">
+              {{ formatDate(issue.dueDate) || 'No due date' }}
+            </span>
+          </div>
         </div>
       </div>
     </div>

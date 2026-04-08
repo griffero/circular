@@ -309,6 +309,12 @@ export const useIssuesStore = defineStore('issues', () => {
     const issueIndex = issues.value.findIndex(i => i.id === issueId)
     if (issueIndex === -1) return null
 
+    // Reject updates to Linear-synced records
+    if (issues.value[issueIndex].linearId) {
+      error.value = 'Cannot modify Linear-synced records'
+      return null
+    }
+
     const originalIssue = { ...issues.value[issueIndex] }
 
     // Track pending update for rollback
@@ -388,6 +394,12 @@ export const useIssuesStore = defineStore('issues', () => {
     // Find and store the issue for potential rollback
     const issueIndex = issues.value.findIndex(i => i.id === issueId)
     const deletedIssue = issueIndex !== -1 ? issues.value[issueIndex] : null
+
+    // Reject deletes on Linear-synced records
+    if (deletedIssue?.linearId) {
+      error.value = 'Cannot delete Linear-synced records'
+      return
+    }
 
     // Optimistically remove
     issues.value = issues.value.filter(i => i.id !== issueId)

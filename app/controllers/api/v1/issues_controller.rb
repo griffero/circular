@@ -109,6 +109,8 @@ module Api
       end
 
       def update
+        return if reject_linear_record!(@issue)
+
         if @issue.update(issue_params)
           broadcast_issue_updated(@issue)
 
@@ -121,6 +123,8 @@ module Api
       end
 
       def destroy
+        return if reject_linear_record!(@issue)
+
         @issue.destroy!
         broadcast_issue_deleted(@issue)
         head :no_content
@@ -131,14 +135,17 @@ module Api
         updates = params[:updates] || {}
 
         issues = Issue.where(id: issue_ids)
+        skipped_ids = issues.select(&:from_linear?).map(&:id)
+        editable_issues = issues.reject(&:from_linear?)
 
-        issues.each do |issue|
+        editable_issues.each do |issue|
           issue.update(updates.permit(:status, :priority, :assignee_id, :project_id))
           broadcast_issue_updated(issue)
         end
 
         render json: {
-          issues: IssueSerializer.render_as_hash(issues.reload, view: :list)
+          issues: IssueSerializer.render_as_hash(issues.reload, view: :list),
+          skipped_ids: skipped_ids
         }
       end
 

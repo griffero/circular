@@ -14,11 +14,11 @@ class CommentPolicy < ApplicationPolicy
   end
 
   def update?
-    record.user_id == user.id
+    native_record? && record.user_id == user.id
   end
 
   def destroy?
-    record.user_id == user.id || admin?
+    native_record? && (record.user_id == user.id || admin?)
   end
 
   class Scope < Scope

@@ -14,11 +14,11 @@ class IssuePolicy < ApplicationPolicy
   end
 
   def update?
-    true
+    native_record?
   end
 
   def destroy?
-    record.creator_id == user.id || admin?
+    native_record? && (record.creator_id == user.id || admin?)
   end
 
   class Scope < Scope

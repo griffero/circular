@@ -17,11 +17,11 @@ class ProjectPolicy < ApplicationPolicy
   end
 
   def update?
-    admin? || project_lead?
+    native_record? && (admin? || project_lead?)
   end
 
   def destroy?
-    admin?
+    native_record? && admin?
   end
 
   class Scope < Scope

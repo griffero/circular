@@ -50,6 +50,8 @@ module Api
       end
 
       def update
+        return if reject_linear_record!(@project)
+
         if @project.update(project_params)
           render json: {
             project: ProjectSerializer.render_as_hash(@project, view: :with_lead)
@@ -60,6 +62,8 @@ module Api
       end
 
       def destroy
+        return if reject_linear_record!(@project)
+
         @project.destroy!
         head :no_content
       end
