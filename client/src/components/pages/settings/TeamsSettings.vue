@@ -2,6 +2,7 @@
 import { ref, computed, watch } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useAppStore } from '@/stores/app'
+import type { Team } from '@/types'
 import Button from '@/components/ui/Button.vue'
 import Input from '@/components/ui/Input.vue'
 import Modal from '@/components/ui/Modal.vue'
@@ -16,6 +17,13 @@ const teams = computed(() => appStore.teams)
 const isAdmin = computed(() => authStore.isAdmin)
 const loading = computed(() => appStore.loading)
 
+const colors = [
+  '#ef4444', '#f97316', '#f59e0b', '#eab308', '#84cc16',
+  '#22c55e', '#10b981', '#14b8a6', '#06b6d4', '#0ea5e9',
+  '#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef',
+  '#ec4899', '#f43f5e',
+]
+
 // Create team modal
 const showCreateModal = ref(false)
 const newTeamName = ref('')
@@ -24,7 +32,6 @@ const newTeamColor = ref('#6366f1')
 const creating = ref(false)
 const createError = ref('')
 
-// Auto-generate key from name
 watch(newTeamName, (name) => {
   if (name && !newTeamKey.value) {
     newTeamKey.value = name
@@ -36,10 +43,8 @@ watch(newTeamName, (name) => {
 
 async function handleCreate() {
   if (!newTeamName.value || !newTeamKey.value) return
-  
   creating.value = true
   createError.value = ''
-
   try {
     await appStore.createTeam({
       name: newTeamName.value,
@@ -57,12 +62,63 @@ async function handleCreate() {
   }
 }
 
-const colors = [
-  '#ef4444', '#f97316', '#f59e0b', '#eab308', '#84cc16',
-  '#22c55e', '#10b981', '#14b8a6', '#06b6d4', '#0ea5e9',
-  '#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef',
-  '#ec4899', '#f43f5e',
-]
+// Edit team modal
+const showEditModal = ref(false)
+const editingTeam = ref<Team | null>(null)
+const editTeamName = ref('')
+const editTeamColor = ref('')
+const editSaving = ref(false)
+const editError = ref('')
+
+function openEditModal(team: Team) {
+  editingTeam.value = team
+  editTeamName.value = team.name
+  editTeamColor.value = team.color || '#6366f1'
+  editError.value = ''
+  showEditModal.value = true
+}
+
+async function handleEdit() {
+  if (!editingTeam.value || !editTeamName.value) return
+  editSaving.value = true
+  editError.value = ''
+  try {
+    await appStore.updateTeam(editingTeam.value.key, {
+      name: editTeamName.value,
+      color: editTeamColor.value,
+    })
+    showEditModal.value = false
+    editingTeam.value = null
+  } catch (err) {
+    editError.value = err instanceof Error ? err.message : 'Failed to update team'
+  } finally {
+    editSaving.value = false
+  }
+}
+
+// Delete team
+const showDeleteConfirm = ref(false)
+const deletingTeam = ref<Team | null>(null)
+const deleting = ref(false)
+
+function openDeleteConfirm(team: Team) {
+  deletingTeam.value = team
+  showDeleteConfirm.value = true
+}
+
+async function handleDelete() {
+  if (!deletingTeam.value) return
+  deleting.value = true
+  try {
+    await appStore.deleteTeam(deletingTeam.value.key)
+    showDeleteConfirm.value = false
+    deletingTeam.value = null
+  } catch (err) {
+    console.error('Failed to delete team:', err)
+  } finally {
+    deleting.value = false
+  }
+}
 </script>
 
 <template>
@@ -119,10 +175,18 @@ const colors = [
           </div>
         </div>
         <div v-if="isAdmin && !isFromLinear(team)" class="flex items-center gap-2">
-          <button class="p-2 text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-surface)] rounded-md">
+          <button
+            @click="openEditModal(team)"
+            class="p-2 text-[var(--linear-muted)] hover:text-[var(--linear-text)] hover:bg-[var(--linear-surface)] rounded-md"
+            title="Edit team"
+          >
             <Pencil class="h-4 w-4" />
           </button>
-          <button class="p-2 text-[var(--linear-muted)] hover:text-red-400 hover:bg-[var(--linear-surface)] rounded-md">
+          <button
+            @click="openDeleteConfirm(team)"
+            class="p-2 text-[var(--linear-muted)] hover:text-red-400 hover:bg-[var(--linear-surface)] rounded-md"
+            title="Delete team"
+          >
             <Trash2 class="h-4 w-4" />
           </button>
         </div>
@@ -192,6 +256,93 @@ const colors = [
           </Button>
         </div>
       </form>
+    </Modal>
+
+    <!-- Edit team modal -->
+    <Modal :open="showEditModal" @close="showEditModal = false" title="Edit team">
+      <form @submit.prevent="handleEdit" class="space-y-4">
+        <div v-if="editError" class="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-sm text-red-300">
+          {{ editError }}
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-[var(--linear-text)] mb-1">
+            Team name
+          </label>
+          <Input
+            v-model="editTeamName"
+            type="text"
+            placeholder="Engineering"
+            required
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-[var(--linear-text)] mb-1">
+            Identifier
+          </label>
+          <div class="px-3 py-2 text-sm text-[var(--linear-muted)] bg-[var(--linear-surface)] border border-[var(--linear-border)] rounded-md">
+            {{ editingTeam?.key }}
+          </div>
+          <p class="mt-1 text-xs text-[var(--linear-muted)]">
+            Team identifier cannot be changed
+          </p>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-[var(--linear-text)] mb-2">
+            Color
+          </label>
+          <div class="flex flex-wrap gap-2">
+            <button
+              v-for="color in colors"
+              :key="color"
+              type="button"
+              @click="editTeamColor = color"
+              :class="[
+                'w-8 h-8 rounded-lg border-2 transition-transform',
+                editTeamColor === color ? 'border-white scale-110' : 'border-transparent hover:scale-105'
+              ]"
+              :style="{ backgroundColor: color }"
+            />
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-3 pt-4">
+          <Button type="button" variant="ghost" @click="showEditModal = false">
+            Cancel
+          </Button>
+          <Button type="submit" :loading="editSaving">
+            Save changes
+          </Button>
+        </div>
+      </form>
+    </Modal>
+
+    <!-- Delete team confirm -->
+    <Modal
+      :open="showDeleteConfirm"
+      @close="showDeleteConfirm = false"
+      title="Delete team"
+      description="This action cannot be undone."
+      size="sm"
+      :closable="!deleting"
+    >
+      <div class="space-y-3">
+        <p class="text-sm text-[var(--linear-muted)]">
+          Delete team
+          <span class="font-medium text-[var(--linear-text)]">{{ deletingTeam?.name }}</span>
+          ({{ deletingTeam?.key }})? All issues in this team will also be deleted.
+        </p>
+      </div>
+      <template #footer>
+        <Button variant="ghost" :disabled="deleting" @click="showDeleteConfirm = false">
+          Cancel
+        </Button>
+        <Button variant="danger" :loading="deleting" @click="handleDelete">
+          Delete team
+        </Button>
+      </template>
     </Modal>
   </div>
 </template>

@@ -104,6 +104,30 @@ export const useAppStore = defineStore('app', () => {
     }
   }
 
+  async function updateTeam(teamKey: string, teamData: Partial<{ name: string; key: string; description: string; color: string }>) {
+    try {
+      const data = await api.patch<{ team: Team }>(`/api/v1/teams/${teamKey}`, {
+        team: teamData
+      })
+      const index = teams.value.findIndex(t => t.key === teamKey)
+      if (index !== -1) teams.value[index] = data.team
+      return data.team
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to update team'
+      throw err
+    }
+  }
+
+  async function deleteTeam(teamKey: string) {
+    try {
+      await api.delete(`/api/v1/teams/${teamKey}`)
+      teams.value = teams.value.filter(t => t.key !== teamKey)
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to delete team'
+      throw err
+    }
+  }
+
   async function createProject(projectData: { name: string; slug?: string; description?: string; color?: string; privacy?: string }) {
     try {
       loading.value = true
@@ -140,6 +164,8 @@ export const useAppStore = defineStore('app', () => {
     fetchProjectUpdates,
     fetchUsers,
     createTeam,
+    updateTeam,
+    deleteTeam,
     createProject,
     reset
   }
