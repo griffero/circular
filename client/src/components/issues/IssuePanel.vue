@@ -5,6 +5,8 @@ import { useAuthStore } from '@/stores/auth'
 import { useAppStore } from '@/stores/app'
 import { useIssuesStore } from '@/stores/issues'
 import { cn } from '@/utils/cn'
+import LinearStatusIcon from '@/components/icons/LinearStatusIcon.vue'
+import LinearPriorityIcon from '@/components/icons/LinearPriorityIcon.vue'
 import Button from '@/components/ui/Button.vue'
 import Avatar from '@/components/ui/Avatar.vue'
 import Dropdown from '@/components/ui/Dropdown.vue'
@@ -92,6 +94,17 @@ const priorities: { value: IssuePriority; label: string; icon: typeof Minus; col
   { value: 3, label: 'Medium', icon: ArrowRight, color: 'text-yellow-500' },
   { value: 4, label: 'Low', icon: ArrowDown, color: 'text-blue-500' },
 ]
+
+/* Linear names its states in prose; map the internal enum onto them so
+   LinearStatusIcon picks the right fill fraction and colour. */
+const STATUS_STATE_NAME: Record<IssueStatus, string> = {
+  backlog: 'Backlog',
+  todo: 'Todo',
+  in_progress: 'In Progress',
+  in_review: 'In Review',
+  done: 'Done',
+  canceled: 'Canceled',
+}
 
 function getStatus(status: IssueStatus) {
   return statuses.find(s => s.value === status) || statuses[0]
@@ -335,7 +348,7 @@ function formatDate(dateString: string) {
             <Dropdown v-if="!readOnly" align="left" width="w-44">
               <template #trigger>
                 <button class="flex items-center gap-2 px-2 py-1 hover:bg-[var(--linear-surface)] rounded text-sm">
-                  <component :is="getStatus(issue.status).icon" :class="cn('h-4 w-4', getStatus(issue.status).color)" />
+                  <LinearStatusIcon :name="STATUS_STATE_NAME[issue.status]" :size="14" />
                   {{ getStatus(issue.status).label }}
                 </button>
               </template>
@@ -345,13 +358,13 @@ function formatDate(dateString: string) {
                   :key="status.value"
                   @click="updateStatus(status.value); close()"
                 >
-                  <component :is="status.icon" :class="cn('h-4 w-4', status.color)" />
+                  <LinearStatusIcon :name="STATUS_STATE_NAME[status.value]" :size="14" glyph-bg="var(--linear-overlay-bg)" />
                   {{ status.label }}
                 </DropdownItem>
               </template>
             </Dropdown>
             <div v-else class="flex items-center gap-2 px-2 py-1 text-sm">
-              <component :is="getStatus(issue.status).icon" :class="cn('h-4 w-4', getStatus(issue.status).color)" />
+              <LinearStatusIcon :name="STATUS_STATE_NAME[issue.status]" :size="14" />
               {{ getStatus(issue.status).label }}
             </div>
           </div>
@@ -362,7 +375,7 @@ function formatDate(dateString: string) {
             <Dropdown v-if="!readOnly" align="left" width="w-44">
               <template #trigger>
                 <button class="flex items-center gap-2 px-2 py-1 hover:bg-[var(--linear-surface)] rounded text-sm">
-                  <component :is="getPriority(issue.priority).icon" :class="cn('h-4 w-4', getPriority(issue.priority).color)" />
+                  <LinearPriorityIcon class="text-[var(--linear-muted)]" :priority="issue.priority" :size="16" />
                   {{ getPriority(issue.priority).label }}
                 </button>
               </template>
@@ -372,13 +385,13 @@ function formatDate(dateString: string) {
                   :key="priority.value"
                   @click="updatePriority(priority.value); close()"
                 >
-                  <component :is="priority.icon" :class="cn('h-4 w-4', priority.color)" />
+                  <LinearPriorityIcon class="text-[var(--linear-muted)]" :priority="priority.value" :size="16" />
                   {{ priority.label }}
                 </DropdownItem>
               </template>
             </Dropdown>
             <div v-else class="flex items-center gap-2 px-2 py-1 text-sm">
-              <component :is="getPriority(issue.priority).icon" :class="cn('h-4 w-4', getPriority(issue.priority).color)" />
+              <LinearPriorityIcon class="text-[var(--linear-muted)]" :priority="issue.priority" :size="16" />
               {{ getPriority(issue.priority).label }}
             </div>
           </div>

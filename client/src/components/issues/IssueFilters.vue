@@ -4,6 +4,8 @@ import { useAuthStore } from '@/stores/auth'
 import { useAppStore } from '@/stores/app'
 import type { IssueStatus, IssuePriority } from '@/types'
 import { cn } from '@/utils/cn'
+import LinearStatusIcon from '@/components/icons/LinearStatusIcon.vue'
+import LinearPriorityIcon from '@/components/icons/LinearPriorityIcon.vue'
 import Dropdown from '@/components/ui/Dropdown.vue'
 import DropdownItem from '@/components/ui/DropdownItem.vue'
 import {
@@ -82,6 +84,15 @@ const priorities: { value: IssuePriority | undefined; label: string; icon: typeo
   { value: 4, label: 'Low', icon: ArrowDown, color: 'text-blue-500' },
   { value: 0, label: 'No priority', icon: Minus, color: 'text-gray-400' },
 ]
+
+const STATUS_STATE_NAME: Record<IssueStatus, string> = {
+  backlog: 'Backlog',
+  todo: 'Todo',
+  in_progress: 'In Progress',
+  in_review: 'In Review',
+  done: 'Done',
+  canceled: 'Canceled',
+}
 
 const sortOptions: { value: string; label: string }[] = [
   { value: 'created_at', label: 'Created' },
@@ -230,7 +241,11 @@ function triggerClass(active: boolean) {
           <span class="w-3.5 h-3.5 rounded-sm border border-[var(--linear-border)] flex items-center justify-center text-[10px]">
             <span v-if="selectedStatuses.includes(status.value as IssueStatus)">✓</span>
           </span>
-          <component :is="status.icon" :class="cn('w-4 h-4', status.color)" />
+          <LinearStatusIcon
+            :name="STATUS_STATE_NAME[status.value as IssueStatus]"
+            :size="14"
+            glyph-bg="var(--linear-overlay-bg)"
+          />
           {{ status.label }}
         </DropdownItem>
       </template>
@@ -252,7 +267,13 @@ function triggerClass(active: boolean) {
           :key="priority.value ?? 'all'"
           @click="updateFilter('priority', priority.value); close()"
         >
-          <component :is="priority.icon" :class="cn('w-4 h-4', priority.color)" />
+          <LinearPriorityIcon
+            v-if="priority.value !== undefined"
+            class="text-[var(--linear-muted)]"
+            :priority="priority.value"
+            :size="16"
+          />
+          <component v-else :is="priority.icon" :class="cn('w-4 h-4', priority.color)" />
           {{ priority.label }}
         </DropdownItem>
       </template>

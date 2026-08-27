@@ -4,26 +4,13 @@ import { useRoute, useRouter } from 'vue-router'
 import { useUiStore } from '@/stores/ui'
 import { useIssuesStore, type IssueFilters } from '@/stores/issues'
 import { cn } from '@/utils/cn'
+import LinearStatusIcon from '@/components/icons/LinearStatusIcon.vue'
+import LinearPriorityIcon from '@/components/icons/LinearPriorityIcon.vue'
 import Avatar from '@/components/ui/Avatar.vue'
 import IssueFiltersComponent from '@/components/issues/IssueFilters.vue'
-import type { Issue, IssueStatus, WorkflowState, WorkflowStateType } from '@/types'
+import type { Issue, IssueStatus } from '@/types'
 import { useCurrentTeam } from '@/composables/useCurrentTeam'
-import { 
-  Plus, 
-  Circle,
-  CircleDot,
-  CircleDashed,
-  CheckCircle2,
-  XCircle,
-  MoreHorizontal,
-  ArrowUp,
-  ArrowRight,
-  ArrowDown,
-  Minus,
-  SignalHigh,
-  SignalMedium,
-  SignalLow
-} from 'lucide-vue-next'
+import { Plus, MoreHorizontal } from 'lucide-vue-next'
 
 const router = useRouter()
 const route = useRoute()
@@ -383,26 +370,6 @@ function handleIssueClick(issue: Issue) {
 }
 
 // State type to icon mapping (matches Linear's icons)
-const stateIcons: Record<WorkflowStateType, typeof Circle> = {
-  triage: CircleDashed,
-  backlog: Circle,
-  unstarted: Circle,
-  started: CircleDot,
-  completed: CheckCircle2,
-  canceled: XCircle
-}
-
-function getStateIcon(state: WorkflowState) {
-  return stateIcons[state.stateType] || Circle
-}
-
-const priorityConfig: Record<number, { icon: typeof Circle; color: string; label: string }> = {
-  0: { icon: Minus, color: 'text-gray-400', label: 'No priority' },
-  1: { icon: SignalHigh, color: 'text-red-500', label: 'Urgent' },
-  2: { icon: SignalHigh, color: 'text-orange-500', label: 'High' },
-  3: { icon: SignalMedium, color: 'text-yellow-500', label: 'Medium' },
-  4: { icon: SignalLow, color: 'text-blue-400', label: 'Low' },
-}
 </script>
 
 <template>
@@ -443,21 +410,23 @@ const priorityConfig: Record<number, { icon: typeof Circle; color: string; label
       No workflow states found for this team
     </div>
 
-    <div v-else class="flex gap-0.5 p-2 h-full min-w-max">
+    <div v-else class="flex gap-[26px] pt-[15px] px-[17px] pb-0 h-full min-w-max">
         <div
           v-for="column in columns"
           :key="column.id"
-          class="w-[280px] flex-shrink-0 flex flex-col group"
+          class="w-[var(--linear-board-column-width)] flex-shrink-0 flex flex-col group"
           @dragover.prevent="handleDragOver(column.id)"
           @drop.prevent="handleDrop(column.id)"
         >
           <!-- Column header -->
           <div class="flex items-center justify-between px-3 py-2 sticky top-0 bg-[var(--linear-bg)] z-10">
           <div class="flex items-center gap-2">
-            <component 
-              :is="getStateIcon(column)" 
-              class="h-4 w-4 flex-shrink-0" 
-              :style="{ color: column.color }"
+            <LinearStatusIcon
+              class="flex-shrink-0"
+              :name="column.name"
+              :type="column.stateType"
+              :size="14"
+              glyph-bg="var(--linear-bg)"
             />
             <span class="font-medium text-sm text-[var(--linear-text)]">{{ column.name }}</span>
             <span class="text-xs text-[var(--linear-muted)]">
@@ -493,19 +462,20 @@ const priorityConfig: Record<number, { icon: typeof Circle; color: string; label
             @dragstart="handleDragStart(issue.id)"
             @dragend="handleDragEnd"
             :class="cn(
-              'px-3 py-2.5 bg-[var(--linear-elevated)] rounded border border-[var(--linear-border)]',
-              'hover:border-[#343a46] hover:bg-[var(--linear-surface)]',
+              'p-2 rounded-lg bg-[var(--linear-group-header-bg)]',
+              'hover:bg-[var(--linear-surface-raised)]',
               'cursor-pointer transition-colors',
               movingIssueIds.has(issue.id) && 'opacity-60'
             )"
           >
             <!-- Issue header: identifier + priority -->
             <div class="flex items-center justify-between mb-1">
-              <span class="text-xs font-mono text-[var(--linear-muted)]">{{ issue.identifier }}</span>
-              <component 
+              <span class="issue-identifier">{{ issue.identifier }}</span>
+              <LinearPriorityIcon
                 v-if="issue.priority > 0"
-                :is="priorityConfig[issue.priority]?.icon || Minus" 
-                :class="cn('h-3.5 w-3.5', priorityConfig[issue.priority]?.color)" 
+                class="text-[var(--linear-muted)]"
+                :priority="issue.priority"
+                :size="14"
               />
             </div>
 
