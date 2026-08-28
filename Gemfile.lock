@@ -404,8 +404,8 @@ GEM
       ffi (~> 1.12)
       logger
     securerandom (0.4.1)
-    shoulda-matchers (6.5.0)
-      activesupport (>= 5.2.0)
+    shoulda-matchers (7.0.1)
+      activesupport (>= 7.1)
     sidekiq (7.3.9)
       base64
       connection_pool (>= 2.3.0)
@@ -502,7 +502,7 @@ DEPENDENCIES
   rubocop-performance (~> 1.20)
   rubocop-rails (~> 2.23)
   rubocop-rspec (~> 2.26)
-  shoulda-matchers (~> 6.1)
+  shoulda-matchers (~> 7.0)
   sidekiq (~> 7.2)
   simplecov
   stripe (~> 10.8)
