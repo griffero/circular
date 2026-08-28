@@ -5,19 +5,52 @@
 @tailwind utilities;
 
 @layer base {
+  /*
+   * Tokens below are measured from the live Linear app via getComputedStyle,
+   * not eyeballed. Linear builds its whole palette in LCH on hue 272.
+   * See docs/linear-parity-measurements.md for how each value was captured.
+   */
   :root {
     color-scheme: light;
-    --linear-bg: lch(99% 0 282.863);
-    --linear-sidebar: lch(96.667% 0 282.863 / 1);
+
+    /* Surfaces */
+    --linear-bg: #f9f9fa;
+    --linear-sidebar: #efeff0;
     --linear-elevated: #ffffff;
-    --linear-surface: lch(97.8% 0 282.863);
-    --linear-border: lch(87.817% 0 282.863 / 1);
-    --linear-border-subtle: lch(92.4% 0 282.863 / 1);
-    --linear-text: lch(9.723% 0 282.863);
-    --linear-muted: lch(38.893% 1 282.863);
+    --linear-surface: #f4f4f5;
+    --linear-surface-raised: #ebebec;
+    --linear-surface-hover: #f6f6f7;
+
+    /* Borders */
+    --linear-border: #e2e2e2;
+    --linear-border-subtle: #ececed;
+    --linear-border-strong: #d8d8d9;
+
+    /* Text */
+    --linear-text: #17171a;
+    --linear-text-secondary: #3c3f44;
+    --linear-muted: #6b6f76;
+    --linear-faint: #9ca0a8;
+
+    /* Chrome */
+    --linear-header-bg: #ffffff;
+    --linear-header-border: #ececed;
+    --linear-group-header-bg: #f4f4f5;
+    --linear-tab-active-bg: #e4e4e6;
+    --linear-tab-idle-bg: #f2f2f3;
+
     --linear-accent: #5e6ad2;
-    --linear-accent-hover: #6975db;
-    --linear-selection: rgba(94, 106, 210, 0.12);
+    --linear-accent-hover: #525dc4;
+    --linear-selection: #eeeef0;
+    --linear-focus-ring: #5e69d1;
+    --linear-link: #5e6ad2;
+    --linear-scrollbar-thumb: #d0d0d2;
+    --linear-scrollbar-thumb-hover: #b8b8bb;
+    --linear-skeleton: #ededee;
+    --linear-overlay-bg: #ffffff;
+    --linear-overlay-border: #e2e2e2;
+    --linear-overlay-shadow: 0 4px 24px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.08);
+
     --circular-accent: #0ea5e9;
     --circular-accent-hover: #38bdf8;
     --circular-badge-bg: rgba(14, 165, 233, 0.15);
@@ -26,21 +59,88 @@
 
   .dark {
     color-scheme: dark;
-    --linear-bg: rgb(16 16 17);
-    --linear-sidebar: rgb(9 9 9);
-    --linear-elevated: #161b22;
-    --linear-surface: #1c212b;
-    --linear-border: #272d38;
-    --linear-border-subtle: #202632;
-    --linear-text: #e6eaf2;
-    --linear-muted: #8f98aa;
+
+    /* Surfaces — the app frame is near-black, the content pane sits above it */
+    --linear-bg: lch(2.595% 0.4 272 / 1);
+    --linear-sidebar: lch(2.595% 0.4 272 / 1);
+    --linear-elevated: lch(5.52% 0.4 272);
+    --linear-surface: lch(7.32% 0.85 272 / 1);
+    --linear-surface-raised: lch(8.22% 1.3 272 / 1);
+    --linear-surface-hover: lch(8.5% 0.85 272 / 1);
+
+    /* Borders */
+    --linear-border: lch(14.16% 1.48 272 / 1);
+    --linear-border-subtle: lch(9.84% 1.48 272 / 1);
+    --linear-border-strong: lch(16.32% 1.48 272 / 1);
+
+    /* Text */
+    --linear-text: lch(100% 0 272 / 1);
+    --linear-text-secondary: lch(90.451% 1.2 272 / 1);
+    --linear-muted: lch(61.803% 1.2 272 / 1);
+    --linear-faint: lch(36.975% 1.2 272 / 1);
+
+    /* Chrome */
+    --linear-header-bg: lch(5.52% 0.4 272);
+    --linear-header-border: lch(13.08% 1.48 272 / 1);
+    --linear-group-header-bg: lch(9.232% 0.85 272 / 1);
+    --linear-tab-active-bg: lch(16.706% 0.979 272 / 1);
+    --linear-tab-idle-bg: lch(10.149% 0.593 272 / 1);
+
     --linear-accent: #5e6ad2;
-    --linear-accent-hover: #6874de;
-    --linear-selection: rgba(94, 106, 210, 0.18);
+    --linear-accent-hover: #6b75df;
+    --linear-selection: lch(11.2% 1.1 272 / 1);
+    --linear-focus-ring: #5e69d1;
+    --linear-link: lch(57.028% 70 288.421);
+    --linear-scrollbar-thumb: lch(24% 1.2 272 / 1);
+    --linear-scrollbar-thumb-hover: lch(32% 1.2 272 / 1);
+    --linear-skeleton: lch(11% 1 272 / 1);
+    --linear-overlay-bg: lch(9% 1.1 272 / 1);
+    --linear-overlay-border: lch(18% 1.48 272 / 1);
+    --linear-overlay-shadow: 0 4px 40px #00000019, 0 3px 20px #0000001f, 0 3px 12px #0000001f,
+      0 2px 8px #0000001f, 0 1px 1px #0000001f;
+
     --circular-accent: #38bdf8;
     --circular-accent-hover: #7dd3fc;
     --circular-badge-bg: rgba(56, 189, 248, 0.15);
     --circular-badge-text: #38bdf8;
+  }
+
+  /* Workflow-state palette, read off Linear's own status glyphs */
+  :root {
+    --state-backlog: #bec2c8;
+    --state-unstarted: #e2e2e2;
+    --state-started: #f2c94c;
+    --state-review: #f2994a;
+    --state-completed: #5e6ad2;
+    --state-canceled: #95a2b3;
+    --state-triage: #eb5757;
+    --priority-urgent-bg: #f2994a;
+    --label-default: #bec2c8;
+  }
+
+  /* Geometry measured off the live app (getBoundingClientRect) */
+  :root {
+    --linear-sidebar-width: 244px;
+    --linear-header-height: 44px;
+    --linear-subheader-height: 43.5px;
+    --linear-row-height: 44px;
+    --linear-group-header-height: 36px;
+    --linear-row-padding-left: 19px;
+    --linear-row-padding-right: 26px;
+    --linear-nav-item-height: 28px;
+    --linear-board-column-width: 322px;
+    --linear-issue-content-width: 756px;
+    --linear-issue-sidebar-width: 396px;
+
+    --linear-font-micro: 11px;
+    --linear-font-mini: 12px;
+    --linear-font-small: 13px;
+    --linear-font-regular: 14px;
+    --linear-font-large: 15px;
+
+    --linear-weight-book: 450;
+    --linear-weight-medium: 500;
+    --linear-weight-semibold: 550;
   }
 
   * {
@@ -50,7 +150,8 @@
   html {
     @apply antialiased;
     font-family: 'Inter Variable', 'Inter', 'SF Pro Display', -apple-system, 'system-ui', 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    /* Linear uses Inter's default glyph set — cv02/cv03/cv04/cv11 alter a/g/l/1 */
+    font-feature-settings: normal;
   }
 
   body {
@@ -70,12 +171,12 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: var(--linear-border);
+    background: var(--linear-scrollbar-thumb);
     border-radius: 9999px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--linear-muted);
+    background: var(--linear-scrollbar-thumb-hover);
   }
 
   /* Focus styles */
@@ -100,27 +201,42 @@
     @apply text-gray-400;
   }
 
-  /* Status colors */
+  /* Status colors — hues taken from Linear's own state glyphs */
   .status-triage {
     background: var(--linear-surface);
-    color: var(--linear-muted);
+    color: var(--state-triage);
   }
   .status-backlog {
     background: var(--linear-surface);
-    color: var(--linear-muted);
+    color: var(--state-backlog);
   }
   .status-todo {
-    background: var(--linear-border);
-    color: var(--linear-text);
+    background: var(--linear-surface);
+    color: var(--state-unstarted);
   }
   .status-in-progress {
-    @apply bg-accent-yellow/20 text-accent-yellow;
+    background: var(--linear-surface);
+    color: var(--state-started);
   }
   .status-done {
-    @apply bg-accent-green/20 text-accent-green;
+    background: var(--linear-surface);
+    color: var(--state-completed);
   }
   .status-canceled {
-    @apply bg-gray-200 dark:bg-gray-800 text-gray-500 line-through;
+    background: var(--linear-surface);
+    color: var(--state-canceled);
+  }
+
+  /*
+   * Issue identifiers. Linear renders these in the UI face (not mono) with
+   * tabular figures and -0.26px tracking, which is what keeps the title
+   * column aligned at x=408.5 regardless of team-key length.
+   */
+  .issue-identifier {
+    font-size: var(--linear-font-mini);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.26px;
+    color: var(--linear-muted);
   }
 
   /* Keyboard shortcut badge */
@@ -152,7 +268,7 @@
 
   /* Loading skeleton */
   .skeleton {
-    background: var(--linear-surface);
+    background: var(--linear-skeleton);
     @apply animate-pulse rounded;
   }
 }
@@ -185,10 +301,15 @@
     background: var(--linear-selection);
   }
 
+  /*
+   * The content pane: Linear insets it 8px from three edges, rounds it 12px,
+   * and hairlines it at 0.5px with a soft outer shadow.
+   */
   .linear-panel {
     background-color: var(--linear-elevated);
-    border: 1px solid var(--linear-border);
-    border-radius: 10px;
+    border: 0.5px solid var(--linear-border);
+    border-radius: 12px;
+    box-shadow: 0 0.5px 1px 1px lch(0 0 0 / 0.3);
   }
 
   .linear-button-primary {

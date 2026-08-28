@@ -6,6 +6,8 @@ import { useIssuesStore } from '@/stores/issues'
 import { useAppStore } from '@/stores/app'
 import type { Issue, WorkflowState } from '@/types'
 import Dropdown from '@/components/ui/Dropdown.vue'
+import LinearStatusIcon from '@/components/icons/LinearStatusIcon.vue'
+import LinearPriorityIcon from '@/components/icons/LinearPriorityIcon.vue'
 import DropdownItem from '@/components/ui/DropdownItem.vue'
 import Modal from '@/components/ui/Modal.vue'
 import Button from '@/components/ui/Button.vue'
@@ -20,10 +22,7 @@ import {
   Copy,
   Trash2,
   MoreHorizontal,
-  Circle,
   CheckCircle2,
-  XCircle,
-  Clock,
   User,
   Tag,
   FolderKanban,
@@ -37,7 +36,7 @@ import {
   SignalMedium,
   SignalLow,
   Check,
-  CircleDashed
+  CircleDashed,
 } from 'lucide-vue-next'
 
 const route = useRoute()
@@ -92,19 +91,6 @@ const priorities = [
   { value: 3, label: 'Medium', icon: SignalMedium, color: 'text-yellow-500' },
   { value: 4, label: 'Low', icon: SignalLow, color: 'text-blue-500' },
 ]
-
-const statusIcons: Record<string, { icon: any; color: string }> = {
-  triage: { icon: Circle, color: 'text-[var(--linear-muted)]' },
-  backlog: { icon: Circle, color: 'text-[var(--linear-muted)]' },
-  unstarted: { icon: Circle, color: 'text-[var(--linear-muted)]' },
-  started: { icon: Clock, color: 'text-yellow-500' },
-  completed: { icon: CheckCircle2, color: 'text-green-500' },
-  canceled: { icon: XCircle, color: 'text-red-400' },
-}
-
-function getStatusIcon(stateType?: string) {
-  return statusIcons[stateType || 'backlog'] || statusIcons.backlog
-}
 
 function getPriority(value: number) {
   return priorities.find(p => p.value === value) || priorities[0]
@@ -531,9 +517,11 @@ function formatDate(dateString?: string | null) {
             <template #trigger>
               <button class="w-full flex items-center justify-between gap-2 px-3 py-2 bg-[var(--linear-surface)] border border-[var(--linear-border)] rounded hover:bg-[var(--linear-surface)] text-sm text-[var(--linear-text)] transition-colors">
                 <div class="flex items-center gap-2">
-                  <component
-                    :is="getStatusIcon(issue.workflowState?.stateType).icon"
-                    :class="['h-4 w-4', getStatusIcon(issue.workflowState?.stateType).color]"
+                  <LinearStatusIcon
+                    :name="issue.workflowState?.name"
+                    :type="issue.workflowState?.stateType"
+                    :size="14"
+                    glyph-bg="var(--linear-surface)"
                   />
                   {{ issue.workflowState?.name || 'Backlog' }}
                 </div>
@@ -547,9 +535,11 @@ function formatDate(dateString?: string | null) {
                 @click="updateStatus(state)"
               >
                 <div class="flex items-center gap-2">
-                  <component
-                    :is="getStatusIcon(state.stateType).icon"
-                    :class="['h-4 w-4', getStatusIcon(state.stateType).color]"
+                  <LinearStatusIcon
+                    :name="state.name"
+                    :type="state.stateType"
+                    :size="14"
+                    glyph-bg="var(--linear-overlay-bg)"
                   />
                   {{ state.name }}
                 </div>
@@ -557,9 +547,11 @@ function formatDate(dateString?: string | null) {
             </div>
           </Dropdown>
           <div v-else class="flex items-center gap-2 px-3 py-2 bg-[var(--linear-surface)] border border-[var(--linear-border)] rounded text-sm text-[var(--linear-text)]">
-            <component
-              :is="getStatusIcon(issue.workflowState?.stateType).icon"
-              :class="['h-4 w-4', getStatusIcon(issue.workflowState?.stateType).color]"
+            <LinearStatusIcon
+              :name="issue.workflowState?.name"
+              :type="issue.workflowState?.stateType"
+              :size="14"
+              glyph-bg="var(--linear-surface)"
             />
             {{ issue.workflowState?.name || 'Backlog' }}
           </div>
@@ -572,9 +564,10 @@ function formatDate(dateString?: string | null) {
             <template #trigger>
               <button class="w-full flex items-center justify-between gap-2 px-3 py-2 bg-[var(--linear-surface)] border border-[var(--linear-border)] rounded hover:bg-[var(--linear-surface)] text-sm text-[var(--linear-text)] transition-colors">
                 <div class="flex items-center gap-2">
-                  <component
-                    :is="getPriority(issue.priority || 0).icon"
-                    :class="['h-4 w-4', getPriority(issue.priority || 0).color]"
+                  <LinearPriorityIcon
+                    class="text-[var(--linear-muted)]"
+                    :priority="(issue.priority || 0)"
+                    :size="16"
                   />
                   {{ getPriority(issue.priority || 0).label }}
                 </div>
@@ -588,16 +581,17 @@ function formatDate(dateString?: string | null) {
                 @click="updatePriority(p.value)"
               >
                 <div class="flex items-center gap-2">
-                  <component :is="p.icon" :class="['h-4 w-4', p.color]" />
+                  <LinearPriorityIcon class="text-[var(--linear-muted)]" :priority="p.value" :size="16" />
                   {{ p.label }}
                 </div>
               </DropdownItem>
             </div>
           </Dropdown>
           <div v-else class="flex items-center gap-2 px-3 py-2 bg-[var(--linear-surface)] border border-[var(--linear-border)] rounded text-sm text-[var(--linear-text)]">
-            <component
-              :is="getPriority(issue.priority || 0).icon"
-              :class="['h-4 w-4', getPriority(issue.priority || 0).color]"
+            <LinearPriorityIcon
+              class="text-[var(--linear-muted)]"
+              :priority="(issue.priority || 0)"
+              :size="16"
             />
             {{ getPriority(issue.priority || 0).label }}
           </div>

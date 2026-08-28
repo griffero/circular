@@ -8,6 +8,8 @@ import { cn } from '@/utils/cn'
 import Avatar from '@/components/ui/Avatar.vue'
 import Button from '@/components/ui/Button.vue'
 import IssueFiltersComponent from './IssueFilters.vue'
+import LinearStatusIcon from '@/components/icons/LinearStatusIcon.vue'
+import LinearPriorityIcon from '@/components/icons/LinearPriorityIcon.vue'
 import { 
   Plus, 
   Circle,
@@ -578,24 +580,20 @@ function getEffectiveStatus(issue: Issue): IssueStatus {
               class="flex items-center gap-3 px-4 py-2 hover:bg-[var(--linear-elevated)] cursor-pointer border-b border-[var(--linear-border-subtle)] group"
             >
               <!-- Priority indicator -->
-              <div class="w-4 flex justify-center">
-                <span 
-                  v-if="issue.priority > 0"
-                  class="text-xs"
-                  :class="priorityConfig[issue.priority]?.color"
-                >
-                  ●
-                </span>
+              <div class="w-4 flex justify-center text-[var(--linear-muted)]">
+                <LinearPriorityIcon :priority="issue.priority" :size="16" />
               </div>
 
               <!-- Status icon -->
-              <component 
-                :is="statusConfig[getEffectiveStatus(issue)].icon" 
-                :class="cn('w-4 h-4 flex-shrink-0', statusConfig[getEffectiveStatus(issue)].color)" 
+              <LinearStatusIcon
+                class="flex-shrink-0"
+                :name="issue.workflowState?.name"
+                :type="issue.workflowState?.stateType"
+                :size="14"
               />
 
               <!-- Issue identifier -->
-              <span class="text-[13px] text-gray-500 font-mono w-20 flex-shrink-0">
+              <span class="issue-identifier w-20 flex-shrink-0">
                 {{ issue.identifier }}
               </span>
 

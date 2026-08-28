@@ -4,19 +4,10 @@ import { useRouter } from 'vue-router'
 import { cn } from '@/utils/cn'
 import Avatar from '@/components/ui/Avatar.vue'
 import OriginBadge from '@/components/ui/OriginBadge.vue'
-import type { Issue, IssueStatus, IssuePriority, WorkflowStateType } from '@/types'
-import {
-  Circle,
-  CheckCircle2,
-  XCircle,
-  Clock,
-  AlertTriangle,
-  ArrowUp,
-  ArrowRight,
-  ArrowDown,
-  Minus,
-  Calendar
-} from 'lucide-vue-next'
+import LinearStatusIcon from '@/components/icons/LinearStatusIcon.vue'
+import LinearPriorityIcon from '@/components/icons/LinearPriorityIcon.vue'
+import type { Issue, IssueStatus, WorkflowStateType } from '@/types'
+import { Calendar } from 'lucide-vue-next'
 
 const props = defineProps<{
   issue: Issue
@@ -27,23 +18,6 @@ const emit = defineEmits<{
 }>()
 
 const router = useRouter()
-
-const statusConfig: Record<IssueStatus, { icon: typeof Circle; color: string }> = {
-  backlog: { icon: Circle, color: 'text-gray-400' },
-  todo: { icon: Circle, color: 'text-gray-500' },
-  in_progress: { icon: Clock, color: 'text-yellow-500' },
-  in_review: { icon: Clock, color: 'text-blue-500' },
-  done: { icon: CheckCircle2, color: 'text-green-500' },
-  canceled: { icon: XCircle, color: 'text-red-400' },
-}
-
-const priorityConfig: Record<IssuePriority, { icon: typeof Minus; color: string; label: string }> = {
-  0: { icon: Minus, color: 'text-gray-400', label: '' },
-  1: { icon: AlertTriangle, color: 'text-red-500', label: 'Urgent' },
-  2: { icon: ArrowUp, color: 'text-orange-500', label: 'High' },
-  3: { icon: ArrowRight, color: 'text-yellow-500', label: 'Medium' },
-  4: { icon: ArrowDown, color: 'text-blue-500', label: 'Low' },
-}
 
 function getEffectiveStatus(issue: Issue): IssueStatus {
   if (issue.workflowState?.stateType) {
@@ -60,10 +34,6 @@ function getEffectiveStatus(issue: Issue): IssueStatus {
   return issue.status || 'backlog'
 }
 
-const statusIcon = computed(() => statusConfig[getEffectiveStatus(props.issue)]?.icon || Circle)
-const statusColor = computed(() => statusConfig[getEffectiveStatus(props.issue)]?.color || 'text-gray-400')
-const priorityIcon = computed(() => priorityConfig[props.issue.priority]?.icon || Minus)
-const priorityColor = computed(() => priorityConfig[props.issue.priority]?.color || 'text-gray-400')
 
 const isOverdue = computed(() => {
   if (!props.issue.dueDate) return false
@@ -100,22 +70,25 @@ function formatDate(dateString: string) {
       'border-b border-gray-100 dark:border-gray-800 last:border-b-0'
     )"
   >
-    <!-- Priority indicator -->
-    <div v-if="issue.priority > 0" class="flex-shrink-0">
-      <component :is="priorityIcon" :class="cn('h-4 w-4', priorityColor)" />
+    <!-- Priority indicator: Linear keeps the slot and draws dashes at priority 0 -->
+    <div class="flex-shrink-0 text-[var(--linear-muted)]">
+      <LinearPriorityIcon :priority="issue.priority" :size="16" />
     </div>
-    <div v-else class="w-4 flex-shrink-0" />
 
     <!-- Status icon -->
     <button
       @click.stop
       :class="cn('flex-shrink-0 hover:scale-110 transition-transform')"
     >
-      <component :is="statusIcon" :class="cn('h-4 w-4', statusColor)" />
+      <LinearStatusIcon
+        :name="issue.workflowState?.name"
+        :type="issue.workflowState?.stateType"
+        :size="14"
+      />
     </button>
 
     <!-- Identifier + Origin -->
-    <span class="flex items-center gap-1 flex-shrink-0 text-xs font-mono text-gray-500">
+    <span class="issue-identifier flex items-center gap-1 flex-shrink-0">
       <OriginBadge :linear-id="issue.linearId" />
       <span class="w-16">{{ issue.identifier }}</span>
     </span>
