@@ -16,7 +16,7 @@ class UserSerializer < Blueprinter::Base
 
   view :with_teams do
     association :teams, blueprint: TeamSerializer, view: :minimal
-    
+
     field :team_memberships do |user|
       user.team_memberships.map do |tm|
         {

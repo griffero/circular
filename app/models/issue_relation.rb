@@ -7,7 +7,7 @@ class IssueRelation < ApplicationRecord
   belongs_to :related_issue, class_name: "Issue"
 
   validates :relation_type, presence: true, inclusion: { in: RELATION_TYPES }
-  validates :issue_id, uniqueness: { scope: [:related_issue_id, :relation_type] }
+  validates :issue_id, uniqueness: { scope: [ :related_issue_id, :relation_type ] }
 
   # Prevent self-referencing relations
   validate :not_self_referencing

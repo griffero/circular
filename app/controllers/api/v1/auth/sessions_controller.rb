@@ -35,8 +35,8 @@ module Api
               )
             else
               # User not found - they need to be synced from Linear first
-              return render json: { 
-                error: "No account found for this email. Please contact your workspace admin to be added to Linear first." 
+              return render json: {
+                error: "No account found for this email. Please contact your workspace admin to be added to Linear first."
               }, status: :not_found
             end
           end

@@ -19,9 +19,9 @@ module Api
         # Support both UUID and team key
         @team = if key.match?(/\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\z/i)
                   Team.find(key)
-                else
+        else
                   Team.find_by!(key: key.upcase)
-                end
+        end
       end
     end
   end

@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe Issue, type: :model do
+RSpec.describe Issue do
   describe "associations" do
     it { is_expected.to belong_to(:team) }
     it { is_expected.to belong_to(:creator).class_name("User") }

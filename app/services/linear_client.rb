@@ -307,7 +307,7 @@ class LinearClient
     when 200
       data = JSON.parse(response.body)
       if data["errors"]
-        raise Error, "GraphQL errors: #{data['errors'].map { |e| e['message'] }.join(', ')}"
+        raise Error, "GraphQL errors: #{data["errors"].map { |e| e["message"] }.join(", ")}"
       end
       data["data"]
     when 429

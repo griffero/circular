@@ -2,7 +2,7 @@
 inherit_gem:
   rubocop-rails-omakase: rubocop.yml
 
-require:
+plugins:
   - rubocop-rails
   - rubocop-rspec
   - rubocop-performance
@@ -69,11 +69,27 @@ Rails/HasManyOrHasOneDependent:
   Enabled: false
 
 # RSpec
+#
+# The request specs describe whole API round-trips: build the params, post,
+# then assert on status *and* the response body. That legitimately runs a
+# little past the defaults, and splitting one round-trip across several
+# examples to satisfy a counter makes the specs harder to read, not easier.
 RSpec/ExampleLength:
-  Max: 20
+  Max: 25
 
 RSpec/MultipleExpectations:
-  Max: 5
+  Max: 6
+
+RSpec/MultipleMemoizedHelpers:
+  Max: 6
 
 RSpec/NestedGroups:
   Max: 4
+
+# Authentication is cookie/session based and the only programmatic login route
+# (auth/token-login) is gated behind TOKEN_LOGIN_SECRET and mints its own admin
+# user, so request specs cannot sign in as the user they set up. Stubbing
+# ApplicationController is the seam that is actually available. Worth revisiting
+# if a test-friendly login helper lands.
+RSpec/AnyInstance:
+  Enabled: false

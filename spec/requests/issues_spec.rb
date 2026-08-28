@@ -132,7 +132,7 @@ RSpec.describe "Issues API" do
 
       expect(response).to have_http_status(:ok)
       ids = json_response[:comments].map { |item| item[:id] }
-      expect(ids).to eq([older.id, newer.id])
+      expect(ids).to eq([ older.id, newer.id ])
     end
 
     it "creates a comment for an issue" do

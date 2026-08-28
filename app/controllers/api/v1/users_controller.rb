@@ -83,12 +83,12 @@ module Api
       end
 
       def user_params
-        permitted = [:name, :display_name, :avatar_url, :timezone]
+        permitted = [ :name, :display_name, :avatar_url, :timezone ]
         permitted << :email if current_user&.admin?
 
         # Only owners can change roles and active status
         if current_user&.owner?
-          permitted += [:role, :active]
+          permitted += [ :role, :active ]
         end
 
         params.fetch(:user, params).permit(permitted)

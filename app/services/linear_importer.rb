@@ -36,7 +36,7 @@ class LinearImporter
       Sync::UserSync.upsert_from_linear(data)
       @stats[:users] += 1
     rescue StandardError => e
-      Rails.logger.error "Failed to import user #{data['id']}: #{e.message}"
+      Rails.logger.error "Failed to import user #{data["id"]}: #{e.message}"
       @stats[:user_errors] += 1
     end
     Rails.logger.info "Imported #{stats[:users]} users"
@@ -48,7 +48,7 @@ class LinearImporter
       Sync::TeamSync.upsert_from_linear(data)
       @stats[:teams] += 1
     rescue StandardError => e
-      Rails.logger.error "Failed to import team #{data['id']}: #{e.message}"
+      Rails.logger.error "Failed to import team #{data["id"]}: #{e.message}"
       @stats[:team_errors] += 1
     end
     Rails.logger.info "Imported #{stats[:teams]} teams"
@@ -60,7 +60,7 @@ class LinearImporter
       Sync::WorkflowStateSync.upsert_from_linear(data)
       @stats[:workflow_states] += 1
     rescue StandardError => e
-      Rails.logger.error "Failed to import workflow state #{data['id']}: #{e.message}"
+      Rails.logger.error "Failed to import workflow state #{data["id"]}: #{e.message}"
       @stats[:workflow_state_errors] += 1
     end
     Rails.logger.info "Imported #{stats[:workflow_states]} workflow states"
@@ -80,7 +80,7 @@ class LinearImporter
       Sync::LabelSync.upsert_from_linear(data)
       @stats[:labels] += 1
     rescue StandardError => e
-      Rails.logger.error "Failed to import label #{data['id']}: #{e.message}"
+      Rails.logger.error "Failed to import label #{data["id"]}: #{e.message}"
       @stats[:label_errors] += 1
     end
 
@@ -89,7 +89,7 @@ class LinearImporter
       Sync::LabelSync.upsert_from_linear(data)
       @stats[:labels] += 1
     rescue StandardError => e
-      Rails.logger.error "Failed to import label #{data['id']}: #{e.message}"
+      Rails.logger.error "Failed to import label #{data["id"]}: #{e.message}"
       @stats[:label_errors] += 1
     end
 
@@ -102,7 +102,7 @@ class LinearImporter
       Sync::ProjectSync.upsert_from_linear(data)
       @stats[:projects] += 1
     rescue StandardError => e
-      Rails.logger.error "Failed to import project #{data['id']}: #{e.message}"
+      Rails.logger.error "Failed to import project #{data["id"]}: #{e.message}"
       @stats[:project_errors] += 1
     end
     Rails.logger.info "Imported #{stats[:projects]} projects"
@@ -114,7 +114,7 @@ class LinearImporter
       Sync::ProjectUpdateSync.upsert_from_linear(data)
       @stats[:project_updates] += 1
     rescue StandardError => e
-      Rails.logger.error "Failed to import project update #{data['id']}: #{e.message}"
+      Rails.logger.error "Failed to import project update #{data["id"]}: #{e.message}"
       @stats[:project_update_errors] += 1
     end
     Rails.logger.info "Imported #{stats[:project_updates]} project updates"
@@ -126,7 +126,7 @@ class LinearImporter
       Sync::InitiativeSync.upsert_from_linear(data)
       @stats[:initiatives] += 1
     rescue StandardError => e
-      Rails.logger.error "Failed to import initiative #{data['id']}: #{e.message}"
+      Rails.logger.error "Failed to import initiative #{data["id"]}: #{e.message}"
       @stats[:initiative_errors] += 1
     end
     Rails.logger.info "Imported #{stats[:initiatives]} initiatives"
@@ -138,7 +138,7 @@ class LinearImporter
       Sync::CycleSync.upsert_from_linear(data)
       @stats[:cycles] += 1
     rescue StandardError => e
-      Rails.logger.error "Failed to import cycle #{data['id']}: #{e.message}"
+      Rails.logger.error "Failed to import cycle #{data["id"]}: #{e.message}"
       @stats[:cycle_errors] += 1
     end
     Rails.logger.info "Imported #{stats[:cycles]} cycles"
@@ -159,7 +159,7 @@ class LinearImporter
       Sync::IssueSync.upsert_from_linear(data)
       @stats[:issues] += 1
     rescue StandardError => e
-      Rails.logger.error "Failed to import issue #{data['id']}: #{e.message}"
+      Rails.logger.error "Failed to import issue #{data["id"]}: #{e.message}"
       @stats[:issue_errors] += 1
     end
 
@@ -168,7 +168,7 @@ class LinearImporter
       Sync::IssueSync.upsert_from_linear(data)
       @stats[:issues] += 1
     rescue StandardError => e
-      Rails.logger.error "Failed to import issue #{data['id']}: #{e.message}"
+      Rails.logger.error "Failed to import issue #{data["id"]}: #{e.message}"
       @stats[:issue_errors] += 1
     end
 
@@ -189,7 +189,7 @@ class LinearImporter
       Sync::CommentSync.upsert_from_linear(data)
       @stats[:comments] += 1
     rescue StandardError => e
-      Rails.logger.error "Failed to import comment #{data['id']}: #{e.message}"
+      Rails.logger.error "Failed to import comment #{data["id"]}: #{e.message}"
       @stats[:comment_errors] += 1
     end
 
@@ -197,7 +197,7 @@ class LinearImporter
       Sync::CommentSync.upsert_from_linear(data)
       @stats[:comments] += 1
     rescue StandardError => e
-      Rails.logger.error "Failed to import comment #{data['id']}: #{e.message}"
+      Rails.logger.error "Failed to import comment #{data["id"]}: #{e.message}"
       @stats[:comment_errors] += 1
     end
 
@@ -210,7 +210,7 @@ class LinearImporter
       Sync::IssueRelationSync.upsert_from_linear(data)
       @stats[:issue_relations] += 1
     rescue StandardError => e
-      Rails.logger.error "Failed to import issue relation #{data['id']}: #{e.message}"
+      Rails.logger.error "Failed to import issue relation #{data["id"]}: #{e.message}"
       @stats[:issue_relation_errors] += 1
     end
     Rails.logger.info "Imported #{stats[:issue_relations]} issue relations"
@@ -225,7 +225,7 @@ class LinearImporter
       Sync::IssueSync.upsert_from_linear(data)
       @stats[:issues] += 1
     rescue StandardError => e
-      Rails.logger.error "Failed to sync issue #{data['id']}: #{e.message}"
+      Rails.logger.error "Failed to sync issue #{data["id"]}: #{e.message}"
       @stats[:issue_errors] += 1
     end
 

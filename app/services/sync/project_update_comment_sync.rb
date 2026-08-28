@@ -12,7 +12,7 @@ module Sync
         # Find user by Linear ID
         user = User.find_by(linear_id: data.dig("user", "id"))
         unless user
-          Rails.logger.warn "ProjectUpdateCommentSync: User not found for linear_id #{data.dig('user', 'id')}"
+          Rails.logger.warn "ProjectUpdateCommentSync: User not found for linear_id #{data.dig("user", "id")}"
           return
         end
 
