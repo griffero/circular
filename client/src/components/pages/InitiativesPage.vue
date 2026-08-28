@@ -1,35 +1,13 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { api } from '@/api/client'
-import { useEmojiStore } from '@/stores/emoji'
 import { useUiStore } from '@/stores/ui'
 import EmojiIcon from '@/components/ui/EmojiIcon.vue'
 import Avatar from '@/components/ui/Avatar.vue'
 import UserLink from '@/components/ui/UserLink.vue'
-import {
-  Lightbulb,
-  Plus,
-  Filter,
-  Settings2,
-  ChevronDown,
-  ChevronRight,
-  Circle,
-  CheckCircle2,
-  Clock,
-  Minus,
-  TrendingUp,
-  TrendingDown,
-  AlertTriangle,
-  ChevronsUp,
-  ChevronsDown,
-  X
-} from 'lucide-vue-next'
+import { Lightbulb, Plus, Filter, ChevronRight, Circle, CheckCircle2, Minus, TrendingUp, TrendingDown, AlertTriangle, ChevronsUp, X } from 'lucide-vue-next'
 import Dropdown from '@/components/ui/Dropdown.vue'
 import DropdownItem from '@/components/ui/DropdownItem.vue'
-
-const router = useRouter()
-const emojiStore = useEmojiStore()
 const uiStore = useUiStore()
 
 // Types
@@ -209,11 +187,6 @@ const groupedInitiatives = computed(() => {
   return sortedGroups
 })
 
-// Check if emoji
-function hasEmoji(icon?: string | null): boolean {
-  return emojiStore.isRenderableEmoji(icon)
-}
-
 // Toggle group expansion
 function toggleGroup(key: string) {
   if (expandedGroups.value.has(key)) {
@@ -224,7 +197,7 @@ function toggleGroup(key: string) {
 }
 
 // Get health display
-function getHealthDisplay(health?: string, hasRecentUpdate?: boolean) {
+function getHealthDisplay(health?: string) {
   switch (health) {
     case 'onTrack':
       return { label: 'On track', class: 'text-green-400', icon: TrendingUp, dotClass: 'bg-green-500' }

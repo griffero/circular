@@ -1,30 +1,16 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useAppStore } from '@/stores/app'
 import { useAuthStore } from '@/stores/auth'
 import { api } from '@/api/client'
 import Avatar from '@/components/ui/Avatar.vue'
-import Badge from '@/components/ui/Badge.vue'
 import type { Issue, User } from '@/types'
-import {
-  ChevronLeft,
-  Filter,
-  LayoutGrid,
-  Star,
-  Circle,
-  CheckCircle2,
-  XCircle,
-  Clock,
-  AlertCircle,
-  X
-} from 'lucide-vue-next'
+import { Filter, Circle, CheckCircle2, XCircle, Clock, AlertCircle, X } from 'lucide-vue-next'
 import Dropdown from '@/components/ui/Dropdown.vue'
 import DropdownItem from '@/components/ui/DropdownItem.vue'
 
 const route = useRoute()
 const router = useRouter()
-const appStore = useAppStore()
 const authStore = useAuthStore()
 
 const userId = computed(() => route.params.userId as string)
@@ -188,16 +174,6 @@ function getStatusIcon(status: string) {
       return { icon: XCircle, class: 'text-gray-400' }
     default:
       return { icon: Circle, class: 'text-gray-400' }
-  }
-}
-
-function getPriorityLabel(priority: number | null) {
-  switch (priority) {
-    case 1: return 'Urgent'
-    case 2: return 'High'
-    case 3: return 'Medium'
-    case 4: return 'Low'
-    default: return 'No priority'
   }
 }
 

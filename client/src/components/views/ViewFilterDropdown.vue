@@ -4,29 +4,7 @@ import { useAppStore } from '@/stores/app'
 import { useIssuesStore, type IssueFilters } from '@/stores/issues'
 import { useAuthStore } from '@/stores/auth'
 import { cn } from '@/utils/cn'
-import {
-  Users,
-  Circle,
-  CircleDot,
-  Clock,
-  CheckCircle2,
-  XCircle,
-  BarChart3,
-  Tag,
-  FolderKanban,
-  Calendar,
-  ChevronRight,
-  Search,
-  AlertTriangle,
-  ArrowUp,
-  ArrowRight,
-  ArrowDown,
-  Minus,
-  User,
-  UserX,
-  Layers
-} from 'lucide-vue-next'
-
+import { Users, Circle, CircleDot, Clock, CheckCircle2, XCircle, BarChart3, Tag, FolderKanban, Calendar, ChevronRight, Search, AlertTriangle, ArrowUp, ArrowRight, ArrowDown, Minus, User, UserX } from 'lucide-vue-next'
 const props = defineProps<{
   filters: IssueFilters
 }>()
@@ -48,7 +26,6 @@ const teams = computed(() => appStore.teams)
 const projects = computed(() => appStore.projects)
 const users = computed(() => appStore.users)
 const labels = computed(() => issuesStore.labels)
-const workflowStates = computed(() => issuesStore.workflowStates)
 const currentUser = computed(() => authStore.user)
 
 // Fetch data on mount

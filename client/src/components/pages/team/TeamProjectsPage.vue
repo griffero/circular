@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useEmojiStore } from '@/stores/emoji'
 import { api } from '@/api/client'
@@ -8,7 +8,6 @@ import Avatar from '@/components/ui/Avatar.vue'
 import { Filter, SlidersHorizontal, Plus } from 'lucide-vue-next'
 import { useCurrentTeam } from '@/composables/useCurrentTeam'
 import type { Project } from '@/types'
-
 const router = useRouter()
 const emojiStore = useEmojiStore()
 const { currentTeam } = useCurrentTeam()

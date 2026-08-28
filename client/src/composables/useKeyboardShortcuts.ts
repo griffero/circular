@@ -87,25 +87,12 @@ export function useKeyboardShortcuts() {
       return
     }
 
-    // ? - Show keyboard shortcuts help
-    if (event.key === '?' || (event.shiftKey && event.key === '/')) {
-      event.preventDefault()
-      uiStore.openShortcutsHelp()
-      return
-    }
-
-    // / - Open search (command palette in search mode)
-    if (event.key === '/') {
-      event.preventDefault()
-      uiStore.openCommandPalette()
-      return
-    }
-
-    // C - Create new issue
-    if (event.key === 'c' && !event.metaKey && !event.ctrlKey) {
-      event.preventDefault()
-      uiStore.openCreateIssueModal()
-      return
+    // G+a/b/d/c all mean "this view, for whatever team I'm looking at".
+    const goToCurrentTeamView = (view: 'active' | 'backlog' | 'board' | 'cycles') => {
+      const teamMatch = router.currentRoute.value.path.match(/\/team\/([^/]+)/)
+      if (teamMatch) {
+        router.push(`/team/${teamMatch[1]}/${view}`)
+      }
     }
 
     // Handle G + key navigation
@@ -135,41 +122,42 @@ export function useKeyboardShortcuts() {
           break
         case 'a':
           event.preventDefault()
-          // Navigate to active issues of current team or first team
-          const currentPath = router.currentRoute.value.path
-          const teamMatch = currentPath.match(/\/team\/([^/]+)/)
-          if (teamMatch) {
-            router.push(`/team/${teamMatch[1]}/active`)
-          }
+          goToCurrentTeamView('active')
           break
         case 'b':
           event.preventDefault()
-          // Navigate to backlog of current team
-          const backlogPath = router.currentRoute.value.path
-          const backlogMatch = backlogPath.match(/\/team\/([^/]+)/)
-          if (backlogMatch) {
-            router.push(`/team/${backlogMatch[1]}/backlog`)
-          }
+          goToCurrentTeamView('backlog')
           break
         case 'd':
           event.preventDefault()
-          // Navigate to board of current team
-          const boardPath = router.currentRoute.value.path
-          const boardMatch = boardPath.match(/\/team\/([^/]+)/)
-          if (boardMatch) {
-            router.push(`/team/${boardMatch[1]}/board`)
-          }
+          goToCurrentTeamView('board')
           break
         case 'c':
           event.preventDefault()
-          // Navigate to cycles of current team
-          const cyclesPath = router.currentRoute.value.path
-          const cyclesMatch = cyclesPath.match(/\/team\/([^/]+)/)
-          if (cyclesMatch) {
-            router.push(`/team/${cyclesMatch[1]}/cycles`)
-          }
+          goToCurrentTeamView('cycles')
           break
       }
+      return
+    }
+
+    // ? - Show keyboard shortcuts help
+    if (event.key === '?' || (event.shiftKey && event.key === '/')) {
+      event.preventDefault()
+      uiStore.openShortcutsHelp()
+      return
+    }
+
+    // / - Open search (command palette in search mode)
+    if (event.key === '/') {
+      event.preventDefault()
+      uiStore.openCommandPalette()
+      return
+    }
+
+    // C - Create new issue
+    if (event.key === 'c' && !event.metaKey && !event.ctrlKey) {
+      event.preventDefault()
+      uiStore.openCreateIssueModal()
       return
     }
 

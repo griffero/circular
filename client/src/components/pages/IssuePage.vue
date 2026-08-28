@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useIssuesStore } from '@/stores/issues'
 import { useAppStore } from '@/stores/app'
-import type { Issue, WorkflowState } from '@/types'
+import type { WorkflowState } from '@/types'
 import Dropdown from '@/components/ui/Dropdown.vue'
 import LinearStatusIcon from '@/components/icons/LinearStatusIcon.vue'
 import LinearPriorityIcon from '@/components/icons/LinearPriorityIcon.vue'
@@ -17,28 +17,7 @@ import EmojiIcon from '@/components/ui/EmojiIcon.vue'
 import OriginBadge from '@/components/ui/OriginBadge.vue'
 import { isFromLinear } from '@/composables/useOrigin'
 import { useEmojiStore } from '@/stores/emoji'
-import {
-  ArrowLeft,
-  Copy,
-  Trash2,
-  MoreHorizontal,
-  CheckCircle2,
-  User,
-  Tag,
-  FolderKanban,
-  Calendar,
-  MessageSquare,
-  Send,
-  ChevronDown,
-  Minus,
-  AlertCircle,
-  SignalHigh,
-  SignalMedium,
-  SignalLow,
-  Check,
-  CircleDashed,
-} from 'lucide-vue-next'
-
+import { ArrowLeft, Copy, Trash2, MoreHorizontal, CheckCircle2, User, Tag, FolderKanban, Calendar, MessageSquare, Send, ChevronDown, Minus, AlertCircle, SignalHigh, SignalMedium, SignalLow, Check, CircleDashed } from 'lucide-vue-next'
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()

@@ -3,18 +3,7 @@ import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { cn } from '@/utils/cn'
-import {
-  ChevronLeft,
-  Settings,
-  Users,
-  UsersRound,
-  Tags,
-  User,
-  Bell,
-  Shield,
-  Link2
-} from 'lucide-vue-next'
-
+import { ChevronLeft, Settings, Users, UsersRound, Tags, User } from 'lucide-vue-next'
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
