@@ -71,7 +71,7 @@ module Api
 
         # Pagination
         page = (params[:page] || 1).to_i
-        per_page = [(params[:per_page] || 100).to_i, 500].min
+        per_page = [ (params[:per_page] || 100).to_i, 500 ].min
         total_count = issues.count
         issues = issues.offset((page - 1) * per_page).limit(per_page)
 
@@ -155,8 +155,8 @@ module Api
         @issue = Issue.includes(
           :creator, :assignee, :team, :project, :labels,
           :workflow_state, :cycle, :attachments,
-          sub_issues: [:assignee, :workflow_state],
-          parent: [:assignee, :workflow_state]
+          sub_issues: [ :assignee, :workflow_state ],
+          parent: [ :assignee, :workflow_state ]
         ).find(params[:id])
       end
 

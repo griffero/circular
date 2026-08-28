@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
@@ -55,7 +57,7 @@ Rails.application.configure do
   config.action_mailer.perform_caching = false
 
   # Set host to be used by links generated in mailer templates
-  config.action_mailer.default_url_options = { 
+  config.action_mailer.default_url_options = {
     host: ENV.fetch("APP_HOST", "circular-api.onrender.com"),
     protocol: "https"
   }

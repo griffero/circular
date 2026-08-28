@@ -4,7 +4,7 @@ namespace :slack do
   desc "Sync Slack emojis"
   task sync_emojis: :environment do
     puts "Starting Slack emoji sync..."
-    puts "Token: #{ENV['SLACK_BOT_TOKEN'] ? 'Present (' + ENV['SLACK_BOT_TOKEN'][0..10] + '...)' : 'MISSING!'}"
+    puts "Token: #{ENV["SLACK_BOT_TOKEN"] ? "Present (" + ENV["SLACK_BOT_TOKEN"][0..10] + "...)" : "MISSING!"}"
 
     SyncSlackEmojisJob.perform_now
 
@@ -20,7 +20,7 @@ namespace :linear do
   desc "Import all data from Linear"
   task import: :environment do
     puts "Starting full Linear import..."
-    puts "API Key: #{ENV['LINEAR_API_KEY'] ? 'Present' : 'MISSING!'}"
+    puts "API Key: #{ENV["LINEAR_API_KEY"] ? "Present" : "MISSING!"}"
 
     importer = LinearImporter.new
     stats = importer.import_all
@@ -39,7 +39,7 @@ namespace :linear do
   end
 
   desc "Import changes from Linear since a specific time (default: 1 hour ago)"
-  task :sync, [:since] => :environment do |_t, args|
+  task :sync, [ :since ] => :environment do |_t, args|
     since = args[:since] ? Time.parse(args[:since]) : 1.hour.ago
     puts "Syncing changes since #{since}..."
 
@@ -57,7 +57,7 @@ namespace :linear do
     client = LinearClient.new
     org = client.organization
 
-    puts "Connected to organization: #{org['name']} (#{org['urlKey']})"
+    puts "Connected to organization: #{org["name"]} (#{org["urlKey"]})"
 
     # Get counts
     users = client.users.count
@@ -89,14 +89,14 @@ namespace :linear do
 
     puts "\n=== Recent Sync Logs ==="
     SyncLog.recent.limit(10).each do |log|
-      puts "#{log.created_at.strftime('%H:%M:%S')} - #{log.entity_type} #{log.action} (#{log.status})"
+      puts "#{log.created_at.strftime("%H:%M:%S")} - #{log.entity_type} #{log.action} (#{log.status})"
     end
   end
 
   desc "Import only users from Linear (for initial setup)"
   task import_users: :environment do
     puts "Starting Linear users import..."
-    puts "API Key: #{ENV['LINEAR_API_KEY'] ? 'Present' : 'MISSING!'}"
+    puts "API Key: #{ENV["LINEAR_API_KEY"] ? "Present" : "MISSING!"}"
 
     importer = LinearImporter.new
     importer.import_users
@@ -105,7 +105,7 @@ namespace :linear do
     puts "Total users synced: #{User.where.not(linear_id: nil).count}"
     puts "Owners: #{User.owners.count}"
     puts "Admins: #{User.admins.count}"
-    puts "Members: #{User.where(role: 'member').count}"
+    puts "Members: #{User.where(role: "member").count}"
 
     puts "\n=== Sample Users ==="
     User.where.not(linear_id: nil).limit(10).each do |user|
@@ -129,8 +129,8 @@ namespace :linear do
       puts "  Email: #{user.email}"
       puts "  Display Name: #{user.display_name}" if user.display_name.present?
       puts "  Role: #{user.role}"
-      puts "  Status: #{status.any? ? status.join(', ') : 'active member'}"
-      puts "  Teams: #{user.teams.pluck(:name).join(', ')}" if user.teams.any?
+      puts "  Status: #{status.any? ? status.join(", ") : "active member"}"
+      puts "  Teams: #{user.teams.pluck(:name).join(", ")}" if user.teams.any?
       puts ""
     end
 

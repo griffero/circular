@@ -1,31 +1,12 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useAuthStore } from '@/stores/auth'
 import { useAppStore, type ProjectUpdate } from '@/stores/app'
-import { useEmojiStore } from '@/stores/emoji'
-import EmojiIcon from '@/components/ui/EmojiIcon.vue'
 import EmojiText from '@/components/ui/EmojiText.vue'
 import UserLink from '@/components/ui/UserLink.vue'
 import Dropdown from '@/components/ui/Dropdown.vue'
 import DropdownItem from '@/components/ui/DropdownItem.vue'
-import {
-  Zap,
-  MessageCircle,
-  Smile,
-  ChevronDown,
-  MoreHorizontal,
-  Copy,
-  Bell,
-  BellOff,
-  ExternalLink,
-  CheckCircle2
-} from 'lucide-vue-next'
-
-const authStore = useAuthStore()
+import { Zap, MessageCircle, ChevronDown, MoreHorizontal, Copy, Bell, BellOff, ExternalLink, CheckCircle2 } from 'lucide-vue-next'
 const appStore = useAppStore()
-const emojiStore = useEmojiStore()
-
-const user = computed(() => authStore.user)
 const projectUpdates = computed(() => appStore.projectUpdates)
 
 // Active tab
@@ -78,11 +59,6 @@ const groupedUpdates = computed(() => {
   
   return { today, thisWeek, older }
 })
-
-// Check if has emoji
-function hasEmoji(icon?: string | null): boolean {
-  return emojiStore.isRenderableEmoji(icon)
-}
 
 function getStatusBadgeClass(health: string | null) {
   if (health === 'atRisk') return 'bg-yellow-500/20 text-yellow-400'

@@ -1,28 +1,11 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useAppStore } from '@/stores/app'
 import { useEmojiStore } from '@/stores/emoji'
 import { useUiStore } from '@/stores/ui'
 import type { Project } from '@/types'
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  ZoomIn, 
-  ZoomOut,
-  Circle,
-  CheckCircle2,
-  XCircle,
-  Minus,
-  ArrowLeft,
-  ArrowRight,
-  Settings2,
-  Filter,
-  Link2,
-  Plus,
-  Check
-} from 'lucide-vue-next'
+import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Circle, CheckCircle2, XCircle, Settings2, Filter, Link2, Plus, Check } from 'lucide-vue-next'
 import EmojiIcon from '@/components/ui/EmojiIcon.vue'
-import Avatar from '@/components/ui/Avatar.vue'
 import UserLink from '@/components/ui/UserLink.vue'
 import Dropdown from '@/components/ui/Dropdown.vue'
 import DropdownItem from '@/components/ui/DropdownItem.vue'
@@ -193,18 +176,6 @@ function clearFilters() {
 // Check if any filter is active
 const hasActiveFilters = computed(() => stateFilter.value !== null || healthFilter.value !== null)
 
-// Get date position as percentage
-function getDatePosition(dateStr: string | undefined): number | null {
-  if (!dateStr) return null
-  const date = new Date(dateStr)
-  if (isNaN(date.getTime())) return null
-  
-  const totalMs = timelineEnd.getTime() - timelineStart.getTime()
-  const dateMs = date.getTime() - timelineStart.getTime()
-  
-  return (dateMs / totalMs) * 100
-}
-
 // Get bar position in pixels
 function getBarPixelPosition(project: Project): { left: number; width: number } | null {
   if (!project.startDate && !project.targetDate) return null
@@ -234,26 +205,6 @@ function getBarPixelPosition(project: Project): { left: number; width: number } 
     left: leftPx,
     width: Math.max(rightPx - leftPx, 20)
   }
-}
-
-// Check if project is before visible timeline
-function isBeforeTimeline(project: Project): string | null {
-  if (!project.startDate) return null
-  const startDate = new Date(project.startDate)
-  if (startDate < timelineStart) {
-    return startDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-  }
-  return null
-}
-
-// Check if project is after visible timeline
-function isAfterTimeline(project: Project): string | null {
-  if (!project.targetDate) return null
-  const endDate = new Date(project.targetDate)
-  if (endDate > timelineEnd) {
-    return endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-  }
-  return null
 }
 
 // Today indicator position
@@ -295,14 +246,6 @@ function getHealthColor(health?: string) {
 // Project click handler
 function goToProject(project: Project) {
   emit('select-project', project)
-}
-
-// Scroll sync between project list and timeline
-function onTimelineScroll(e: Event) {
-  const target = e.target as HTMLElement
-  if (timelineHeader.value) {
-    timelineHeader.value.scrollLeft = target.scrollLeft
-  }
 }
 
 function onProjectListScroll(e: Event) {

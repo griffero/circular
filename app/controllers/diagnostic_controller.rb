@@ -22,7 +22,7 @@ class DiagnosticController < ApplicationController
                         email: sample_update.user.email
                       } : nil
                     }
-                  end
+    end
 
     render json: {
       status: "ok",
@@ -60,7 +60,7 @@ class DiagnosticController < ApplicationController
   def user
     email = params[:email]
     user = User.includes(:teams, :team_memberships).find_by_email(email)
-    
+
     if user
       render json: {
         id: user.id,
@@ -83,10 +83,10 @@ class DiagnosticController < ApplicationController
   def make_admin
     email = params[:email]
     user = User.find_by_email(email)
-    
+
     if user
       user.update!(role: "owner")
-      render json: { 
+      render json: {
         message: "User #{email} is now owner",
         user: {
           id: user.id,
@@ -226,13 +226,13 @@ class DiagnosticController < ApplicationController
   # GET /diagnostic/users?search=xxx
   def users
     search = params[:search]&.downcase
-    
+
     users = if search.present?
               User.where("LOWER(email) LIKE ? OR LOWER(name) LIKE ?", "%#{search}%", "%#{search}%")
-            else
+    else
               User.all
-            end
-    
+    end
+
     render json: {
       total: users.count,
       users: users.limit(100).map do |u|

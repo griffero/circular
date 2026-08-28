@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import Modal from '@/components/ui/Modal.vue'
-import { Command, Search, Plus, ArrowUp, ArrowDown } from 'lucide-vue-next'
-
 defineProps<{
   open: boolean
 }>()

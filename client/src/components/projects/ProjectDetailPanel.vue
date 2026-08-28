@@ -1,36 +1,14 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAppStore } from '@/stores/app'
 import { useEmojiStore } from '@/stores/emoji'
 import { api } from '@/api/client'
 import { cn } from '@/utils/cn'
-import Avatar from '@/components/ui/Avatar.vue'
 import EmojiIcon from '@/components/ui/EmojiIcon.vue'
 import UserLink from '@/components/ui/UserLink.vue'
-import type { Project, User, Team } from '@/types'
-import {
-  X,
-  Star,
-  ChevronDown,
-  ChevronRight,
-  Plus,
-  MoreHorizontal,
-  CheckCircle2,
-  Circle,
-  Clock,
-  PauseCircle,
-  XCircle,
-  AlertCircle,
-  Calendar,
-  Users,
-  Layers,
-  Tag,
-  Target,
-  TrendingUp,
-  ExternalLink
-} from 'lucide-vue-next'
-
+import type { Project, User } from '@/types'
+import { X, ChevronDown, Plus, CheckCircle2, Circle, Clock, PauseCircle, XCircle, Calendar, Target, ExternalLink } from 'lucide-vue-next'
 const props = defineProps<{
   projectId: string | null
 }>()
@@ -114,26 +92,6 @@ function goToProject() {
   if (project.value) {
     router.push(`/project/${project.value.slug}`)
   }
-}
-
-// Get user initials
-function getInitials(name: string): string {
-  return name
-    .split(' ')
-    .map(n => n[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2)
-}
-
-// Get user color
-function getUserColor(name: string): string {
-  const colors = ['#6366f1', '#8b5cf6', '#ec4899', '#f43f5e', '#f97316', '#eab308', '#22c55e', '#14b8a6', '#06b6d4', '#3b82f6']
-  let hash = 0
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash)
-  }
-  return colors[Math.abs(hash) % colors.length]
 }
 
 // Computed

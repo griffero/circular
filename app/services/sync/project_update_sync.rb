@@ -13,11 +13,11 @@ module Sync
 
         # Skip if we don't have the project or user
         unless project
-          Rails.logger.warn "ProjectUpdateSync: Skipping update #{data['id']} - project not found: #{data.dig('project', 'id')}"
+          Rails.logger.warn "ProjectUpdateSync: Skipping update #{data["id"]} - project not found: #{data.dig("project", "id")}"
           return nil
         end
         unless user
-          Rails.logger.warn "ProjectUpdateSync: Skipping update #{data['id']} - user not found: #{data.dig('user', 'id')}"
+          Rails.logger.warn "ProjectUpdateSync: Skipping update #{data["id"]} - user not found: #{data.dig("user", "id")}"
           return nil
         end
 

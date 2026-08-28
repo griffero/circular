@@ -24,9 +24,9 @@ module Sync
           user.role = if data["admin"]
                         # First admin becomes owner, rest are admins
                         User.owners.exists? ? "admin" : "owner"
-                      else
+          else
                         "member"
-                      end
+          end
         end
 
         user.save!

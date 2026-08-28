@@ -3,12 +3,11 @@ import { ref, computed } from 'vue'
 import { useAppStore } from '@/stores/app'
 import { useUiStore } from '@/stores/ui'
 import { useEmojiStore } from '@/stores/emoji'
-import { FolderKanban, Plus, LayoutGrid, Calendar, List, Filter } from 'lucide-vue-next'
+import { FolderKanban, Plus } from 'lucide-vue-next'
 import ProjectRoadmap from '@/components/projects/ProjectRoadmap.vue'
 import ProjectDetailPanel from '@/components/projects/ProjectDetailPanel.vue'
 import EmojiIcon from '@/components/ui/EmojiIcon.vue'
 import type { Project } from '@/types'
-
 const appStore = useAppStore()
 const uiStore = useUiStore()
 const emojiStore = useEmojiStore()

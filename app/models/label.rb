@@ -13,7 +13,7 @@ class Label < ApplicationRecord
 
   # Global labels (team_id nil) are available to all teams
   scope :global, -> { where(team_id: nil) }
-  scope :for_team, ->(team_id) { where(team_id: [team_id, nil]) }
+  scope :for_team, ->(team_id) { where(team_id: [ team_id, nil ]) }
   scope :ordered, -> { order(:name) }
   scope :groups, -> { where(is_group: true) }
   scope :not_groups, -> { where(is_group: false) }

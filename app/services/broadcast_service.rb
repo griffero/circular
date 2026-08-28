@@ -5,32 +5,32 @@ class BroadcastService
     # Broadcast issue events to workspace channel
     def issue_created(issue)
       broadcast_to_workspace(issue.workspace_id, {
-        type: 'issue.created',
+        type: "issue.created",
         issue: IssueSerializer.render_as_hash(issue, view: :normal)
       })
 
       broadcast_to_team(issue.team_id, {
-        type: 'issue.created',
+        type: "issue.created",
         issue: IssueSerializer.render_as_hash(issue, view: :normal)
       })
     end
 
     def issue_updated(issue, changed_fields: [])
       broadcast_to_workspace(issue.workspace_id, {
-        type: 'issue.updated',
+        type: "issue.updated",
         issue: IssueSerializer.render_as_hash(issue, view: :normal),
         changed_fields: changed_fields
       })
 
       broadcast_to_team(issue.team_id, {
-        type: 'issue.updated',
+        type: "issue.updated",
         issue: IssueSerializer.render_as_hash(issue, view: :normal),
         changed_fields: changed_fields
       })
 
       # Also broadcast to issue-specific channel for detail view
       broadcast_to_issue(issue.id, {
-        type: 'issue.updated',
+        type: "issue.updated",
         issue: IssueSerializer.render_as_hash(issue, view: :detail),
         changed_fields: changed_fields
       })
@@ -38,12 +38,12 @@ class BroadcastService
 
     def issue_deleted(issue)
       broadcast_to_workspace(issue.workspace_id, {
-        type: 'issue.deleted',
+        type: "issue.deleted",
         issue_id: issue.id
       })
 
       broadcast_to_team(issue.team_id, {
-        type: 'issue.deleted',
+        type: "issue.deleted",
         issue_id: issue.id
       })
     end
@@ -53,24 +53,24 @@ class BroadcastService
       issue = comment.issue
 
       broadcast_to_issue(issue.id, {
-        type: 'comment.created',
+        type: "comment.created",
         comment: CommentSerializer.render_as_hash(comment, view: :normal)
       })
 
       # Notify mentioned users
-      notify_mentions(comment) if comment.body.include?('@')
+      notify_mentions(comment) if comment.body.include?("@")
     end
 
     def comment_updated(comment)
       broadcast_to_issue(comment.issue_id, {
-        type: 'comment.updated',
+        type: "comment.updated",
         comment: CommentSerializer.render_as_hash(comment, view: :normal)
       })
     end
 
     def comment_deleted(comment)
       broadcast_to_issue(comment.issue_id, {
-        type: 'comment.deleted',
+        type: "comment.deleted",
         comment_id: comment.id
       })
     end
@@ -78,21 +78,21 @@ class BroadcastService
     # Team events
     def team_created(team)
       broadcast_to_workspace(team.workspace_id, {
-        type: 'team.created',
+        type: "team.created",
         team: TeamSerializer.render_as_hash(team)
       })
     end
 
     def team_updated(team)
       broadcast_to_workspace(team.workspace_id, {
-        type: 'team.updated',
+        type: "team.updated",
         team: TeamSerializer.render_as_hash(team)
       })
     end
 
     def team_deleted(team)
       broadcast_to_workspace(team.workspace_id, {
-        type: 'team.deleted',
+        type: "team.deleted",
         team_id: team.id
       })
     end
@@ -100,21 +100,21 @@ class BroadcastService
     # Project events
     def project_created(project)
       broadcast_to_workspace(project.workspace_id, {
-        type: 'project.created',
+        type: "project.created",
         project: ProjectSerializer.render_as_hash(project)
       })
     end
 
     def project_updated(project)
       broadcast_to_workspace(project.workspace_id, {
-        type: 'project.updated',
+        type: "project.updated",
         project: ProjectSerializer.render_as_hash(project)
       })
     end
 
     def project_deleted(project)
       broadcast_to_workspace(project.workspace_id, {
-        type: 'project.deleted',
+        type: "project.deleted",
         project_id: project.id
       })
     end
@@ -122,7 +122,7 @@ class BroadcastService
     # Notifications
     def notify_user(user, notification)
       NotificationsChannel.broadcast_to(user, {
-        type: 'notification.created',
+        type: "notification.created",
         notification: NotificationSerializer.render_as_hash(notification)
       })
     end
@@ -153,7 +153,7 @@ class BroadcastService
         next if user.id == comment.user_id
 
         NotificationsChannel.broadcast_to(user, {
-          type: 'mention',
+          type: "mention",
           comment: CommentSerializer.render_as_hash(comment, view: :normal),
           issue: IssueSerializer.render_as_hash(comment.issue, view: :minimal)
         })

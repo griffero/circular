@@ -1,14 +1,9 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
 import { useAppStore } from '@/stores/app'
-import { useEmojiStore } from '@/stores/emoji'
 import api from '@/api/client'
 import EmojiIcon from '@/components/ui/EmojiIcon.vue'
-import { 
-  X, ChevronDown, Circle, Minus, Users, Calendar, Target,
-  Lightbulb, Tag, GitBranch, Plus, Smile
-} from 'lucide-vue-next'
-
+import { X, Circle, Minus, Users, Calendar, Target, Plus, Smile } from 'lucide-vue-next'
 const props = defineProps<{
   open: boolean
 }>()
@@ -19,8 +14,6 @@ const emit = defineEmits<{
 }>()
 
 const appStore = useAppStore()
-const emojiStore = useEmojiStore()
-
 // Form state
 const name = ref('')
 const summary = ref('')
@@ -127,15 +120,6 @@ async function handleSubmit() {
   } finally {
     creating.value = false
   }
-}
-
-function closeAllPickers() {
-  showIconPicker.value = false
-  showStatusPicker.value = false
-  showPriorityPicker.value = false
-  showLeadPicker.value = false
-  showStartDatePicker.value = false
-  showTargetDatePicker.value = false
 }
 </script>
 

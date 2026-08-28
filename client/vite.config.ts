@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
@@ -40,6 +41,15 @@ export default defineConfig(({ mode }) => {
       outDir: 'dist',
       emptyOutDir: true,
       sourcemap: true
+    },
+    test: {
+      environment: 'jsdom',
+      // jsdom only exposes localStorage on a real origin, and several stores
+      // read it during setup.
+      environmentOptions: { jsdom: { url: 'http://localhost/' } },
+      setupFiles: ['./vitest.setup.ts'],
+      include: ['src/**/*.spec.ts'],
+      globals: true
     }
   }
 })

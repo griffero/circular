@@ -30,7 +30,7 @@ module Sync
 
         # Generate slug from slugId or name
         slug = data["slugId"].presence || data["name"].parameterize
-        
+
         # Handle duplicate slugs
         if initiative.new_record?
           existing = Initiative.find_by(slug: slug)
@@ -60,7 +60,7 @@ module Sync
           log_sync("Initiative", data["id"], action)
           initiative
         else
-          Rails.logger.error "Failed to sync initiative #{data['id']}: #{initiative.errors.full_messages.join(', ')}"
+          Rails.logger.error "Failed to sync initiative #{data["id"]}: #{initiative.errors.full_messages.join(", ")}"
           nil
         end
       end

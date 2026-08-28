@@ -2,27 +2,12 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUiStore } from '@/stores/ui'
-import { useAuthStore } from '@/stores/auth'
 import { useAppStore } from '@/stores/app'
 import { cn } from '@/utils/cn'
 import Modal from '@/components/ui/Modal.vue'
-import {
-  Search,
-  Home,
-  Inbox,
-  User,
-  Settings,
-  Plus,
-  Moon,
-  Sun,
-  Users,
-  FolderKanban,
-  ArrowRight
-} from 'lucide-vue-next'
-
+import { Search, Home, Inbox, User, Settings, Plus, Moon, Sun, Users, FolderKanban, ArrowRight } from 'lucide-vue-next'
 const router = useRouter()
 const uiStore = useUiStore()
-const authStore = useAuthStore()
 const appStore = useAppStore()
 
 const searchQuery = ref('')

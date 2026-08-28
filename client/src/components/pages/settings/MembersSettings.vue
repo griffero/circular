@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
-import { useAppStore } from '@/stores/app'
 import { api } from '@/api/client'
 import Button from '@/components/ui/Button.vue'
 import Input from '@/components/ui/Input.vue'
@@ -10,27 +9,11 @@ import Avatar from '@/components/ui/Avatar.vue'
 import UserLink from '@/components/ui/UserLink.vue'
 import Dropdown from '@/components/ui/Dropdown.vue'
 import DropdownItem from '@/components/ui/DropdownItem.vue'
-import { 
-  UserPlus, 
-  Mail, 
-  MoreHorizontal, 
-  Shield, 
-  User, 
-  Crown,
-  UserCog,
-  Pencil,
-  AtSign,
-  UserX,
-  Users,
-  Check
-} from 'lucide-vue-next'
+import { UserPlus, Mail, MoreHorizontal, User, UserCog, Pencil, AtSign, UserX, Users, Check } from 'lucide-vue-next'
 import OriginBadge from '@/components/ui/OriginBadge.vue'
 import { isFromLinear } from '@/composables/useOrigin'
 import type { User as UserType, Team } from '@/types'
-
 const authStore = useAuthStore()
-const appStore = useAppStore()
-
 const currentUser = computed(() => authStore.user)
 const isAdmin = computed(() => authStore.isAdmin)
 const isOwner = computed(() => authStore.isOwner)

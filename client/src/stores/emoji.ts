@@ -82,13 +82,26 @@ export const useEmojiStore = defineStore('emoji', () => {
 
   // Resolve a value to a unicode emoji if possible.
   // Supports native unicode input and shortcodes like ":rocket:" / "rocket".
+  const EMOJI_CODE_POINT = /[\p{Extended_Pictographic}\p{Emoji}]/u
+  const EMOJI_JOINERS = new Set(['\u200d', '\ufe0f'])
+
+  /**
+   * True when every code point is emoji-ish. Deliberately per-code-point: a ZWJ
+   * sequence like \u{1f9d1}\u200d\u{1f4bb} is several code points and each one
+   * has to pass.
+   */
+  function isAllEmojiCodePoints(value: string): boolean {
+    if (!value) return false
+    return [...value].every((cp) => EMOJI_JOINERS.has(cp) || EMOJI_CODE_POINT.test(cp))
+  }
+
   function getUnicodeEmoji(value: string | null | undefined): string | null {
     if (!value) return null
 
     const cleanValue = normalizeEmojiKey(value)
     if (!cleanValue) return null
 
-    if (/^[\p{Extended_Pictographic}\p{Emoji}\u200d\ufe0f]+$/u.test(cleanValue) && cleanValue.length <= 10) {
+    if (isAllEmojiCodePoints(cleanValue) && cleanValue.length <= 10) {
       return cleanValue
     }
 
