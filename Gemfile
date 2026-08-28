@@ -5,7 +5,7 @@ ruby "~> 3.2"
 # Force rebuild: 2026-01-23
 
 # Rails 8
-gem "rails", "~> 8.0.4"
+gem "rails", "~> 8.1.2"
 
 # Database
 gem "pg", "~> 1.5"
