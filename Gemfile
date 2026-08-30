@@ -54,7 +54,7 @@ gem "rack-attack", "~> 6.7"
 gem "rack-cors", "~> 2.0"
 
 # Stripe billing
-gem "stripe", "~> 10.8"
+gem "stripe", "~> 18.2"
 
 # Email with Resend
 gem "resend", "~> 0.8"
